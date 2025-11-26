@@ -61,8 +61,9 @@ export function AdminDocumentManager() {
           <div className="bg-primary/10 border-primary/20 rounded-md border p-3 text-sm">
             <p className="mb-1 font-medium">Admin Only - Global Documents</p>
             <p className="text-muted-foreground">
-              Documents uploaded here will be accessible to all users across all workspaces.
-              Use this for manufacturer documentation, specifications, and other shared resources.
+              Documents uploaded here will be accessible to all users across all
+              workspaces. Use this for manufacturer documentation,
+              specifications, and other shared resources.
             </p>
           </div>
 
@@ -88,7 +89,8 @@ export function AdminDocumentManager() {
           )}
           <div className="text-muted-foreground text-xs">
             Supported formats: PDF, TXT • Files are split into chunks and
-            embedded for semantic search • Documents will appear in all workspace searches
+            embedded for semantic search • Documents will appear in all
+            workspace searches
           </div>
         </div>
       </Card>

@@ -3,47 +3,47 @@
 
 // Stripe price IDs for your subscription plans (TEST MODE)
 export const STRIPE_PRICE_IDS = {
-  premium: 'price_1SWUd2La49gFMOt6XzOeOePh', // Rooftops AI Premium - $29/month
-  business: 'price_1SWUdKLa49gFMOt6ij7fwsyl', // Rooftops AI Business - $99/month
-};
+  premium: "price_1SWUd2La49gFMOt6XzOeOePh", // Rooftops AI Premium - $29/month
+  business: "price_1SWUdKLa49gFMOt6ij7fwsyl" // Rooftops AI Business - $99/month
+}
 
 // Plan configurations
 export const PLANS = {
   FREE: {
-    name: 'Free',
+    name: "Free",
     price: 0,
     features: {
       chatMessages: 20,
       propertyReports: 0,
       weatherLookups: 5,
       documentGenerations: 0,
-      teamMembers: 1,
-    },
+      teamMembers: 1
+    }
   },
   PREMIUM: {
-    name: 'Premium',
+    name: "Premium",
     priceMonthly: 29,
-    stripeId: 'premium',
+    stripeId: "premium",
     features: {
       chatMessages: 1000,
       propertyReports: 20,
-      weatherLookups: 'unlimited',
+      weatherLookups: "unlimited",
       documentGenerations: 50,
-      teamMembers: 1,
-    },
+      teamMembers: 1
+    }
   },
   BUSINESS: {
-    name: 'Business',
+    name: "Business",
     priceMonthly: 99,
-    stripeId: 'business',
+    stripeId: "business",
     features: {
       chatMessages: 5000,
       propertyReports: 100,
-      weatherLookups: 'unlimited',
-      documentGenerations: 'unlimited',
-      teamMembers: 10,
-    },
-  },
-} as const;
+      weatherLookups: "unlimited",
+      documentGenerations: "unlimited",
+      teamMembers: 10
+    }
+  }
+} as const
 
-export type PlanType = keyof typeof PLANS;
+export type PlanType = keyof typeof PLANS

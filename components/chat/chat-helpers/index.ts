@@ -210,9 +210,12 @@ export const handleHostedChat = async (
 
   let draftMessages = await buildFinalMessages(payload, profile, chatImages)
 
-  let formattedMessages : any[] = []
+  let formattedMessages: any[] = []
   if (provider === "google") {
-    formattedMessages = await adaptMessagesForGoogleGemini(payload, draftMessages)
+    formattedMessages = await adaptMessagesForGoogleGemini(
+      payload,
+      draftMessages
+    )
   } else {
     formattedMessages = draftMessages
   }
@@ -314,7 +317,11 @@ export const processResponse = async (
                 documentMetadata = JSON.parse(jsonStr)
                 console.log("Extracted document metadata:", documentMetadata)
               } catch (error) {
-                console.error("Error parsing document metadata:", error, jsonStr)
+                console.error(
+                  "Error parsing document metadata:",
+                  error,
+                  jsonStr
+                )
               }
               // Continue processing the rest of the chunk
               chunk = chunk.substring(metadataLineEnd + 1)
@@ -453,7 +460,7 @@ export const handleCreateMessages = async (
     role: "assistant",
     sequence_number: chatMessages.length + 1,
     image_paths: [],
-    metadata 
+    metadata
   }
 
   let finalChatMessages: ChatMessage[] = []

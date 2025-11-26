@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useChatbotUI } from "@/context/context"
 import { Tables } from "@/supabase/types"
 import { IconRobotFace } from "@tabler/icons-react"

@@ -16,9 +16,7 @@ export function Providers({
   return (
     <ThemeProvider attribute={attribute} defaultTheme={defaultTheme}>
       {/* 🎯 Wrap here so all downstream client components get context */}
-      <ChatbotUIProvider>
-        {children}
-      </ChatbotUIProvider>
+      <ChatbotUIProvider>{children}</ChatbotUIProvider>
     </ThemeProvider>
   )
 }

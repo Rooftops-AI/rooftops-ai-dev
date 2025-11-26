@@ -14,7 +14,7 @@ import { useSelectFileHandler } from "../chat/chat-hooks/use-select-file-handler
 import { CommandK } from "../utility/command-k"
 import { useChatbotUI } from "@/context/context"
 import { DocumentPanel } from "@/components/ui/documentPanel"
-import { useDocumentStore } from "@/lib/stores/document-store";
+import { useDocumentStore } from "@/lib/stores/document-store"
 
 export const SIDEBAR_WIDTH = 350
 export const DOCUMENT_PANEL_WIDTH = 500 // Width of document panel in pixels
@@ -33,7 +33,7 @@ export const Dashboard: FC<DashboardProps> = ({ children }) => {
   const tabValue = searchParams.get("tab") || "chats"
 
   const { handleSelectDeviceFile } = useSelectFileHandler()
-  const { isDocMode } = useDocumentStore();
+  const { isDocMode } = useDocumentStore()
 
   const [contentType, setContentType] = useState<ContentType>(
     tabValue as ContentType
@@ -47,14 +47,14 @@ export const Dashboard: FC<DashboardProps> = ({ children }) => {
   // Check if we're on mobile
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+      setIsMobile(window.innerWidth < 768)
+    }
+
+    checkMobile()
+    window.addEventListener("resize", checkMobile)
+
+    return () => window.removeEventListener("resize", checkMobile)
+  }, [])
 
   const onFileDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault()
@@ -84,26 +84,26 @@ export const Dashboard: FC<DashboardProps> = ({ children }) => {
     // On mobile with document open, hide content
     if (isDocMode && isMobile) {
       return {
-        display: 'none'
-      };
+        display: "none"
+      }
     }
-    
+
     // When document panel is open, reduce width by its width
     if (isDocMode && !isMobile) {
       return {
-        width: `calc(100vw - ${DOCUMENT_PANEL_WIDTH}px${showSidebar ? ` - ${SIDEBAR_WIDTH}px` : ''})`,
+        width: `calc(100vw - ${DOCUMENT_PANEL_WIDTH}px${showSidebar ? ` - ${SIDEBAR_WIDTH}px` : ""})`,
         marginRight: `${DOCUMENT_PANEL_WIDTH}px`,
-        display: 'flex'
-      };
+        display: "flex"
+      }
     }
-    
+
     // Default state
     return {
-      width: '100%',
-      marginRight: '0',
-      display: 'flex'
-    };
-  };
+      width: "100%",
+      marginRight: "0",
+      display: "flex"
+    }
+  }
 
   return (
     <div className="relative flex size-full overflow-hidden">
@@ -113,7 +113,9 @@ export const Dashboard: FC<DashboardProps> = ({ children }) => {
       <div
         className={cn(
           "z-20 shrink-0 transition-all duration-300",
-          showSidebar ? "border-r border-blue-500/10 dark:border-blue-400/15" : ""
+          showSidebar
+            ? "border-r border-blue-500/10 dark:border-blue-400/15"
+            : ""
         )}
         style={{
           minWidth: showSidebar ? `${SIDEBAR_WIDTH}px` : "0px",
@@ -131,7 +133,7 @@ export const Dashboard: FC<DashboardProps> = ({ children }) => {
             }}
           >
             <SidebarSwitcher onContentTypeChange={setContentType} />
-            
+
             <Sidebar
               contentType={contentType}
               showSidebar={showSidebar}
@@ -155,9 +157,7 @@ export const Dashboard: FC<DashboardProps> = ({ children }) => {
             drop file here
           </div>
         ) : (
-          <div className="w-full grow overflow-auto">
-            {children}
-          </div>
+          <div className="w-full grow overflow-auto">{children}</div>
         )}
 
         {!showSidebar && (
@@ -168,21 +168,24 @@ export const Dashboard: FC<DashboardProps> = ({ children }) => {
             onClick={handleToggleSidebar}
             aria-label="Open sidebar"
           >
-            <IconLayoutSidebarLeftExpand size={18} className="text-muted-foreground" />
+            <IconLayoutSidebarLeftExpand
+              size={18}
+              className="text-muted-foreground"
+            />
           </Button>
         )}
       </div>
 
       {/* Document Panel */}
       {isDocMode && (
-        <div 
+        <div
           className="fixed right-0 top-0 z-30 h-full overflow-hidden border-l bg-white 
             shadow-xl transition-all duration-300 dark:bg-gray-800"
-          style={{ 
-            width: isMobile ? '100%' : `${DOCUMENT_PANEL_WIDTH}px`,
-            transform: isDocMode ? 'translateX(0)' : 'translateX(100%)',
-            top: '0px',
-            height: '100vh'
+          style={{
+            width: isMobile ? "100%" : `${DOCUMENT_PANEL_WIDTH}px`,
+            transform: isDocMode ? "translateX(0)" : "translateX(100%)",
+            top: "0px",
+            height: "100vh"
           }}
         >
           <DocumentPanel />

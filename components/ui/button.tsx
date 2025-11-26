@@ -9,14 +9,16 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "text-foreground border border-blue-500/20 bg-gradient-to-br from-blue-500/10 to-purple-500/10 shadow-sm shadow-blue-500/10 hover:border-blue-500/30 hover:from-blue-500/20 hover:to-purple-500/20 hover:shadow-md dark:border-blue-400/25 dark:from-blue-400/15 dark:to-purple-400/15 dark:hover:border-blue-400/35 dark:hover:from-blue-400/25 dark:hover:to-purple-400/25",
+        default:
+          "text-foreground border border-blue-500/20 bg-gradient-to-br from-blue-500/10 to-purple-500/10 shadow-sm shadow-blue-500/10 hover:border-blue-500/30 hover:from-blue-500/20 hover:to-purple-500/20 hover:shadow-md dark:border-blue-400/25 dark:from-blue-400/15 dark:to-purple-400/15 dark:hover:border-blue-400/35 dark:hover:from-blue-400/25 dark:hover:to-purple-400/25",
         destructive:
           "border border-red-500/30 bg-gradient-to-br from-red-500/15 to-pink-500/15 text-red-700 shadow-sm shadow-red-500/10 hover:border-red-500/40 hover:from-red-500/25 hover:to-pink-500/25 hover:shadow-md dark:text-red-300",
         outline:
           "border border-blue-500/10 bg-white/5 shadow-sm hover:border-blue-500/20 hover:bg-gradient-to-br hover:from-blue-500/10 hover:to-purple-500/10 hover:shadow-md dark:border-blue-400/15 dark:bg-black/5 dark:hover:border-blue-400/25 dark:hover:from-blue-400/15 dark:hover:to-purple-400/15",
         secondary:
           "text-foreground border border-slate-500/10 bg-gradient-to-br from-slate-500/5 to-gray-500/5 shadow-sm hover:border-slate-500/20 hover:from-slate-500/10 hover:to-gray-500/10 dark:border-slate-400/15 dark:from-slate-400/10 dark:to-gray-400/10 dark:hover:border-slate-400/25 dark:hover:from-slate-400/15 dark:hover:to-gray-400/15",
-        ghost: "border border-transparent hover:border-blue-500/15 hover:bg-gradient-to-br hover:from-blue-500/10 hover:to-purple-500/10 dark:hover:border-blue-400/20 dark:hover:from-blue-400/15 dark:hover:to-purple-400/15",
+        ghost:
+          "border border-transparent hover:border-blue-500/15 hover:bg-gradient-to-br hover:from-blue-500/10 hover:to-purple-500/10 dark:hover:border-blue-400/20 dark:hover:from-blue-400/15 dark:hover:to-purple-400/15",
         link: "text-primary underline-offset-4 backdrop-blur-none hover:underline"
       },
       size: {

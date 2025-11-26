@@ -8,7 +8,10 @@ import { ChatCompletionCreateParamsBase } from "openai/resources/chat/completion
 import { createClient } from "@supabase/supabase-js"
 import { ROOFING_EXPERT_SYSTEM_PROMPT } from "@/lib/system-prompts"
 import { GLOBAL_API_KEYS } from "@/lib/api-keys"
-import { requireFeatureAccess, trackAndCheckFeature } from "@/lib/subscription-helpers"
+import {
+  requireFeatureAccess,
+  trackAndCheckFeature
+} from "@/lib/subscription-helpers"
 
 export const runtime: ServerRuntime = "edge"
 
@@ -24,7 +27,10 @@ export async function POST(request: Request) {
     const profile = await getServerProfile()
 
     // Check subscription limits before processing
-    const accessCheck = await requireFeatureAccess(profile.user_id, 'chat_messages')
+    const accessCheck = await requireFeatureAccess(
+      profile.user_id,
+      "chat_messages"
+    )
     if (!accessCheck.allowed) {
       return new Response(
         JSON.stringify({
@@ -58,9 +64,10 @@ export async function POST(request: Request) {
       // Get the user's latest message
       const userMessages = messages.filter((m: any) => m.role === "user")
       const latestUserMessage = userMessages[userMessages.length - 1]
-      const userQuery = typeof latestUserMessage?.content === "string"
-        ? latestUserMessage.content
-        : latestUserMessage?.content?.[0]?.text || ""
+      const userQuery =
+        typeof latestUserMessage?.content === "string"
+          ? latestUserMessage.content
+          : latestUserMessage?.content?.[0]?.text || ""
 
       console.log("OpenAI RAG - Query:", userQuery?.substring(0, 100))
       console.log("OpenAI RAG - WorkspaceId:", workspaceId)
@@ -86,15 +93,42 @@ export async function POST(request: Request) {
 
         // Only use RAG for queries that seem to need specific information
         const documentRelevantKeywords = [
-          'specification', 'specifications', 'datasheet', 'manual', 'guide',
-          'documentation', 'document', 'standard', 'requirement', 'requirements',
-          'code', 'regulation', 'osha', 'safety', 'installation', 'procedure',
-          'warranty', 'product', 'material', 'manufacturer', 'technical',
-          'model', 'compliance', 'certified', 'rating', 'dimension',
-          'what does', 'how to', 'according to', 'as per', 'refer to'
+          "specification",
+          "specifications",
+          "datasheet",
+          "manual",
+          "guide",
+          "documentation",
+          "document",
+          "standard",
+          "requirement",
+          "requirements",
+          "code",
+          "regulation",
+          "osha",
+          "safety",
+          "installation",
+          "procedure",
+          "warranty",
+          "product",
+          "material",
+          "manufacturer",
+          "technical",
+          "model",
+          "compliance",
+          "certified",
+          "rating",
+          "dimension",
+          "what does",
+          "how to",
+          "according to",
+          "as per",
+          "refer to"
         ]
 
-        return documentRelevantKeywords.some(keyword => lowerQuery.includes(keyword))
+        return documentRelevantKeywords.some(keyword =>
+          lowerQuery.includes(keyword)
+        )
       }
 
       if (userQuery && workspaceId && isRelevantQuery(userQuery)) {
@@ -111,23 +145,29 @@ export async function POST(request: Request) {
           process.env.SUPABASE_SERVICE_ROLE_KEY!
         )
 
-        const { data: results, error } = await supabase.rpc("search_documents", {
-          query_embedding: queryEmbedding,
-          match_threshold: 0.7,
-          match_count: 3,
-          filter_workspace_id: workspaceId
-        })
+        const { data: results, error } = await supabase.rpc(
+          "search_documents",
+          {
+            query_embedding: queryEmbedding,
+            match_threshold: 0.7,
+            match_count: 3,
+            filter_workspace_id: workspaceId
+          }
+        )
 
         let sourceCounter = 0
 
         if (!error && results && results.length > 0) {
           console.log("OpenAI RAG - Found", results.length, "document chunks")
           documentContext = "\n\n--- RELEVANT DOCUMENTATION ---\n"
-          documentContext += "The following information has been retrieved from uploaded manufacturer documentation. Please cite these sources in your response:\n\n"
+          documentContext +=
+            "The following information has been retrieved from uploaded manufacturer documentation. Please cite these sources in your response:\n\n"
 
           results.forEach((result: any) => {
             sourceCounter++
-            const sourceType = result.is_global ? "Rooftops AI Search" : "Your Documents"
+            const sourceType = result.is_global
+              ? "Rooftops AI Search"
+              : "Your Documents"
             documentContext += `[Source ${sourceCounter}] (${sourceType}: ${result.document_title || result.file_name})\n${result.content}\n\n`
 
             sourceDocs.push({
@@ -150,19 +190,28 @@ export async function POST(request: Request) {
           console.log("OpenAI RAG - Starting Brave search")
           const braveStartTime = Date.now()
 
-          const braveResponse = await fetch(`${process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'}/api/search/brave`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ query: userQuery, count: 3 })
-          })
+          const braveResponse = await fetch(
+            `${process.env.NEXT_PUBLIC_URL || "http://localhost:3000"}/api/search/brave`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ query: userQuery, count: 3 })
+            }
+          )
 
           const braveElapsed = Date.now() - braveStartTime
-          console.log(`OpenAI RAG - Brave response received after ${braveElapsed}ms, status: ${braveResponse.status}`)
+          console.log(
+            `OpenAI RAG - Brave response received after ${braveElapsed}ms, status: ${braveResponse.status}`
+          )
 
           if (braveResponse.ok) {
             const braveData = await braveResponse.json()
             if (braveData.success && braveData.results?.length > 0) {
-              console.log("OpenAI RAG - Found", braveData.results.length, "web results")
+              console.log(
+                "OpenAI RAG - Found",
+                braveData.results.length,
+                "web results"
+              )
 
               if (!documentContext) {
                 documentContext = "\n\n--- RELEVANT INFORMATION ---\n"
@@ -172,7 +221,8 @@ export async function POST(request: Request) {
 
               braveData.results.forEach((result: any) => {
                 sourceCounter++
-                const snippet = result.description || result.extra_snippets?.[0] || ""
+                const snippet =
+                  result.description || result.extra_snippets?.[0] || ""
                 documentContext += `[Source ${sourceCounter}] (Web Search: ${result.title})\nURL: ${result.url}\n${snippet}\n\n`
 
                 sourceDocs.push({
@@ -199,7 +249,8 @@ export async function POST(request: Request) {
 
         if (documentContext) {
           documentContext += "--- END INFORMATION ---\n"
-          documentContext += "When answering, cite specific sources using the format [Source X] where applicable.\n\n"
+          documentContext +=
+            "When answering, cite specific sources using the format [Source X] where applicable.\n\n"
         }
       }
     } catch (ragError) {
@@ -212,7 +263,10 @@ export async function POST(request: Request) {
     let temperature = chatSettings.temperature
 
     // If model only supports a single temperature value (MIN === MAX), use that value
-    if (modelLimits && modelLimits.MIN_TEMPERATURE === modelLimits.MAX_TEMPERATURE) {
+    if (
+      modelLimits &&
+      modelLimits.MIN_TEMPERATURE === modelLimits.MAX_TEMPERATURE
+    ) {
       temperature = modelLimits.MIN_TEMPERATURE
     }
 
@@ -220,7 +274,11 @@ export async function POST(request: Request) {
     const modifiedMessages = [...messages]
     if (modifiedMessages.length > 0) {
       // Combine roofing expert prompt, document context, and original system message
-      const systemContent = ROOFING_EXPERT_SYSTEM_PROMPT + "\n\n" + (documentContext || "") + modifiedMessages[0].content
+      const systemContent =
+        ROOFING_EXPERT_SYSTEM_PROMPT +
+        "\n\n" +
+        (documentContext || "") +
+        modifiedMessages[0].content
       modifiedMessages[0] = {
         ...modifiedMessages[0],
         content: systemContent
@@ -245,11 +303,11 @@ export async function POST(request: Request) {
 
     const response = await openai.chat.completions.create(requestParams)
 
-    const stream = OpenAIStream(response)
+    const stream = OpenAIStream(response as any)
 
     // Track usage after successful API call (don't await to not block response)
-    trackAndCheckFeature(profile.user_id, 'chat_messages', 1).catch(err =>
-      console.error('Failed to track usage:', err)
+    trackAndCheckFeature(profile.user_id, "chat_messages", 1).catch(err =>
+      console.error("Failed to track usage:", err)
     )
 
     // If we have document sources, prepend metadata to the stream

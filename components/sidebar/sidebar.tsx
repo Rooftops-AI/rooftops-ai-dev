@@ -49,8 +49,12 @@ export const Sidebar: FC<SidebarProps> = ({
   const modelFolders = folders.filter(folder => folder.type === "models")
 
   // Determine crown icon based on subscription
-  const isPremium = userSubscription?.plan_type === "premium" && userSubscription?.status === "active"
-  const isBusiness = userSubscription?.plan_type === "business" && userSubscription?.status === "active"
+  const isPremium =
+    userSubscription?.plan_type === "premium" &&
+    userSubscription?.status === "active"
+  const isBusiness =
+    userSubscription?.plan_type === "business" &&
+    userSubscription?.status === "active"
   const hasActiveSubscription = userSubscription?.status === "active"
 
   const renderSidebarContent = (
@@ -59,11 +63,7 @@ export const Sidebar: FC<SidebarProps> = ({
     folders: Tables<"folders">[]
   ) => {
     return (
-      <SidebarContent
-        contentType={contentType}
-        data={data}
-        folders={folders}
-      />
+      <SidebarContent contentType={contentType} data={data} folders={folders} />
     )
   }
 
@@ -82,11 +82,12 @@ export const Sidebar: FC<SidebarProps> = ({
               className="h-6 w-auto dark:invert"
             />
             {isPremium && (
-              <IconCrown size={18} className="text-gray-800 dark:text-gray-200" />
+              <IconCrown
+                size={18}
+                className="text-gray-800 dark:text-gray-200"
+              />
             )}
-            {isBusiness && (
-              <IconCrown size={18} className="text-yellow-500" />
-            )}
+            {isBusiness && <IconCrown size={18} className="text-yellow-500" />}
           </div>
           <Button
             variant="ghost"
@@ -95,7 +96,10 @@ export const Sidebar: FC<SidebarProps> = ({
             onClick={toggleSidebar}
             aria-label="Collapse sidebar"
           >
-            <IconLayoutSidebarLeftCollapse size={18} className="text-muted-foreground" />
+            <IconLayoutSidebarLeftCollapse
+              size={18}
+              className="text-muted-foreground"
+            />
           </Button>
         </div>
 

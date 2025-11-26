@@ -2,7 +2,7 @@ import { supabase } from "@/lib/supabase/browser-client"
 import { TablesInsert, TablesUpdate } from "@/supabase/types"
 
 // Define special routes that should bypass normal database queries
-const SPECIAL_ROUTES = ["explore"];
+const SPECIAL_ROUTES = ["explore"]
 
 export const getPromptById = async (promptId: string) => {
   const { data: prompt, error } = await supabase
@@ -26,7 +26,7 @@ export const getPromptWorkspacesByWorkspaceId = async (workspaceId: string) => {
       id: "special",
       name: "Special Route",
       prompts: []
-    };
+    }
   }
 
   const { data: workspace, error } = await supabase

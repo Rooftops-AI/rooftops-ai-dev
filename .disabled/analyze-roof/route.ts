@@ -143,7 +143,8 @@ export async function POST(request: Request) {
           };
         } catch (error) {
           console.error(`Error processing ${view.viewName} view:`, error);
-          processingSteps.push(`Error processing ${view.viewName} view: ${error.message}`);
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          processingSteps.push(`Error processing ${view.viewName} view: ${errorMessage}`);
           return null;
         }
       })
@@ -280,7 +281,7 @@ async function analyzeWithAnthropic(
             media_type: 'image/jpeg',
             data: view.imageData
           }
-        }
+        } as any
       ]
     });
   }
@@ -369,7 +370,7 @@ async function analyzeWithOpenAI(
     processingSteps.push(`Preparing request for OpenAI API`);
     
     // Prepare content for OpenAI
-    const messages = [
+    const messages: any[] = [
       {
         role: 'system',
         content: "You are an expert roofing analyst with experience in satellite imagery interpretation. Provide accurate, detailed, and precise measurements when analyzing roofs. Include specific numbers whenever possible."

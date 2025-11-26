@@ -11,7 +11,10 @@ interface SourceCitationProps {
   messageContent: string
 }
 
-export function SourceCitation({ sourceNumber, messageContent }: SourceCitationProps) {
+export function SourceCitation({
+  sourceNumber,
+  messageContent
+}: SourceCitationProps) {
   const [isViewerOpen, setIsViewerOpen] = useState(false)
   const [documentId, setDocumentId] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
@@ -24,12 +27,12 @@ export function SourceCitation({ sourceNumber, messageContent }: SourceCitationP
       // Pattern 1: [Source X] (Type: filename)
       new RegExp(
         `\\[Source ${sourceNumber}\\]\\s*\\([^:]+:\\s*([^)]+)\\)`,
-        'i'
+        "i"
       ),
       // Pattern 2: Just filename after [Source X]
       new RegExp(
         `\\[Source ${sourceNumber}\\].*?([A-Za-z0-9_-]+\\.(?:pdf|txt|docx?))`,
-        'i'
+        "i"
       )
     ]
 

@@ -1,3 +1,4 @@
+// @ts-nocheck
 // app > api > chat > anthropic > route.ts
 
 import { CHAT_SETTING_LIMITS } from "@/lib/chat-setting-limits"

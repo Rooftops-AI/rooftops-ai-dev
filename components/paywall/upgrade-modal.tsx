@@ -7,7 +7,7 @@ import {
   DialogContent,
   DialogDescription,
   DialogHeader,
-  DialogTitle,
+  DialogTitle
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Check } from "lucide-react"
@@ -42,8 +42,8 @@ export const UpgradeModal: FC<UpgradeModalProps> = ({
         <DialogHeader>
           <DialogTitle className="text-2xl">Upgrade Your Plan</DialogTitle>
           <DialogDescription className="text-base">
-            You&apos;ve reached your {featureName} limit ({currentUsage}/{limit} this month).
-            Upgrade to continue using Rooftops AI.
+            You&apos;ve reached your {featureName} limit ({currentUsage}/{limit}{" "}
+            this month). Upgrade to continue using Rooftops AI.
           </DialogDescription>
         </DialogHeader>
 
@@ -54,7 +54,10 @@ export const UpgradeModal: FC<UpgradeModalProps> = ({
               <div>
                 <h3 className="text-xl font-semibold">Pro Plan</h3>
                 <p className="mt-2 text-3xl font-bold">
-                  $29<span className="text-muted-foreground text-base font-normal">/month</span>
+                  $29
+                  <span className="text-muted-foreground text-base font-normal">
+                    /month
+                  </span>
                 </p>
               </div>
             </div>
@@ -102,7 +105,10 @@ export const UpgradeModal: FC<UpgradeModalProps> = ({
               <div>
                 <h3 className="text-xl font-semibold">Team Plan</h3>
                 <p className="mt-2 text-3xl font-bold">
-                  $99<span className="text-muted-foreground text-base font-normal">/month</span>
+                  $99
+                  <span className="text-muted-foreground text-base font-normal">
+                    /month
+                  </span>
                 </p>
               </div>
             </div>

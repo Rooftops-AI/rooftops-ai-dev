@@ -13,7 +13,9 @@ export async function GET(request: Request) {
     await supabase.auth.exchangeCodeForSession(code)
 
     // After OAuth sign-in, check if user has a profile and redirect accordingly
-    const { data: { session } } = await supabase.auth.getSession()
+    const {
+      data: { session }
+    } = await supabase.auth.getSession()
 
     if (session) {
       // Check if user has a profile
@@ -39,7 +41,9 @@ export async function GET(request: Request) {
           .single()
 
         if (homeWorkspace) {
-          return NextResponse.redirect(requestUrl.origin + `/${homeWorkspace.id}/chat`)
+          return NextResponse.redirect(
+            requestUrl.origin + `/${homeWorkspace.id}/chat`
+          )
         }
       }
     }

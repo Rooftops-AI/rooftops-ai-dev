@@ -2,7 +2,10 @@
 // Wrapper for chat routes to handle subscription checking and usage tracking
 
 import { getServerProfile } from "@/lib/server/server-chat-helpers"
-import { requireFeatureAccess, trackAndCheckFeature } from "@/lib/subscription-helpers"
+import {
+  requireFeatureAccess,
+  trackAndCheckFeature
+} from "@/lib/subscription-helpers"
 import { NextResponse } from "next/server"
 
 /**
@@ -13,7 +16,10 @@ export async function withSubscriptionCheck() {
   const profile = await getServerProfile()
 
   // Check subscription limits before processing
-  const accessCheck = await requireFeatureAccess(profile.user_id, 'chat_messages')
+  const accessCheck = await requireFeatureAccess(
+    profile.user_id,
+    "chat_messages"
+  )
 
   if (!accessCheck.allowed) {
     return {
@@ -43,7 +49,7 @@ export async function withSubscriptionCheck() {
  * It tracks usage without blocking the response
  */
 export function trackChatUsage(userId: string) {
-  trackAndCheckFeature(userId, 'chat_messages', 1).catch(err =>
-    console.error('Failed to track chat usage:', err)
+  trackAndCheckFeature(userId, "chat_messages", 1).catch(err =>
+    console.error("Failed to track chat usage:", err)
   )
 }

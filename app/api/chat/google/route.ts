@@ -3,7 +3,10 @@ import { ChatSettings } from "@/types"
 import { GoogleGenerativeAI } from "@google/generative-ai"
 import { ROOFING_EXPERT_SYSTEM_PROMPT } from "@/lib/system-prompts"
 import { GLOBAL_API_KEYS } from "@/lib/api-keys"
-import { withSubscriptionCheck, trackChatUsage } from "@/lib/chat-with-subscription"
+import {
+  withSubscriptionCheck,
+  trackChatUsage
+} from "@/lib/chat-with-subscription"
 
 export const runtime = "edge"
 
@@ -18,7 +21,12 @@ export async function POST(request: Request): Promise<Response> {
     // Check subscription
     const subCheck = await withSubscriptionCheck()
     if (!subCheck.allowed) {
-      return subCheck.response || new Response(JSON.stringify({ error: "Subscription check failed" }), { status: 403 })
+      return (
+        subCheck.response ||
+        new Response(JSON.stringify({ error: "Subscription check failed" }), {
+          status: 403
+        })
+      )
     }
     const profile = subCheck.profile!
 
@@ -38,8 +46,9 @@ export async function POST(request: Request): Promise<Response> {
     const modifiedMessages = [...messages]
     if (modifiedMessages.length > 0 && modifiedMessages[0].parts) {
       const firstPart = modifiedMessages[0].parts[0]
-      if (typeof firstPart === 'string') {
-        modifiedMessages[0].parts[0] = ROOFING_EXPERT_SYSTEM_PROMPT + "\n\n" + firstPart
+      if (typeof firstPart === "string") {
+        modifiedMessages[0].parts[0] =
+          ROOFING_EXPERT_SYSTEM_PROMPT + "\n\n" + firstPart
       } else if (firstPart.text) {
         modifiedMessages[0].parts[0] = {
           ...firstPart,
@@ -74,7 +83,6 @@ export async function POST(request: Request): Promise<Response> {
     return new Response(readableStream, {
       headers: { "Content-Type": "text/plain" }
     })
-
   } catch (error: any) {
     let errorMessage = error.message || "An unexpected error occurred"
     const errorCode = error.status || 500

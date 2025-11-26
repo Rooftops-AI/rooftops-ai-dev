@@ -141,17 +141,24 @@ export function QuickPrompts() {
             />
 
             <div className="relative z-10 flex items-center gap-3">
-              <IconMap size={24} className="shrink-0 text-blue-500 dark:text-blue-400" />
+              <IconMap
+                size={24}
+                className="shrink-0 text-blue-500 dark:text-blue-400"
+              />
               <div>
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Property Reports</h3>
-                <p className="text-xs text-gray-600 dark:text-gray-400">Instant analysis</p>
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+                  Property Reports
+                </h3>
+                <p className="text-xs text-gray-600 dark:text-gray-400">
+                  Instant analysis
+                </p>
               </div>
             </div>
           </div>
         </button>
 
         {/* Regular prompt cards */}
-        {PROMPT_CATEGORIES.map((category) => {
+        {PROMPT_CATEGORIES.map(category => {
           const Icon = category.icon
           return (
             <button
@@ -159,16 +166,25 @@ export function QuickPrompts() {
               onClick={() => handleCategoryClick(category.id)}
               className="w-[180px] flex-none snap-start"
             >
-              <div className={`flex h-[100px] flex-col items-center justify-center rounded-xl border p-4 text-left backdrop-blur-md transition-all ${
-                selectedCategory === category.id
-                  ? "border-gray-300 bg-white/80 shadow-lg dark:border-gray-600 dark:bg-gray-700/90"
-                  : "border-gray-200 bg-white/50 shadow-md hover:border-gray-300 hover:bg-white/70 hover:shadow-lg dark:border-gray-700 dark:bg-gray-800/70 dark:hover:border-gray-600 dark:hover:bg-gray-700/80"
-              }`}>
+              <div
+                className={`flex h-[100px] flex-col items-center justify-center rounded-xl border p-4 text-left backdrop-blur-md transition-all ${
+                  selectedCategory === category.id
+                    ? "border-gray-300 bg-white/80 shadow-lg dark:border-gray-600 dark:bg-gray-700/90"
+                    : "border-gray-200 bg-white/50 shadow-md hover:border-gray-300 hover:bg-white/70 hover:shadow-lg dark:border-gray-700 dark:bg-gray-800/70 dark:hover:border-gray-600 dark:hover:bg-gray-700/80"
+                }`}
+              >
                 <div className="flex items-center gap-3">
-                  <Icon size={24} className="shrink-0 text-blue-500 dark:text-blue-400" />
+                  <Icon
+                    size={24}
+                    className="shrink-0 text-blue-500 dark:text-blue-400"
+                  />
                   <div>
-                    <h3 className="text-sm font-semibold text-gray-900 dark:text-white">{category.title}</h3>
-                    <p className="text-xs text-gray-600 dark:text-gray-400">{category.description}</p>
+                    <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+                      {category.title}
+                    </h3>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">
+                      {category.description}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -187,7 +203,8 @@ export function QuickPrompts() {
         <div className="animate-in fade-in slide-in-from-top-2 mt-4 rounded-xl border border-gray-200 bg-white/70 p-4 shadow-2xl backdrop-blur-xl duration-200 dark:border-gray-700 dark:bg-gray-800/90">
           <div className="mb-3 flex items-center justify-between">
             <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              {PROMPT_CATEGORIES.find((c) => c.id === selectedCategory)?.title} suggestions
+              {PROMPT_CATEGORIES.find(c => c.id === selectedCategory)?.title}{" "}
+              suggestions
             </h3>
             <button
               onClick={() => setSelectedCategory(null)}
@@ -209,17 +226,17 @@ export function QuickPrompts() {
             </button>
           </div>
           <div className="space-y-2">
-            {PROMPT_CATEGORIES.find((c) => c.id === selectedCategory)?.prompts.map(
-              (prompt, index) => (
-                <button
-                  key={index}
-                  onClick={() => handlePromptClick(prompt)}
-                  className="w-full rounded-md border border-gray-200 bg-white/50 px-4 py-3 text-left text-sm text-gray-700 shadow-sm backdrop-blur-sm transition-all hover:border-gray-300 hover:bg-white/80 hover:text-gray-900 hover:shadow-md dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-200 dark:hover:border-gray-500 dark:hover:bg-gray-600/70 dark:hover:text-white"
-                >
-                  {prompt}
-                </button>
-              )
-            )}
+            {PROMPT_CATEGORIES.find(
+              c => c.id === selectedCategory
+            )?.prompts.map((prompt, index) => (
+              <button
+                key={index}
+                onClick={() => handlePromptClick(prompt)}
+                className="w-full rounded-md border border-gray-200 bg-white/50 px-4 py-3 text-left text-sm text-gray-700 shadow-sm backdrop-blur-sm transition-all hover:border-gray-300 hover:bg-white/80 hover:text-gray-900 hover:shadow-md dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-200 dark:hover:border-gray-500 dark:hover:bg-gray-600/70 dark:hover:text-white"
+              >
+                {prompt}
+              </button>
+            ))}
           </div>
         </div>
       )}

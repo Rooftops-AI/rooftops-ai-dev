@@ -25,8 +25,9 @@ export default function DocumentsPage() {
               Manufacturer Documentation Library
             </h1>
             <p className="text-muted-foreground">
-              Upload roofing manufacturer PDFs and documentation. They&apos;ll be
-              automatically processed and made searchable using AI embeddings.
+              Upload roofing manufacturer PDFs and documentation. They&apos;ll
+              be automatically processed and made searchable using AI
+              embeddings.
             </p>
           </div>
 

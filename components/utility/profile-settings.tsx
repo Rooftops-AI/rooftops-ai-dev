@@ -401,15 +401,15 @@ export const ProfileSettings: FC<ProfileSettingsProps> = ({}) => {
                 className="w-full"
                 onClick={async () => {
                   try {
-                    const response = await fetch('/api/stripe/portal', {
-                      method: 'POST',
-                    });
-                    const { url } = await response.json();
+                    const response = await fetch("/api/stripe/portal", {
+                      method: "POST"
+                    })
+                    const { url } = await response.json()
                     if (url) {
-                      window.location.href = url;
+                      window.location.href = url
                     }
                   } catch (error) {
-                    console.error('Error opening billing portal:', error);
+                    console.error("Error opening billing portal:", error)
                   }
                 }}
               >
@@ -421,7 +421,9 @@ export const ProfileSettings: FC<ProfileSettingsProps> = ({}) => {
             <Button
               variant="outline"
               className="w-full"
-              onClick={() => window.open('https://resources.rooftops.ai', '_blank')}
+              onClick={() =>
+                window.open("https://resources.rooftops.ai", "_blank")
+              }
             >
               <IconHelp size={18} className="mr-2" />
               Get Help

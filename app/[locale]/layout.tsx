@@ -14,7 +14,6 @@ import "./globals.css"
 import { DocumentPanel } from "@/components/ui/documentPanel"
 import { DocumentManager } from "@/components/ui/documentManager"
 
-
 const inter = Inter({ subsets: ["latin"] })
 const APP_NAME = "Rooftops AI"
 const APP_DEFAULT_TITLE = "Rooftops AI"
@@ -89,7 +88,7 @@ export default async function RootLayout({
 
   const { t, resources } = await initTranslations(locale, i18nNamespaces)
 
-  console.log("Layout rendering with session:", !!session);
+  console.log("Layout rendering with session:", !!session)
 
   return (
     <html lang="en" suppressHydrationWarning>

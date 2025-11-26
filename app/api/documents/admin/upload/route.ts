@@ -10,7 +10,11 @@ const openai = new OpenAI({
 })
 
 // Split text into chunks
-function chunkText(text: string, chunkSize: number = 1000, overlap: number = 200): string[] {
+function chunkText(
+  text: string,
+  chunkSize: number = 1000,
+  overlap: number = 200
+): string[] {
   const chunks: string[] = []
   let start = 0
 
@@ -56,13 +60,10 @@ export async function POST(request: NextRequest) {
     const file = formData.get("file") as File
 
     if (!file) {
-      return NextResponse.json(
-        { error: "File is required" },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: "File is required" }, { status: 400 })
     }
 
-    const title = formData.get("title") as string || file.name
+    const title = (formData.get("title") as string) || file.name
 
     // Read file content
     const buffer = Buffer.from(await file.arrayBuffer())
@@ -97,9 +98,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Get public URL
-    const { data: { publicUrl } } = supabaseAdmin.storage
-      .from("documents")
-      .getPublicUrl(fileName)
+    const {
+      data: { publicUrl }
+    } = supabaseAdmin.storage.from("documents").getPublicUrl(fileName)
 
     // Create document record with is_global = true
     // workspace_id is NULL for global documents

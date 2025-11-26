@@ -22,8 +22,7 @@ export const SidebarCreateButtons: FC<SidebarCreateButtonsProps> = ({
   contentType,
   hasData
 }) => {
-  const { profile, selectedWorkspace, folders, setFolders } =
-    useChatbotUI()
+  const { profile, selectedWorkspace, folders, setFolders } = useChatbotUI()
   const { handleNewChat } = useChatHandler()
 
   const [isCreatingPrompt, setIsCreatingPrompt] = useState(false)

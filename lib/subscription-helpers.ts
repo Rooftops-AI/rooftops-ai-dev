@@ -4,35 +4,38 @@ import { FeatureType, checkFeatureLimit, trackFeatureUsage } from "@/db/usage"
 import { getSubscriptionByUserId } from "@/db/subscriptions"
 import { PLANS } from "./stripe"
 
-export type PlanType = 'free' | 'premium' | 'business'
+export type PlanType = "free" | "premium" | "business"
 
 // Define feature limits for each plan
-export const PLAN_LIMITS: Record<PlanType, Record<FeatureType, number | 'unlimited'>> = {
+export const PLAN_LIMITS: Record<
+  PlanType,
+  Record<FeatureType, number | "unlimited">
+> = {
   free: {
     chat_messages: 20,
     property_reports: 0,
     weather_lookups: 5,
-    document_creation: 0,
+    document_creation: 0
   },
   premium: {
     chat_messages: 1000,
     property_reports: 20,
-    weather_lookups: 'unlimited',
-    document_creation: 50,
+    weather_lookups: "unlimited",
+    document_creation: 50
   },
   business: {
     chat_messages: 5000,
     property_reports: 100,
-    weather_lookups: 'unlimited',
-    document_creation: 'unlimited',
-  },
+    weather_lookups: "unlimited",
+    document_creation: "unlimited"
+  }
 }
 
 export interface SubscriptionCheck {
   canUse: boolean
   currentUsage: number
-  limit: number | 'unlimited'
-  remainingUsage: number | 'unlimited'
+  limit: number | "unlimited"
+  remainingUsage: number | "unlimited"
   planType: PlanType
   needsUpgrade: boolean
 }
@@ -47,9 +50,9 @@ export async function checkUserFeatureAccess(
   // Get user's subscription
   const subscription = await getSubscriptionByUserId(userId)
 
-  let planType: PlanType = 'free'
-  if (subscription && subscription.status === 'active') {
-    planType = (subscription.plan_type as PlanType) || 'free'
+  let planType: PlanType = "free"
+  if (subscription && subscription.status === "active") {
+    planType = (subscription.plan_type as PlanType) || "free"
   }
 
   // Get limits for the plan
@@ -61,7 +64,7 @@ export async function checkUserFeatureAccess(
   return {
     ...limitCheck,
     planType,
-    needsUpgrade: !limitCheck.canUse,
+    needsUpgrade: !limitCheck.canUse
   }
 }
 
@@ -93,22 +96,22 @@ export async function trackAndCheckFeature(
 export async function getUserSubscriptionStatus(userId: string) {
   const subscription = await getSubscriptionByUserId(userId)
 
-  if (!subscription || subscription.status !== 'active') {
+  if (!subscription || subscription.status !== "active") {
     return {
-      planType: 'free' as PlanType,
-      status: 'free',
+      planType: "free" as PlanType,
+      status: "free",
       isActive: false,
       currentPeriodEnd: null,
-      cancelAtPeriodEnd: false,
+      cancelAtPeriodEnd: false
     }
   }
 
   return {
-    planType: (subscription.plan_type as PlanType) || 'free',
+    planType: (subscription.plan_type as PlanType) || "free",
     status: subscription.status,
-    isActive: subscription.status === 'active',
+    isActive: subscription.status === "active",
     currentPeriodEnd: subscription.current_period_end,
-    cancelAtPeriodEnd: subscription.cancel_at_period_end,
+    cancelAtPeriodEnd: subscription.cancel_at_period_end
   }
 }
 
@@ -118,15 +121,23 @@ export async function getUserSubscriptionStatus(userId: string) {
 export async function requireFeatureAccess(
   userId: string,
   feature: FeatureType
-): Promise<{ allowed: true } | { allowed: false; error: string; limit: number | 'unlimited'; currentUsage: number }> {
+): Promise<
+  | { allowed: true }
+  | {
+      allowed: false
+      error: string
+      limit: number | "unlimited"
+      currentUsage: number
+    }
+> {
   const check = await checkUserFeatureAccess(userId, feature)
 
   if (!check.canUse) {
     return {
       allowed: false,
-      error: `You've reached your ${feature.replace('_', ' ')} limit for this month. Please upgrade your plan to continue.`,
+      error: `You've reached your ${feature.replace("_", " ")} limit for this month. Please upgrade your plan to continue.`,
       limit: check.limit,
-      currentUsage: check.currentUsage,
+      currentUsage: check.currentUsage
     }
   }
 

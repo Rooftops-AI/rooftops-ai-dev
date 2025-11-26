@@ -24,8 +24,7 @@ export const SidebarItem: FC<SidebarItemProps> = ({
   icon,
   isTyping
 }) => {
-  const { selectedWorkspace, setChats, setSelectedAssistant } =
-    useChatbotUI()
+  const { selectedWorkspace, setChats, setSelectedAssistant } = useChatbotUI()
 
   const router = useRouter()
 

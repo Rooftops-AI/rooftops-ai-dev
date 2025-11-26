@@ -6,7 +6,7 @@ import {
   RoomAudioRenderer,
   useVoiceAssistant,
   useConnectionState,
-  useLocalParticipant,
+  useLocalParticipant
 } from "@livekit/components-react"
 import { ConnectionState } from "livekit-client"
 import { IconX } from "@tabler/icons-react"
@@ -68,7 +68,7 @@ function AnimatedOrb({ state }: { state: string }) {
     const size = baseSize * scale
 
     // Opacity based on depth
-    const opacity = 0.4 + (scale * 0.6)
+    const opacity = 0.4 + scale * 0.6
 
     const delay = Math.random() * 2
     const duration = 2 + Math.random() * 3
@@ -89,7 +89,7 @@ function AnimatedOrb({ state }: { state: string }) {
   return (
     <div className="relative flex size-full items-center justify-center">
       {/* Background scattered particles */}
-      {backgroundParticles.map((particle) => (
+      {backgroundParticles.map(particle => (
         <div
           key={`bg-${particle.id}`}
           className={`absolute rounded-full ${getParticleColor()} opacity-20`}
@@ -99,7 +99,7 @@ function AnimatedOrb({ state }: { state: string }) {
             left: `calc(50% + ${particle.x}px)`,
             top: `calc(50% + ${particle.y}px)`,
             animation: `float 4s ease-in-out infinite`,
-            animationDelay: `${particle.delay}s`,
+            animationDelay: `${particle.delay}s`
           }}
         />
       ))}
@@ -108,7 +108,7 @@ function AnimatedOrb({ state }: { state: string }) {
       <div className={`relative ${getParticleAnimation()}`}>
         {particles
           .sort((a, b) => a.z - b.z) // Sort by z-depth (back to front)
-          .map((particle) => (
+          .map(particle => (
             <div
               key={particle.id}
               className={`absolute rounded-full ${getParticleColor()} transition-all duration-500`}
@@ -120,7 +120,7 @@ function AnimatedOrb({ state }: { state: string }) {
                 opacity: particle.opacity,
                 animation: `float ${particle.duration}s ease-in-out infinite`,
                 animationDelay: `${particle.delay}s`,
-                transform: 'translate(-50%, -50%)',
+                transform: "translate(-50%, -50%)"
               }}
             />
           ))}

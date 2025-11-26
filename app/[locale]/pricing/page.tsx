@@ -31,12 +31,12 @@ function PricingContent() {
       const response = await fetch("/api/stripe/checkout", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/json"
         },
         body: JSON.stringify({
           priceId,
-          planType: plan,
-        }),
+          planType: plan
+        })
       })
 
       const data = await response.json()
@@ -74,7 +74,10 @@ function PricingContent() {
             <div className="mb-4">
               <h3 className="mb-2 text-2xl font-bold">Free</h3>
               <p className="text-4xl font-bold">
-                $0<span className="text-muted-foreground text-base font-normal">/month</span>
+                $0
+                <span className="text-muted-foreground text-base font-normal">
+                  /month
+                </span>
               </p>
             </div>
 
@@ -101,17 +104,15 @@ function PricingContent() {
               </li>
             </ul>
 
-            <Button
-              variant="outline"
-              className="w-full"
-              disabled
-            >
+            <Button variant="outline" className="w-full" disabled>
               Current Plan
             </Button>
           </div>
 
           {/* Premium Plan */}
-          <div className={`flex flex-col rounded-lg border p-8 ${suggestedPlan === "premium" ? "border-primary ring-primary/20 border-2 ring-2" : ""}`}>
+          <div
+            className={`flex flex-col rounded-lg border p-8 ${suggestedPlan === "premium" ? "border-primary ring-primary/20 border-2 ring-2" : ""}`}
+          >
             {suggestedPlan === "premium" && (
               <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                 <span className="bg-primary text-primary-foreground rounded-full px-3 py-1 text-xs font-semibold">
@@ -123,14 +124,19 @@ function PricingContent() {
             <div className="mb-4">
               <h3 className="mb-2 text-2xl font-bold">Premium</h3>
               <p className="text-4xl font-bold">
-                $29<span className="text-muted-foreground text-base font-normal">/month</span>
+                $29
+                <span className="text-muted-foreground text-base font-normal">
+                  /month
+                </span>
               </p>
             </div>
 
             <ul className="mb-8 grow space-y-3">
               <li className="flex items-start gap-2">
                 <Check className="mt-0.5 size-5 text-green-500" />
-                <span className="font-semibold">1,000 chat messages per month</span>
+                <span className="font-semibold">
+                  1,000 chat messages per month
+                </span>
               </li>
               <li className="flex items-start gap-2">
                 <Check className="mt-0.5 size-5 text-green-500" />
@@ -156,15 +162,21 @@ function PricingContent() {
 
             <Button
               className="w-full"
-              onClick={() => handleSubscribe("premium", STRIPE_PRICE_IDS.premium)}
+              onClick={() =>
+                handleSubscribe("premium", STRIPE_PRICE_IDS.premium)
+              }
               disabled={loadingPlan !== null}
             >
-              {loadingPlan === "premium" ? "Loading..." : "Subscribe to Premium"}
+              {loadingPlan === "premium"
+                ? "Loading..."
+                : "Subscribe to Premium"}
             </Button>
           </div>
 
           {/* Business Plan */}
-          <div className={`relative flex flex-col rounded-lg border p-8 ${suggestedPlan === "business" ? "border-primary ring-primary/20 border-2 ring-2" : "border-primary border-2"}`}>
+          <div
+            className={`relative flex flex-col rounded-lg border p-8 ${suggestedPlan === "business" ? "border-primary ring-primary/20 border-2 ring-2" : "border-primary border-2"}`}
+          >
             <div className="absolute -top-3 left-1/2 -translate-x-1/2">
               <span className="bg-primary text-primary-foreground rounded-full px-3 py-1 text-xs font-semibold">
                 MOST POPULAR
@@ -174,14 +186,19 @@ function PricingContent() {
             <div className="mb-4">
               <h3 className="mb-2 text-2xl font-bold">Business</h3>
               <p className="text-4xl font-bold">
-                $99<span className="text-muted-foreground text-base font-normal">/month</span>
+                $99
+                <span className="text-muted-foreground text-base font-normal">
+                  /month
+                </span>
               </p>
             </div>
 
             <ul className="mb-8 grow space-y-3">
               <li className="flex items-start gap-2">
                 <Check className="mt-0.5 size-5 text-green-500" />
-                <span className="font-semibold">5,000 chat messages per month</span>
+                <span className="font-semibold">
+                  5,000 chat messages per month
+                </span>
               </li>
               <li className="flex items-start gap-2">
                 <Check className="mt-0.5 size-5 text-green-500" />
@@ -211,10 +228,14 @@ function PricingContent() {
 
             <Button
               className="w-full"
-              onClick={() => handleSubscribe("business", STRIPE_PRICE_IDS.business)}
+              onClick={() =>
+                handleSubscribe("business", STRIPE_PRICE_IDS.business)
+              }
               disabled={loadingPlan !== null}
             >
-              {loadingPlan === "business" ? "Loading..." : "Subscribe to Business"}
+              {loadingPlan === "business"
+                ? "Loading..."
+                : "Subscribe to Business"}
             </Button>
           </div>
         </div>
@@ -222,10 +243,17 @@ function PricingContent() {
         {/* FAQ or Additional Info */}
         <div className="mt-16 text-center">
           <p className="text-muted-foreground">
-            All plans include access to our roofing AI assistant, document management, and regular updates.
+            All plans include access to our roofing AI assistant, document
+            management, and regular updates.
           </p>
           <p className="text-muted-foreground mt-2">
-            Need a custom enterprise plan? <a href="mailto:support@rooftopsgpt.com" className="text-primary hover:underline">Contact us</a>
+            Need a custom enterprise plan?{" "}
+            <a
+              href="mailto:support@rooftopsgpt.com"
+              className="text-primary hover:underline"
+            >
+              Contact us
+            </a>
           </p>
         </div>
       </div>
@@ -235,14 +263,16 @@ function PricingContent() {
 
 export default function PricingPage() {
   return (
-    <Suspense fallback={
-      <div className="bg-background flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="border-primary mx-auto mb-4 size-12 animate-spin rounded-full border-b-2"></div>
-          <p className="text-muted-foreground">Loading pricing plans...</p>
+    <Suspense
+      fallback={
+        <div className="bg-background flex min-h-screen items-center justify-center">
+          <div className="text-center">
+            <div className="border-primary mx-auto mb-4 size-12 animate-spin rounded-full border-b-2"></div>
+            <p className="text-muted-foreground">Loading pricing plans...</p>
+          </div>
         </div>
-      </div>
-    }>
+      }
+    >
       <PricingContent />
     </Suspense>
   )

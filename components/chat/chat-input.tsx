@@ -37,9 +37,10 @@ export const ChatInput: FC<ChatInputProps> = ({ onVoiceModeClick }) => {
 
   // Create property message handler
   const propertyHandler = new PropertyMessageHandler()
-  
+
   // Add state for property report loading animation
-  const [isGeneratingPropertyReport, setIsGeneratingPropertyReport] = useState(false)
+  const [isGeneratingPropertyReport, setIsGeneratingPropertyReport] =
+    useState(false)
 
   useHotkey("l", () => {
     handleFocusChatInput()
@@ -89,10 +90,10 @@ export const ChatInput: FC<ChatInputProps> = ({ onVoiceModeClick }) => {
       /\d+\s+[A-Za-z\s]+,\s*[A-Za-z\s]+,\s*[A-Z]{2}\b/,
       /property\s+at\s+.+/i,
       /address\s+.+/i
-    ];
-    
-    return addressPatterns.some(pattern => pattern.test(text));
-  };
+    ]
+
+    return addressPatterns.some(pattern => pattern.test(text))
+  }
 
   // Override handleSendMessage to include property detection
   const handleSendMessage = async (
@@ -105,28 +106,29 @@ export const ChatInput: FC<ChatInputProps> = ({ onVoiceModeClick }) => {
       try {
         // Show typing indicator
         setIsGenerating(true)
-        
+
         // Check if the content likely contains an address and show the property report loading animation
         if (containsAddress(content)) {
           setIsGeneratingPropertyReport(true)
         }
-        
+
         // Check if message contains property address
         const propertyResult = await propertyHandler.handleMessage(content)
-        
+
         // Hide the property report loading animation
         setIsGeneratingPropertyReport(false)
-        
+
         if (propertyResult) {
           // Get chat details from existing messages
           const chatId = messages.length > 0 ? messages[0].message.chat_id : ""
           const userId = messages.length > 0 ? messages[0].message.user_id : ""
-          
+
           // Get next sequence number
-          const lastSequenceNumber = messages.length > 0 
-            ? messages[messages.length - 1].message.sequence_number 
-            : -1
-          
+          const lastSequenceNumber =
+            messages.length > 0
+              ? messages[messages.length - 1].message.sequence_number
+              : -1
+
           // Create a user message to show what was asked
           const userMessage = {
             id: nanoid(),
@@ -141,7 +143,7 @@ export const ChatInput: FC<ChatInputProps> = ({ onVoiceModeClick }) => {
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
           }
-          
+
           // Create an assistant message with the property report
           const assistantMessage = {
             id: nanoid(),
@@ -157,23 +159,23 @@ export const ChatInput: FC<ChatInputProps> = ({ onVoiceModeClick }) => {
             updated_at: new Date().toISOString(),
             reportData: propertyResult.reportData
           }
-          
+
           // Add these messages to the chat
-          setChatMessages((prevMessages) => [
+          setChatMessages(prevMessages => [
             ...prevMessages,
             { message: userMessage, fileItems: [] },
             { message: assistantMessage, fileItems: [] }
           ])
-          
+
           // Reset input field
           handleInputChange("")
-          
+
           // Reset generating state
           setIsGenerating(false)
-          
+
           return // Skip normal message handling
         }
-        
+
         // No property detected, reset generating state
         setIsGenerating(false)
       } catch (error) {
@@ -182,8 +184,8 @@ export const ChatInput: FC<ChatInputProps> = ({ onVoiceModeClick }) => {
         setIsGenerating(false)
       }
     }
-    
-    // If no property detected or there was an error, 
+
+    // If no property detected or there was an error,
     // proceed with original message handling
     originalHandleSendMessage(content, messages, isRegeneration)
   }
@@ -277,7 +279,6 @@ export const ChatInput: FC<ChatInputProps> = ({ onVoiceModeClick }) => {
 
   return (
     <>
-      
       <div className="flex flex-col flex-wrap justify-center gap-2">
         <ChatFilesDisplay />
 
@@ -397,7 +398,6 @@ export const ChatInput: FC<ChatInputProps> = ({ onVoiceModeClick }) => {
             />
           )}
         </div>
-
       </div>
     </>
   )

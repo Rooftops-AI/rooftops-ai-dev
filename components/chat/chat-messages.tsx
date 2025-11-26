@@ -14,16 +14,18 @@ export const ChatMessages: FC<ChatMessagesProps> = ({}) => {
 
   // Function to handle opening a document
   const handleOpenDocument = (documentId: string) => {
-    console.log("Opening document:", documentId);
-    loadDocument(documentId);
-    setDocumentMode(true);
+    console.log("Opening document:", documentId)
+    loadDocument(documentId)
+    setDocumentMode(true)
   }
 
   // Function to check if a message contains a document reference
   const getDocumentId = (content: string) => {
     // Match [View Document](documentId:abc123) or other document reference patterns
-    const documentMatch = content.match(/\[View Document\]\(documentId:([^)]+)\)/);
-    return documentMatch ? documentMatch[1] : null;
+    const documentMatch = content.match(
+      /\[View Document\]\(documentId:([^)]+)\)/
+    )
+    return documentMatch ? documentMatch[1] : null
   }
 
   return chatMessages
@@ -36,9 +38,9 @@ export const ChatMessages: FC<ChatMessagesProps> = ({}) => {
       )
 
       // Check if this message has a document reference
-      const documentId = getDocumentId(chatMessage.message.content);
-      
-      let messageContent = chatMessage.message.content;
+      const documentId = getDocumentId(chatMessage.message.content)
+
+      let messageContent = chatMessage.message.content
       if (documentId) {
         // Instead of plain text, use a nicely designed card
         messageContent = `
@@ -57,7 +59,7 @@ export const ChatMessages: FC<ChatMessagesProps> = ({}) => {
               <div class="text-sm text-gray-500 dark:text-gray-400">Click to view the document</div>
             </div>
           </div>
-        `;
+        `
       }
 
       return (
@@ -76,7 +78,9 @@ export const ChatMessages: FC<ChatMessagesProps> = ({}) => {
           // Add document-related props
           hasDocument={!!documentId}
           documentId={documentId || undefined}
-          onViewDocument={documentId ? () => handleOpenDocument(documentId) : undefined}
+          onViewDocument={
+            documentId ? () => handleOpenDocument(documentId) : undefined
+          }
         />
       )
     })

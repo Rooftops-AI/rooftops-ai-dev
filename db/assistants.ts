@@ -50,7 +50,10 @@ export const getAssistantWorkspacesByWorkspaceId = async (
 
     return workspace || { id: workspaceId, name: "", assistants: [] }
   } catch (error) {
-    console.error(`Error fetching assistants for workspace: ${workspaceId}`, error)
+    console.error(
+      `Error fetching assistants for workspace: ${workspaceId}`,
+      error
+    )
     throw error
   }
 }

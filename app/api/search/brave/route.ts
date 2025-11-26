@@ -12,7 +12,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Query is required" }, { status: 400 })
     }
 
-    const braveApiKey = process.env.BRAVE_SEARCH_API_KEY || process.env.BRAVE_AI_API_KEY
+    const braveApiKey =
+      process.env.BRAVE_SEARCH_API_KEY || process.env.BRAVE_AI_API_KEY
 
     if (!braveApiKey) {
       console.error("Brave API key not found in environment")
@@ -26,7 +27,10 @@ export async function POST(request: NextRequest) {
 
     // Call Brave Search API without timeout
     console.log("Calling Brave Search API for query:", query)
-    console.log("API URL:", `https://api.search.brave.com/res/v1/web/search?q=${encodeURIComponent(query)}&count=${count}`)
+    console.log(
+      "API URL:",
+      `https://api.search.brave.com/res/v1/web/search?q=${encodeURIComponent(query)}&count=${count}`
+    )
     const startTime = Date.now()
 
     const response = await fetch(
@@ -40,7 +44,9 @@ export async function POST(request: NextRequest) {
     )
 
     const elapsed = Date.now() - startTime
-    console.log(`Brave API response received after ${elapsed}ms, status: ${response.status}`)
+    console.log(
+      `Brave API response received after ${elapsed}ms, status: ${response.status}`
+    )
 
     if (!response.ok) {
       const errorText = await response.text()
@@ -54,13 +60,14 @@ export async function POST(request: NextRequest) {
     const data = await response.json()
 
     // Transform results to a simpler format
-    const results = data.web?.results?.map((result: any) => ({
-      title: result.title,
-      description: result.description,
-      url: result.url,
-      age: result.age,
-      extra_snippets: result.extra_snippets
-    })) || []
+    const results =
+      data.web?.results?.map((result: any) => ({
+        title: result.title,
+        description: result.description,
+        url: result.url,
+        age: result.age,
+        extra_snippets: result.extra_snippets
+      })) || []
 
     return NextResponse.json({
       success: true,

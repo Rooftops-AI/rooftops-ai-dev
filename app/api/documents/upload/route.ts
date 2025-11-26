@@ -9,7 +9,11 @@ const openai = new OpenAI({
 })
 
 // Split text into chunks
-function chunkText(text: string, chunkSize: number = 1000, overlap: number = 200): string[] {
+function chunkText(
+  text: string,
+  chunkSize: number = 1000,
+  overlap: number = 200
+): string[] {
   const chunks: string[] = []
   let start = 0
 
@@ -38,7 +42,7 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData()
     const file = formData.get("file") as File
     const workspaceId = formData.get("workspaceId") as string
-    const title = formData.get("title") as string || file.name
+    const title = (formData.get("title") as string) || file.name
 
     if (!file || !workspaceId) {
       return NextResponse.json(
@@ -80,9 +84,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Get public URL
-    const { data: { publicUrl } } = supabase.storage
-      .from("documents")
-      .getPublicUrl(fileName)
+    const {
+      data: { publicUrl }
+    } = supabase.storage.from("documents").getPublicUrl(fileName)
 
     // Create document record
     const { data: document, error: docError } = await supabase

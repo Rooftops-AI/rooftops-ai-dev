@@ -5,7 +5,10 @@ import { OpenAIStream, StreamingTextResponse } from "ai"
 import OpenAI from "openai"
 import { ROOFING_EXPERT_SYSTEM_PROMPT } from "@/lib/system-prompts"
 import { GLOBAL_API_KEYS } from "@/lib/api-keys"
-import { withSubscriptionCheck, trackChatUsage } from "@/lib/chat-with-subscription"
+import {
+  withSubscriptionCheck,
+  trackChatUsage
+} from "@/lib/chat-with-subscription"
 
 export const runtime = "edge"
 
@@ -20,7 +23,12 @@ export async function POST(request: Request): Promise<Response> {
     // Check subscription
     const subCheck = await withSubscriptionCheck()
     if (!subCheck.allowed) {
-      return subCheck.response || new Response(JSON.stringify({ error: "Subscription check failed" }), { status: 403 })
+      return (
+        subCheck.response ||
+        new Response(JSON.stringify({ error: "Subscription check failed" }), {
+          status: 403
+        })
+      )
     }
     const profile = subCheck.profile!
 
@@ -42,7 +50,8 @@ export async function POST(request: Request): Promise<Response> {
     if (modifiedMessages.length > 0) {
       modifiedMessages[0] = {
         ...modifiedMessages[0],
-        content: ROOFING_EXPERT_SYSTEM_PROMPT + "\n\n" + modifiedMessages[0].content
+        content:
+          ROOFING_EXPERT_SYSTEM_PROMPT + "\n\n" + modifiedMessages[0].content
       }
     }
 
@@ -55,7 +64,7 @@ export async function POST(request: Request): Promise<Response> {
     })
 
     // Convert the response into a friendly text-stream.
-    const stream = OpenAIStream(response)
+    const stream = OpenAIStream(response as any)
 
     // Track usage after successful API call (don't await to not block response)
     trackChatUsage(profile.user_id)

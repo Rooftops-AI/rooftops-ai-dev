@@ -29,7 +29,7 @@ export const ChatUI: FC<ChatUIProps> = ({}) => {
   useHotkey("o", () => handleNewChat())
 
   const params = useParams()
-  const { isDocMode } = useDocumentStore();
+  const { isDocMode } = useDocumentStore()
 
   const {
     setChatMessages,
@@ -67,14 +67,14 @@ export const ChatUI: FC<ChatUIProps> = ({}) => {
   // Check if we're on mobile
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+      setIsMobile(window.innerWidth < 768)
+    }
+
+    checkMobile()
+    window.addEventListener("resize", checkMobile)
+
+    return () => window.removeEventListener("resize", checkMobile)
+  }, [])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -206,22 +206,22 @@ export const ChatUI: FC<ChatUIProps> = ({}) => {
 
   // Get appropriate chat input width based on document panel and screen size
   const getChatInputClasses = () => {
-    // Base classes 
-    let classes = "relative items-end px-2 pb-3 pt-0";
-    
+    // Base classes
+    let classes = "relative items-end px-2 pb-3 pt-0"
+
     // Mobile view
     if (isMobile) {
-      return `${classes} w-full`;
+      return `${classes} w-full`
     }
-    
+
     // When document panel is open, use responsive width
     if (isDocMode) {
-      return `${classes} w-full max-w-full sm:max-w-[90%] sm:pb-8 sm:pt-5 md:max-w-[90%] lg:max-w-[90%] xl:max-w-[90%]`;
+      return `${classes} w-full max-w-full sm:max-w-[90%] sm:pb-8 sm:pt-5 md:max-w-[90%] lg:max-w-[90%] xl:max-w-[90%]`
     }
-    
+
     // Default view (no document panel)
-    return `${classes} w-full min-w-[300px] sm:w-[600px] sm:pb-8 sm:pt-5 md:w-[700px] lg:w-[700px] xl:w-[800px]`;
-  };
+    return `${classes} w-full min-w-[300px] sm:w-[600px] sm:pb-8 sm:pt-5 md:w-[700px] lg:w-[700px] xl:w-[800px]`
+  }
 
   return (
     <div className="relative flex h-full flex-col items-center">

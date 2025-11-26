@@ -82,7 +82,12 @@ export const ChatItem: FC<ChatItemProps> = ({ chat }) => {
         )
       ) : null}
 
-      <div className={cn("flex-1 truncate text-sm font-semibold", chat.assistant_id ? "ml-3" : "")}>
+      <div
+        className={cn(
+          "flex-1 truncate text-sm font-semibold",
+          chat.assistant_id ? "ml-3" : ""
+        )}
+      >
         {chat.name}
       </div>
 

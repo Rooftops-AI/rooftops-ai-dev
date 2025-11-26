@@ -13,7 +13,7 @@ import { ChatMessage, ChatPayload, LLMID, ModelProvider } from "@/types"
 import { useRouter } from "next/navigation"
 import { useContext, useEffect, useRef } from "react"
 import { LLM_LIST } from "../../../lib/models/llm/llm-list"
-import { PropertyMessageHandler } from "@/lib/property/property-message-handler";
+import { PropertyMessageHandler } from "@/lib/property/property-message-handler"
 import {
   createTempMessages,
   handleCreateChat,
@@ -26,13 +26,13 @@ import {
 } from "../chat-helpers"
 
 // Import the document store functions directly
-import { 
-  setDocumentMode, 
-  setDocumentContent, 
-  appendDocumentContent, 
+import {
+  setDocumentMode,
+  setDocumentContent,
+  appendDocumentContent,
   setIsStreaming,
   saveDocument
-} from "@/lib/stores/document-store";
+} from "@/lib/stores/document-store"
 
 // Strict utility function to detect explicit weather-related queries only
 const isWeatherQuery = (input: string): boolean => {
@@ -53,10 +53,10 @@ const isWeatherQuery = (input: string): boolean => {
     // Roofing weather safety questions (very specific)
     /(?:safe|good|okay|ok) (?:to\s+)?(?:work|roof|install|repair).*(?:weather|today|conditions)/i,
     /(?:weather|conditions).*(?:safe|good) (?:for|to) (?:work|roofing|installation)/i
-  ];
+  ]
 
-  return weatherPatterns.some(pattern => pattern.test(input));
-};
+  return weatherPatterns.some(pattern => pattern.test(input))
+}
 
 // Enhanced function to extract location from a weather query using improved patterns
 const extractLocationFromWeatherQuery = (input: string): string | null => {
@@ -66,68 +66,72 @@ const extractLocationFromWeatherQuery = (input: string): string | null => {
     /weather\s+(?:in|at|for|of)\s+([^\.,:;\n?]+)/i,
     /(?:forecast|temperature|conditions)\s+(?:in|at|for)\s+([^\.,:;\n?]+)/i,
     /(?:what|how)(?:'s| is| are) the weather (?:in|at|for)\s+([^\.,:;\n?]+)/i,
-    
+
     // Roof-related weather patterns
     /roof(?:ing)?\s+(?:conditions|weather)\s+(?:in|at|for)\s+([^\.,:;\n?]+)/i,
-    
+
     // Project/property related patterns
     /(?:project|property|job site|construction)\s+(?:in|at|for)\s+([^\.,:;\n?]+)/i,
     /(?:working|installing|repairing)\s+(?:in|at|for)\s+([^\.,:;\n?]+)/i,
-    
+
     // Location followed by weather
     /(?:in|at|for)\s+([^\.,:;\n?]+)(?:\s+weather)/i,
-    
+
     // Simple city name extraction (last resort)
     /\b([A-Z][a-z]+(?: [A-Z][a-z]+)*(?:,\s*[A-Z]{2})?)\b/
-  ];
-  
+  ]
+
   // Try each pattern in order
   for (const pattern of patterns) {
-    const match = input.match(pattern);
+    const match = input.match(pattern)
     if (match && match[1]) {
       // Clean up the location name
-      return match[1].trim()
-        .replace(/^(the|in|at|for|of)\s+/i, '') // Remove leading prepositions
-        .replace(/\s+(area|region|city|town|state|county)$/i, ''); // Remove trailing descriptors
+      return match[1]
+        .trim()
+        .replace(/^(the|in|at|for|of)\s+/i, "") // Remove leading prepositions
+        .replace(/\s+(area|region|city|town|state|county)$/i, "") // Remove trailing descriptors
     }
   }
-  
+
   // If all patterns fail, try to find any capitalized words that might be place names
-  const capitalizedWords = input.match(/\b([A-Z][a-z]{2,})\b/g);
+  const capitalizedWords = input.match(/\b([A-Z][a-z]{2,})\b/g)
   if (capitalizedWords && capitalizedWords.length > 0) {
-    return capitalizedWords[0];
+    return capitalizedWords[0]
   }
-  
+
   // Try for ZIP codes as a last resort
-  const zipMatch = input.match(/\b(\d{5}(?:-\d{4})?)\b/);
+  const zipMatch = input.match(/\b(\d{5}(?:-\d{4})?)\b/)
   if (zipMatch && zipMatch[1]) {
-    return zipMatch[1];
+    return zipMatch[1]
   }
-  
-  return null;
-};
+
+  return null
+}
 
 // New function to extract location using API
 const extractLocationAPI = async (query: string): Promise<string | null> => {
   try {
-    const response = await fetch('app/api/chat/extract-location', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    const response = await fetch("app/api/chat/extract-location", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ input: query })
-    });
-    
+    })
+
     if (response.ok) {
-      const data = await response.json();
-      return data.location;
+      const data = await response.json()
+      return data.location
     }
-    
-    console.warn("Location extraction API returned non-OK response:", response.status);
-    return null;
+
+    console.warn(
+      "Location extraction API returned non-OK response:",
+      response.status
+    )
+    return null
   } catch (error) {
-    console.error("Error calling location extraction API:", error);
-    return null;
+    console.error("Error calling location extraction API:", error)
+    return null
   }
-};
+}
 
 export const useChatHandler = () => {
   const router = useRouter()
@@ -174,8 +178,8 @@ export const useChatHandler = () => {
     models,
     isPromptPickerOpen,
     isFilePickerOpen,
-    isToolPickerOpen,
-  } = context || {};
+    isToolPickerOpen
+  } = context || {}
 
   const chatInputRef = useRef<HTMLTextAreaElement>(null)
 
@@ -204,7 +208,7 @@ export const useChatHandler = () => {
     setIsFilePickerOpen(false)
     setSelectedTools([])
     setToolInUse("none")
-    
+
     // Make sure document mode is reset for new chats
     setDocumentMode(false)
 
@@ -232,9 +236,7 @@ export const useChatHandler = () => {
         await getAssistantCollectionsByAssistantId(selectedAssistant.id)
       ).collections
       for (const col of assistantCollections) {
-        const collFiles = (
-          await getCollectionFilesByCollectionId(col.id)
-        ).files
+        const collFiles = (await getCollectionFilesByCollectionId(col.id)).files
         allFiles = [...allFiles, ...collFiles]
       }
       const assistantTools = (
@@ -243,7 +245,12 @@ export const useChatHandler = () => {
 
       setSelectedTools(assistantTools)
       setChatFiles(
-        allFiles.map(f => ({ id: f.id, name: f.name, type: f.type, file: null }))
+        allFiles.map(f => ({
+          id: f.id,
+          name: f.name,
+          type: f.type,
+          file: null
+        }))
       )
 
       if (allFiles.length > 0) setShowFilesDisplay(true)
@@ -279,41 +286,45 @@ export const useChatHandler = () => {
     isRegeneration: boolean
   ) => {
     // Check if this is a weather-related query
-    const isWeatherRequest = isWeatherQuery(messageContent);
-    
+    const isWeatherRequest = isWeatherQuery(messageContent)
+
     // Document detection with comprehensive regex
-    const isDocumentRequest = /^\s*(write|draft|create|generate|make|prepare|compose)\s+(a|an|the|some|me a)?\s*(document|template|policy|letter|email|report|plan|proposal|agreement|contract|website|webpage|web page)/i.test(messageContent);
-    
+    const isDocumentRequest =
+      /^\s*(write|draft|create|generate|make|prepare|compose)\s+(a|an|the|some|me a)?\s*(document|template|policy|letter|email|report|plan|proposal|agreement|contract|website|webpage|web page)/i.test(
+        messageContent
+      )
+
     // Check if this message contains a property address
-    const propertyMessageHandler = new PropertyMessageHandler();
-    const propertyResult = await propertyMessageHandler.handleMessage(messageContent);
+    const propertyMessageHandler = new PropertyMessageHandler()
+    const propertyResult =
+      await propertyMessageHandler.handleMessage(messageContent)
 
     // Store the original message to restore on error
-    const startingInput = messageContent;
-    
+    const startingInput = messageContent
+
     // Set document mode accordingly - ONLY AT THE BEGINNING
     if (isDocumentRequest) {
-      console.log("Setting document mode to TRUE");
-      setDocumentMode(true);
-      setDocumentContent(""); // Clear content at the beginning
-      setIsStreaming(true);
+      console.log("Setting document mode to TRUE")
+      setDocumentMode(true)
+      setDocumentContent("") // Clear content at the beginning
+      setIsStreaming(true)
     } else if (!isRegeneration) {
-      console.log("This is not a document request");
+      console.log("This is not a document request")
       // Don't turn off document mode here
     }
 
     // Handle property report if detected
     if (propertyResult) {
-      console.log("Property address detected, handling property report");
-      console.log("Property result:", propertyResult);
-      
+      console.log("Property address detected, handling property report")
+      console.log("Property result:", propertyResult)
+
       try {
         // Clear the user input immediately
-        setUserInput("");
-        setIsGenerating(true);
-        
+        setUserInput("")
+        setIsGenerating(true)
+
         // Create or update the chat
-        let currentChat = selectedChat ? { ...selectedChat } : null;
+        let currentChat = selectedChat ? { ...selectedChat } : null
         if (!currentChat) {
           currentChat = await handleCreateChat(
             chatSettings!,
@@ -325,14 +336,14 @@ export const useChatHandler = () => {
             setSelectedChat,
             setChats,
             setChatFiles
-          );
+          )
         } else {
           const updated = await updateChat(currentChat.id, {
             updated_at: new Date().toISOString()
-          });
-          setChats(prev => prev.map(c => (c.id === updated.id ? updated : c)));
+          })
+          setChats(prev => prev.map(c => (c.id === updated.id ? updated : c)))
         }
-        
+
         // Create temp messages for display
         const { tempUserChatMessage } = createTempMessages(
           messageContent,
@@ -342,18 +353,21 @@ export const useChatHandler = () => {
           false,
           setChatMessages,
           selectedAssistant
-        );
-        
+        )
+
         // Store metadata with the property report data
         const metadata = JSON.stringify({
           type: propertyResult.type,
           reportData: propertyResult.reportData,
           analysisData: propertyResult.analysisData,
           metadata: propertyResult.metadata
-        });
-        
-        console.log("Creating property report with metadata:", metadata.substring(0, 100) + "...");
-        
+        })
+
+        console.log(
+          "Creating property report with metadata:",
+          metadata.substring(0, 100) + "..."
+        )
+
         // Create messages
         await handleCreateMessages(
           chatMessages,
@@ -375,28 +389,28 @@ export const useChatHandler = () => {
             analysisData: propertyResult.analysisData,
             metadata: propertyResult.metadata
           })
-        );
-        
-        setIsGenerating(false);
-        setFirstTokenReceived(false);
-        
+        )
+
+        setIsGenerating(false)
+        setFirstTokenReceived(false)
+
         // Return early to avoid processing further
-        return;
+        return
       } catch (error) {
-        console.error("Error handling property report:", error);
-        setIsGenerating(false);
-        setFirstTokenReceived(false);
+        console.error("Error handling property report:", error)
+        setIsGenerating(false)
+        setFirstTokenReceived(false)
         // Continue with normal processing
       }
     }
-    
+
     try {
       // Clear the user input immediately to fix input staying issue
-      setUserInput("");
-      setIsGenerating(true);
-      setIsPromptPickerOpen(false);
-      setIsFilePickerOpen(false);
-      setNewMessageImages([]);
+      setUserInput("")
+      setIsGenerating(true)
+      setIsPromptPickerOpen(false)
+      setIsFilePickerOpen(false)
+      setNewMessageImages([])
 
       const newAbort = new AbortController()
       setAbortController(newAbort)
@@ -449,40 +463,41 @@ export const useChatHandler = () => {
           setChatMessages,
           selectedAssistant
         )
-        
+
       // Special handling for weather queries
-      let generatedText = "";
-      let documentMetadata: any[] = [];
-      
+      let generatedText = ""
+      let documentMetadata: any[] = []
+
       if (isWeatherRequest && !isRegeneration) {
-        console.log("Weather query detected, processing with location extraction");
-        
+        console.log(
+          "Weather query detected, processing with location extraction"
+        )
+
         // First try extracting location via API if available
-        let location = await extractLocationAPI(messageContent);
-        
+        let location = await extractLocationAPI(messageContent)
+
         // Fall back to pattern matching if API fails
         if (!location) {
-          console.log("API location extraction failed, using pattern matching");
-          location = extractLocationFromWeatherQuery(messageContent);
+          console.log("API location extraction failed, using pattern matching")
+          location = extractLocationFromWeatherQuery(messageContent)
         }
-        
+
         // Use a default as last resort
         if (!location) {
-          console.log("Location extraction failed, using default");
-          location = "unknown location";
+          console.log("Location extraction failed, using default")
+          location = "unknown location"
         }
-        
-        console.log("Extracted location:", location);
-        
+
+        console.log("Extracted location:", location)
+
         // Create a response with both visible and hidden markers for the weather widget
-        generatedText = `Here's the current weather information for ${location}:\n\n[TRIGGER_WEATHER_LOOKUP:${location}]\n\nThe weather widget above shows current conditions and forecast for ${location}. This includes precipitation forecast, wind conditions, temperature, and safety indicators important for roofing work.`;
-        
+        generatedText = `Here's the current weather information for ${location}:\n\n[TRIGGER_WEATHER_LOOKUP:${location}]\n\nThe weather widget above shows current conditions and forecast for ${location}. This includes precipitation forecast, wind conditions, temperature, and safety indicators important for roofing work.`
+
         // Also add a hidden HTML comment that the weather widget can find
-        generatedText += `\n\n<!-- WEATHER_WIDGET_LOCATION:${location} -->`;
-        
+        generatedText += `\n\n<!-- WEATHER_WIDGET_LOCATION:${location} -->`
+
         // Mark as completed so we skip the LLM
-        setFirstTokenReceived(true);
-        
+        setFirstTokenReceived(true)
       } else {
         // For non-weather queries, process normally
         const payload: ChatPayload = {
@@ -508,16 +523,24 @@ export const useChatHandler = () => {
           const res = await fetch("/api/chat/tools", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ chatSettings: payload.chatSettings, messages: formatted, selectedTools })
+            body: JSON.stringify({
+              chatSettings: payload.chatSettings,
+              messages: formatted,
+              selectedTools
+            })
           })
-          
+
           console.log("Property Result Structure:", {
             type: propertyResult.type,
             hasReportData: !!propertyResult.reportData,
             hasAnalysisData: !!propertyResult.analysisData,
-            reportDataKeys: propertyResult.reportData ? Object.keys(propertyResult.reportData) : [],
-            analysisDataKeys: propertyResult.analysisData ? Object.keys(propertyResult.analysisData) : []
-          });
+            reportDataKeys: propertyResult.reportData
+              ? Object.keys(propertyResult.reportData)
+              : [],
+            analysisDataKeys: propertyResult.analysisData
+              ? Object.keys(propertyResult.analysisData)
+              : []
+          })
 
           setToolInUse("none")
           const result = await processResponse(
@@ -601,26 +624,29 @@ export const useChatHandler = () => {
 
       // After text generation is complete and before message creation:
       if (isDocumentRequest && generatedText) {
-        console.log("Document request completed, updating document content:", generatedText.substring(0, 50) + "...");
-        
+        console.log(
+          "Document request completed, updating document content:",
+          generatedText.substring(0, 50) + "..."
+        )
+
         // Create a unique ID for this document
-        const documentId = `doc_${Date.now()}`;
-        
+        const documentId = `doc_${Date.now()}`
+
         // Set the content
-        setDocumentContent(generatedText);
-        
+        setDocumentContent(generatedText)
+
         // Save the document with this ID
-        saveDocument(documentId);
-        
+        saveDocument(documentId)
+
         // Make sure document mode stays enabled
-        setDocumentMode(true);
-        
+        setDocumentMode(true)
+
         // Turn off streaming
-        setIsStreaming(false);
-        
+        setIsStreaming(false)
+
         // Use plain text format that won't be rendered as a code block
-        const chatDisplayText = `I've created a document based on your request.\n\nDOCUMENT_ID:${documentId}\n\nClick to view the document.`;
-        
+        const chatDisplayText = `I've created a document based on your request.\n\nDOCUMENT_ID:${documentId}\n\nClick to view the document.`
+
         // Create messages with the modified text
         await handleCreateMessages(
           chatMessages,
@@ -636,11 +662,17 @@ export const useChatHandler = () => {
           setChatFileItems,
           setChatImages,
           selectedAssistant
-        );
+        )
       } else {
         // Normal message creation for non-document requests
-        const metadataJson = documentMetadata.length > 0 ? JSON.stringify({ sources: documentMetadata }) : undefined
-        console.log("Passing metadata to handleCreateMessages:", metadataJson ? metadataJson.substring(0, 200) : "none")
+        const metadataJson =
+          documentMetadata.length > 0
+            ? JSON.stringify({ sources: documentMetadata })
+            : undefined
+        console.log(
+          "Passing metadata to handleCreateMessages:",
+          metadataJson ? metadataJson.substring(0, 200) : "none"
+        )
         await handleCreateMessages(
           chatMessages,
           currentChat!,
@@ -656,27 +688,26 @@ export const useChatHandler = () => {
           setChatImages,
           selectedAssistant,
           metadataJson
-        );
+        )
       }
-      
+
       // IMPORTANT: Even if there's an error later, we want to make sure the document isn't closed
       if (isDocumentRequest) {
         // One final check to ensure document mode stays on
-        setDocumentMode(true);
+        setDocumentMode(true)
       }
-      
-      setIsGenerating(false);
-      setFirstTokenReceived(false);
-      setIsStreaming(false);
-      
+
+      setIsGenerating(false)
+      setFirstTokenReceived(false)
+      setIsStreaming(false)
     } catch (err) {
-      console.error("Error in handleSendMessage:", err);
-      setIsGenerating(false);
-      setFirstTokenReceived(false);
-      setIsStreaming(false);
-      
+      console.error("Error in handleSendMessage:", err)
+      setIsGenerating(false)
+      setFirstTokenReceived(false)
+      setIsStreaming(false)
+
       // Don't reset document mode on error, just restore the input
-      setUserInput(startingInput);
+      setUserInput(startingInput)
     }
   }
 

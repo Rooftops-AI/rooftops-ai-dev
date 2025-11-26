@@ -3,7 +3,13 @@
 import { useEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
@@ -27,7 +33,9 @@ export default function BillingPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [loading, setLoading] = useState(true)
-  const [subscription, setSubscription] = useState<SubscriptionData | null>(null)
+  const [subscription, setSubscription] = useState<SubscriptionData | null>(
+    null
+  )
   const [usage, setUsage] = useState<UsageData | null>(null)
 
   useEffect(() => {
@@ -67,7 +75,7 @@ export default function BillingPage() {
   const handleManageSubscription = async () => {
     try {
       const response = await fetch("/api/stripe/portal", {
-        method: "POST",
+        method: "POST"
       })
 
       const data = await response.json()
@@ -106,7 +114,9 @@ export default function BillingPage() {
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
           <div className="border-primary mx-auto size-12 animate-spin rounded-full border-b-2"></div>
-          <p className="text-muted-foreground mt-4">Loading billing information...</p>
+          <p className="text-muted-foreground mt-4">
+            Loading billing information...
+          </p>
         </div>
       </div>
     )
@@ -133,7 +143,9 @@ export default function BillingPage() {
               </CardTitle>
               <CardDescription>Your active subscription plan</CardDescription>
             </div>
-            <Badge variant={getPlanBadgeColor(subscription?.planType || "free")}>
+            <Badge
+              variant={getPlanBadgeColor(subscription?.planType || "free")}
+            >
               {subscription?.planType?.toUpperCase() || "FREE"}
             </Badge>
           </div>
@@ -142,7 +154,9 @@ export default function BillingPage() {
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <p className="text-muted-foreground text-sm">Status</p>
-              <p className="font-medium capitalize">{subscription?.status || "Active"}</p>
+              <p className="font-medium capitalize">
+                {subscription?.status || "Active"}
+              </p>
             </div>
             {subscription?.currentPeriodEnd && (
               <div className="space-y-1 text-right">
@@ -164,7 +178,9 @@ export default function BillingPage() {
               </Button>
             )}
             <Button onClick={() => router.push("/pricing")}>
-              {subscription?.planType === "free" ? "Upgrade Plan" : "View Plans"}
+              {subscription?.planType === "free"
+                ? "Upgrade Plan"
+                : "View Plans"}
             </Button>
           </div>
         </CardContent>
@@ -177,42 +193,47 @@ export default function BillingPage() {
             <TrendingUp className="size-5" />
             Usage This Month
           </CardTitle>
-          <CardDescription>Monitor your feature usage and limits</CardDescription>
+          <CardDescription>
+            Monitor your feature usage and limits
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          {usage && Object.entries(usage).map(([feature, data]) => {
-            const percentage = getUsagePercentage(data.used, data.limit)
-            const isNearLimit = percentage > 80 && data.limit !== "unlimited"
+          {usage &&
+            Object.entries(usage).map(([feature, data]) => {
+              const percentage = getUsagePercentage(data.used, data.limit)
+              const isNearLimit = percentage > 80 && data.limit !== "unlimited"
 
-            return (
-              <div key={feature} className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium capitalize">
-                      {feature.replace(/_/g, " ")}
+              return (
+                <div key={feature} className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium capitalize">
+                        {feature.replace(/_/g, " ")}
+                      </span>
+                      {isNearLimit && (
+                        <AlertCircle className="size-4 text-yellow-500" />
+                      )}
+                    </div>
+                    <span className="text-muted-foreground text-sm">
+                      {data.used} /{" "}
+                      {data.limit === "unlimited" ? "∞" : data.limit}
                     </span>
-                    {isNearLimit && (
-                      <AlertCircle className="size-4 text-yellow-500" />
-                    )}
                   </div>
-                  <span className="text-muted-foreground text-sm">
-                    {data.used} / {data.limit === "unlimited" ? "∞" : data.limit}
-                  </span>
+                  {data.limit !== "unlimited" && (
+                    <Progress
+                      value={percentage}
+                      className={isNearLimit ? "bg-yellow-100" : ""}
+                    />
+                  )}
+                  {isNearLimit && (
+                    <p className="text-xs text-yellow-600">
+                      You&apos;re approaching your monthly limit. Consider
+                      upgrading your plan.
+                    </p>
+                  )}
                 </div>
-                {data.limit !== "unlimited" && (
-                  <Progress
-                    value={percentage}
-                    className={isNearLimit ? "bg-yellow-100" : ""}
-                  />
-                )}
-                {isNearLimit && (
-                  <p className="text-xs text-yellow-600">
-                    You&apos;re approaching your monthly limit. Consider upgrading your plan.
-                  </p>
-                )}
-              </div>
-            )
-          })}
+              )
+            })}
         </CardContent>
       </Card>
 
@@ -229,7 +250,11 @@ export default function BillingPage() {
             <Button variant="outline" size="sm" asChild>
               <a href="mailto:support@rooftopsgpt.com">Contact Support</a>
             </Button>
-            <Button variant="outline" size="sm" onClick={() => router.push("/pricing")}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => router.push("/pricing")}
+            >
               View All Plans
             </Button>
           </div>

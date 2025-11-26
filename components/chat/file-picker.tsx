@@ -25,8 +25,7 @@ export const FilePicker: FC<FilePickerProps> = ({
   onSelectCollection,
   isFocused
 }) => {
-  const { files, collections, setIsFilePickerOpen } =
-    useChatbotUI()
+  const { files, collections, setIsFilePickerOpen } = useChatbotUI()
 
   const itemsRef = useRef<(HTMLDivElement | null)[]>([])
 

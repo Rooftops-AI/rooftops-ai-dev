@@ -36,7 +36,12 @@ export function SourceCards({ messageMetadata }: SourceCardsProps) {
 
   // Helper to strip HTML tags
   const stripHtml = (html: string): string => {
-    return html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+    return html
+      .replace(/<[^>]*>/g, "")
+      .replace(/&nbsp;/g, " ")
+      .replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
   }
 
   // Parse sources from message metadata
@@ -92,9 +97,9 @@ export function SourceCards({ messageMetadata }: SourceCardsProps) {
   // Extract domain from URL for web sources
   const getDomain = (fileName: string) => {
     try {
-      if (fileName.startsWith('http')) {
+      if (fileName.startsWith("http")) {
         const url = new URL(fileName)
-        return url.hostname.replace('www.', '')
+        return url.hostname.replace("www.", "")
       }
     } catch (e) {}
     return null
@@ -113,16 +118,18 @@ export function SourceCards({ messageMetadata }: SourceCardsProps) {
     <>
       <div className="not-prose mb-2 mt-4">
         <div className="scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent flex gap-2 overflow-x-auto pb-2">
-          {sources.map((source) => {
+          {sources.map(source => {
             const isWebSource = source.documentType === "Web Search"
-            const faviconUrl = isWebSource ? getFaviconUrl(source.fileName) : null
+            const faviconUrl = isWebSource
+              ? getFaviconUrl(source.fileName)
+              : null
             const domain = getDomain(source.fileName)
 
             return (
               <Card
                 key={source.sourceNumber}
                 className="hover:bg-accent/50 group flex shrink-0 cursor-pointer items-start gap-2 border p-2.5 transition-colors duration-150"
-                style={{ width: '200px' }}
+                style={{ width: "200px" }}
                 onClick={() => handleCardClick(source)}
               >
                 {/* Number badge */}

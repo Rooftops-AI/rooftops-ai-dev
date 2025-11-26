@@ -35,11 +35,14 @@ export const SidebarContent: FC<SidebarContentProps> = ({
   return (
     // Subtract 50px for the height of the workspace settings
     <div className="flex max-h-[calc(100%-10px)] grow flex-col">
-
       {/* AI Property Reports button - styled like New Chat button with crown badge */}
       <div className="mb-2 px-1">
         <Button className="h-[36px] w-full justify-between" asChild>
-          <Link href={currentWorkspaceId ? `/${currentWorkspaceId}/explore` : "/explore"}>
+          <Link
+            href={
+              currentWorkspaceId ? `/${currentWorkspaceId}/explore` : "/explore"
+            }
+          >
             <div className="flex items-center">
               <IconSparkles size={18} className="mr-2" />
               <span>AI Property Reports</span>
@@ -52,7 +55,11 @@ export const SidebarContent: FC<SidebarContentProps> = ({
       {/* Creator Studio button - styled like New Chat button with crown badge */}
       <div className="mb-2 px-1">
         <Button className="h-[36px] w-full justify-between" asChild>
-          <Link href={currentWorkspaceId ? `/${currentWorkspaceId}/creator` : "/creator"}>
+          <Link
+            href={
+              currentWorkspaceId ? `/${currentWorkspaceId}/creator` : "/creator"
+            }
+          >
             <div className="flex items-center">
               <IconPalette size={18} className="mr-2" />
               <span>Creator Studio</span>

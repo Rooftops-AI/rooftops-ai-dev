@@ -5,7 +5,7 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogTitle,
+  DialogTitle
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { FileText, Download, ExternalLink, X, Globe } from "lucide-react"
@@ -77,7 +77,12 @@ export function DocumentSourceViewer({
 
   // Helper to strip HTML tags
   const stripHtml = (html: string): string => {
-    return html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+    return html
+      .replace(/<[^>]*>/g, "")
+      .replace(/&nbsp;/g, " ")
+      .replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
   }
 
   // Check if this is a web source
@@ -86,9 +91,9 @@ export function DocumentSourceViewer({
   // Extract domain from URL for web sources
   const getDomain = (url: string) => {
     try {
-      if (url.startsWith('http')) {
+      if (url.startsWith("http")) {
         const urlObj = new URL(url)
-        return urlObj.hostname.replace('www.', '')
+        return urlObj.hostname.replace("www.", "")
       }
     } catch (e) {}
     return null
@@ -137,11 +142,14 @@ export function DocumentSourceViewer({
                       width={24}
                       height={24}
                       className="object-cover"
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none'
+                      onError={e => {
+                        e.currentTarget.style.display = "none"
                       }}
                     />
-                    <Globe className="text-muted-foreground absolute size-4" style={{ display: 'none' }} />
+                    <Globe
+                      className="text-muted-foreground absolute size-4"
+                      style={{ display: "none" }}
+                    />
                   </div>
                 ) : (
                   <div className="bg-primary/10 flex size-6 shrink-0 items-center justify-center rounded">
@@ -224,15 +232,22 @@ export function DocumentSourceViewer({
             <div className="grid grid-cols-2 gap-3 text-xs">
               <div className="space-y-1">
                 <div className="text-muted-foreground">File Name</div>
-                <div className="truncate font-medium" title={fileName}>{fileName}</div>
+                <div className="truncate font-medium" title={fileName}>
+                  {fileName}
+                </div>
               </div>
               <div className="space-y-1">
                 <div className="text-muted-foreground">Source Location</div>
-                <div className="font-medium">{isGlobal ? "Rooftops AI Search" : "Your Workspace"}</div>
+                <div className="font-medium">
+                  {isGlobal ? "Rooftops AI Search" : "Your Workspace"}
+                </div>
               </div>
               <div className="col-span-2 space-y-1">
                 <div className="text-muted-foreground">Document ID</div>
-                <div className="text-muted-foreground/80 truncate font-mono text-[10px]" title={documentId}>
+                <div
+                  className="text-muted-foreground/80 truncate font-mono text-[10px]"
+                  title={documentId}
+                >
                   {documentId}
                 </div>
               </div>

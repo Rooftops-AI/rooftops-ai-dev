@@ -6,7 +6,7 @@ import { LLM_LIST } from "@/lib/models/llm/llm-list"
 import { cn } from "@/lib/utils"
 import { Tables } from "@/supabase/types"
 import { LLM, LLMID, MessageImage, ModelProvider } from "@/types"
-import CombinedReport from '@/components/property/combined-report'
+import CombinedReport from "@/components/property/combined-report"
 
 import {
   IconBolt,
@@ -28,7 +28,7 @@ import { TextareaAutosize } from "../ui/textarea-autosize"
 import { WithTooltip } from "../ui/with-tooltip"
 import { MessageActions } from "./message-actions"
 import { MessageMarkdown } from "./message-markdown"
-import { ChatWeatherLookup } from '@/components/weather/ChatWeatherLookup'
+import { ChatWeatherLookup } from "@/components/weather/ChatWeatherLookup"
 import { SourceCards } from "../chat/source-cards"
 import { RooftopsSVG } from "../icons/rooftops-svg"
 
@@ -55,7 +55,7 @@ const LoadingIndicator: FC = () => {
       setIsTransitioning(true)
 
       setTimeout(() => {
-        setMessageIndex((prev) => (prev + 1) % loadingMessages.length)
+        setMessageIndex(prev => (prev + 1) % loadingMessages.length)
         setIsTransitioning(false)
       }, 300) // Wait for fade out before changing text
     }, 2000) // Change message every 2 seconds
@@ -127,7 +127,7 @@ export const Message: FC<MessageProps> = ({
     useState<Tables<"file_items"> | null>(null)
 
   const [viewSources, setViewSources] = useState(false)
-  
+
   // Weather widget states
   const [isProcessingWeather, setIsProcessingWeather] = useState(false)
   const [weatherError, setWeatherError] = useState<string | null>(null)
@@ -235,50 +235,57 @@ export const Message: FC<MessageProps> = ({
     return acc
   }, fileAccumulator)
 
-// Check if this is a property report message
-const isPropertyReport = message.role === "assistant" && 
-message.metadata && 
-typeof message.metadata === 'string' && 
-message.metadata.includes('"type":"property_report"');
+  // Check if this is a property report message
+  const isPropertyReport =
+    message.role === "assistant" &&
+    message.metadata &&
+    typeof message.metadata === "string" &&
+    message.metadata.includes('"type":"property_report"')
 
-// Parse metadata to get report info (if it exists)
-const getReportData = () => {
-  if (!message.metadata) return null;
+  // Parse metadata to get report info (if it exists)
+  const getReportData = () => {
+    if (!message.metadata) return null
 
-  try {
-    // Add this debug log
-    console.log("Parsing metadata string:", message.metadata.substring(0, 200) + "...");
-    
-    const metadata = typeof message.metadata === 'string' 
-      ? JSON.parse(message.metadata) 
-      : message.metadata;
-    
-    console.log("Parsed metadata keys:", Object.keys(metadata));
-    
-    if (metadata.type === "property_report") {
-      return {
-        reportData: metadata.reportData || null,
-        analysisData: metadata.analysisData || null,
-        address: metadata.metadata?.address || null
-      };
+    try {
+      // Add this debug log
+      console.log(
+        "Parsing metadata string:",
+        message.metadata.substring(0, 200) + "..."
+      )
+
+      const metadata =
+        typeof message.metadata === "string"
+          ? JSON.parse(message.metadata)
+          : message.metadata
+
+      console.log("Parsed metadata keys:", Object.keys(metadata))
+
+      if (metadata.type === "property_report") {
+        return {
+          reportData: metadata.reportData || null,
+          analysisData: metadata.analysisData || null,
+          address: metadata.metadata?.address || null
+        }
+      }
+      return null
+    } catch (error) {
+      console.error("Error parsing property report metadata:", error)
+      console.error(
+        "Metadata that caused error:",
+        typeof message.metadata === "string"
+          ? message.metadata.substring(0, 100)
+          : JSON.stringify(message.metadata).substring(0, 100)
+      )
+      return null
     }
-    return null;
-  } catch (error) {
-    console.error("Error parsing property report metadata:", error);
-    console.error("Metadata that caused error:", 
-      typeof message.metadata === 'string' 
-        ? message.metadata.substring(0, 100) 
-        : JSON.stringify(message.metadata).substring(0, 100));
-    return null;
   }
-};
 
-const propertyReportData = getReportData();
+  const propertyReportData = getReportData()
 
-// Debug logging
-console.log("Message metadata:", message.metadata);
-console.log("Is property report?", isPropertyReport);
-console.log("Property report data:", propertyReportData);
+  // Debug logging
+  console.log("Message metadata:", message.metadata)
+  console.log("Is property report?", isPropertyReport)
+  console.log("Property report data:", propertyReportData)
 
   // Strict location extraction - only from explicit markers
   const extractLocationFromMessage = (content: string): string | null => {
@@ -286,29 +293,33 @@ console.log("Property report data:", propertyReportData);
       // ONLY check for explicit location markers to avoid false positives
 
       // 1. Check explicit bracket notation markers
-      const triggerMatch = content.match(/\[TRIGGER_WEATHER_LOOKUP:([^\]]+)\]/i);
+      const triggerMatch = content.match(/\[TRIGGER_WEATHER_LOOKUP:([^\]]+)\]/i)
       if (triggerMatch && triggerMatch[1]) {
-        return triggerMatch[1].trim();
+        return triggerMatch[1].trim()
       }
 
-      const weatherLocMatch = content.match(/\[WEATHER_LOCATION:([^\]]+)\]/i);
+      const weatherLocMatch = content.match(/\[WEATHER_LOCATION:([^\]]+)\]/i)
       if (weatherLocMatch && weatherLocMatch[1]) {
-        return weatherLocMatch[1].trim();
+        return weatherLocMatch[1].trim()
       }
 
       // 2. Check for HTML comment markers
-      const htmlCommentMatch = content.match(/<!--\s*WEATHER_WIDGET_LOCATION:([^>]+)\s*-->/i);
+      const htmlCommentMatch = content.match(
+        /<!--\s*WEATHER_WIDGET_LOCATION:([^>]+)\s*-->/i
+      )
       if (htmlCommentMatch && htmlCommentMatch[1]) {
-        return htmlCommentMatch[1].trim();
+        return htmlCommentMatch[1].trim()
       }
 
       // 3. Only extract from very explicit "weather for [location]" phrases
-      const weatherForMatch = content.match(/weather\s+(?:forecast\s+)?(?:for|in)\s+([A-Z][^\.,:;\n?!]+?)(?:\s+(?:is|shows|indicates)|[\.,:;])/i);
+      const weatherForMatch = content.match(
+        /weather\s+(?:forecast\s+)?(?:for|in)\s+([A-Z][^\.,:;\n?!]+?)(?:\s+(?:is|shows|indicates)|[\.,:;])/i
+      )
       if (weatherForMatch && weatherForMatch[1]) {
-        const location = weatherForMatch[1].trim();
+        const location = weatherForMatch[1].trim()
         // Validate it looks like a real location (not a common word)
         if (location.length > 2 && location.length < 100) {
-          return location;
+          return location
         }
       }
 
@@ -316,71 +327,88 @@ console.log("Property report data:", propertyReportData);
       if (content.includes("[WEATHER_LOOKUP]")) {
         const userMessages = chatMessages
           .filter(msg => msg.message.role === "user")
-          .map(msg => msg.message.content);
+          .map(msg => msg.message.content)
 
         if (userMessages.length > 0) {
-          const lastUserMessage = userMessages[userMessages.length - 1];
+          const lastUserMessage = userMessages[userMessages.length - 1]
 
           // Only extract explicit weather location requests from user
-          const userWeatherMatch = lastUserMessage.match(/weather\s+(?:for|in|at)\s+([A-Z][^\.,:;\n?!]+)/i);
+          const userWeatherMatch = lastUserMessage.match(
+            /weather\s+(?:for|in|at)\s+([A-Z][^\.,:;\n?!]+)/i
+          )
           if (userWeatherMatch && userWeatherMatch[1]) {
-            return userWeatherMatch[1].trim();
+            return userWeatherMatch[1].trim()
           }
 
           // Try ZIP code extraction as fallback
-          const zipMatch = lastUserMessage.match(/\b(\d{5}(?:-\d{4})?)\b/);
+          const zipMatch = lastUserMessage.match(/\b(\d{5}(?:-\d{4})?)\b/)
           if (zipMatch && zipMatch[1]) {
-            return zipMatch[1];
+            return zipMatch[1]
           }
         }
       }
 
-      return null;
+      return null
     } catch (error) {
-      console.error("Error extracting location from message:", error);
-      return null;
+      console.error("Error extracting location from message:", error)
+      return null
     }
-  };
+  }
 
   // Enhanced weather widget detection - only trigger on explicit markers
   const shouldShowWeatherWidget = (): boolean => {
     // Only show for assistant messages, not user messages
-    if (message.role !== "assistant") return false;
+    if (message.role !== "assistant") return false
 
-    const content = message.content;
+    const content = message.content
 
     try {
       // Skip if the message explicitly states inability to provide weather
-      if ((/(?:unable|can't|cannot)\s+(?:to\s+)?provide.+weather/i).test(content) ||
-          (/(?:don't|do not)\s+have\s+(?:access|the ability).+weather/i).test(content)) {
-        return false;
+      if (
+        /(?:unable|can't|cannot)\s+(?:to\s+)?provide.+weather/i.test(content) ||
+        /(?:don't|do not)\s+have\s+(?:access|the ability).+weather/i.test(
+          content
+        )
+      ) {
+        return false
       }
 
       // ONLY check for explicit weather widget triggers/markers
       // This prevents false positives from general roofing discussions
-      if ((/\[(?:TRIGGER_WEATHER_LOOKUP|WEATHER_LOCATION):[^\]]+\]/i).test(content) ||
-          content.includes("[WEATHER_LOOKUP]") ||
-          (/<!--\s*WEATHER_WIDGET_LOCATION:[^>]+\s*-->/).test(content)) {
-        return true;
+      if (
+        /\[(?:TRIGGER_WEATHER_LOOKUP|WEATHER_LOCATION):[^\]]+\]/i.test(
+          content
+        ) ||
+        content.includes("[WEATHER_LOOKUP]") ||
+        /<!--\s*WEATHER_WIDGET_LOCATION:[^>]+\s*-->/.test(content)
+      ) {
+        return true
       }
 
       // Check for very explicit "here's the weather" phrases only
-      if ((/here(?:'s| is) (?:the )?(?:current )?weather (?:information|data|forecast)/i).test(content)) {
-        return true;
+      if (
+        /here(?:'s| is) (?:the )?(?:current )?weather (?:information|data|forecast)/i.test(
+          content
+        )
+      ) {
+        return true
       }
 
       // Default to false - don't trigger on general content
-      return false;
+      return false
     } catch (error) {
-      console.error("Error in shouldShowWeatherWidget:", error);
-      return false;
+      console.error("Error in shouldShowWeatherWidget:", error)
+      return false
     }
-  };
-  
+  }
+
   // Get location to use for weather lookup
-  const weatherLocation = message.role === "assistant" ? extractLocationFromMessage(message.content) : null;
-  const showWeatherWidget = shouldShowWeatherWidget();
-  
+  const weatherLocation =
+    message.role === "assistant"
+      ? extractLocationFromMessage(message.content)
+      : null
+  const showWeatherWidget = shouldShowWeatherWidget()
+
   // Enhanced message content rendering with proper weather widget handling
   const renderMessageContent = () => {
     try {
@@ -393,55 +421,62 @@ console.log("Property report data:", propertyReportData);
             onValueChange={setEditedMessage}
             maxRows={20}
           />
-        );
+        )
       }
-      
-      if (!firstTokenReceived && isGenerating && isLast && message.role === "assistant") {
+
+      if (
+        !firstTokenReceived &&
+        isGenerating &&
+        isLast &&
+        message.role === "assistant"
+      ) {
         // Rendering loading state
         switch (toolInUse) {
           case "none":
-            return <LoadingIndicator />;
+            return <LoadingIndicator />
           case "retrieval":
             return (
               <div className="flex animate-pulse items-center space-x-2">
                 <IconFileText size={20} />
                 <div>Searching files...</div>
               </div>
-            );
+            )
           default:
             return (
               <div className="flex animate-pulse items-center space-x-2">
                 <IconBolt size={20} />
                 <div>Using {toolInUse}...</div>
               </div>
-            );
+            )
         }
       }
-      
+
       if (isPropertyReport && propertyReportData) {
         console.log("Rendering property report with data:", {
           hasAnalysisData: !!propertyReportData.analysisData,
           hasReportData: !!propertyReportData.reportData
-        });
-        
+        })
+
         // If data is missing, create minimal data structure to avoid errors
         const safeAnalysisData = propertyReportData.analysisData || {
           rawAnalysis: "Report data unavailable",
-          structuredData: { userSummary: "Unable to display property report data" }
-        };
-        
+          structuredData: {
+            userSummary: "Unable to display property report data"
+          }
+        }
+
         const safeReportData = propertyReportData.reportData || {
           jsonData: {
             property: { address: "Report data unavailable" },
             roof: { summary: {} },
             metadata: { generated: new Date().toISOString() }
           }
-        };
-        
+        }
+
         return (
           <div>
             <p className="mb-4">{message.content}</p>
-            
+
             <div className="overflow-hidden rounded-[5px] border border-gray-200 shadow-sm dark:border-gray-700">
               <CombinedReport
                 analysisData={safeAnalysisData}
@@ -449,22 +484,22 @@ console.log("Property report data:", propertyReportData);
               />
             </div>
           </div>
-        );
+        )
       }
 
       // Handling weather widget case
       if (showWeatherWidget) {
         // Create a version of the message content with weather markers removed for display
         let cleanContent = message.content
-          .replace(/\[TRIGGER_WEATHER_LOOKUP:[^\]]+\]/gi, '')
-          .replace(/\[WEATHER_LOCATION:[^\]]+\]/gi, '')
-          .replace(/\[WEATHER_LOOKUP\]/gi, '')
-          .replace(/<!--\s*WEATHER_WIDGET_LOCATION:[^>]+\s*-->/g, '')
-          .trim();
-        
+          .replace(/\[TRIGGER_WEATHER_LOOKUP:[^\]]+\]/gi, "")
+          .replace(/\[WEATHER_LOCATION:[^\]]+\]/gi, "")
+          .replace(/\[WEATHER_LOOKUP\]/gi, "")
+          .replace(/<!--\s*WEATHER_WIDGET_LOCATION:[^>]+\s*-->/g, "")
+          .trim()
+
         // Clean up any double line breaks that might be left
-        cleanContent = cleanContent.replace(/\n\n+/g, '\n\n');
-        
+        cleanContent = cleanContent.replace(/\n\n+/g, "\n\n")
+
         return (
           <div>
             {/* Only render the message content if it's not empty after cleaning */}
@@ -480,26 +515,26 @@ console.log("Property report data:", propertyReportData);
               {/* Header showing location */}
               <div className="mb-2 flex items-center font-medium text-blue-700">
                 <IconCloudRain className="mr-2" size={20} />
-                <span>Weather information for {weatherLocation || "your location"}</span>
+                <span>
+                  Weather information for {weatherLocation || "your location"}
+                </span>
               </div>
-              
+
               {/* The weather widget component */}
-              <ChatWeatherLookup 
-                messageId={message.id} 
+              <ChatWeatherLookup
+                messageId={message.id}
                 messageContent={message.content}
-                initialLocation={weatherLocation || ""} 
+                initialLocation={weatherLocation || ""}
                 autoSubmit={true}
               />
-              
+
               {/* Show error if any */}
               {weatherError && (
-                <div className="mt-2 text-sm text-red-500">
-                  {weatherError}
-                </div>
+                <div className="mt-2 text-sm text-red-500">{weatherError}</div>
               )}
             </div>
           </div>
-        );
+        )
       } else {
         // Regular message rendering
         return (
@@ -510,13 +545,13 @@ console.log("Property report data:", propertyReportData);
               <SourceCards messageMetadata={message.metadata} />
             )}
           </div>
-        );
+        )
       }
     } catch (error) {
-      console.error("Error rendering message content:", error);
-      return <MessageMarkdown content={message.content} />;
+      console.error("Error rendering message content:", error)
+      return <MessageMarkdown content={message.content} />
     }
-  };
+  }
 
   return (
     <div
@@ -553,7 +588,10 @@ console.log("Property report data:", propertyReportData);
           ) : (
             <div className="flex items-center space-x-3">
               {message.role === "assistant" ? (
-                <div className="flex items-center justify-center bg-transparent" style={{ width: `${ICON_SIZE}px`, height: `${ICON_SIZE}px` }}>
+                <div
+                  className="flex items-center justify-center bg-transparent"
+                  style={{ width: `${ICON_SIZE}px`, height: `${ICON_SIZE}px` }}
+                >
                   <RooftopsSVG width={ICON_SIZE} height={ICON_SIZE} />
                 </div>
               ) : profile?.image_url ? (
@@ -579,7 +617,7 @@ console.log("Property report data:", propertyReportData);
               )}
             </div>
           )}
-          
+
           {/* Message content */}
           {renderMessageContent()}
         </div>
@@ -681,7 +719,7 @@ console.log("Property report data:", propertyReportData);
             )
           })}
         </div>
-        
+
         {/* Edit buttons section */}
         {isEditing && (
           <div className="mt-4 flex justify-center space-x-2">

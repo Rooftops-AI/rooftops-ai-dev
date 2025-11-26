@@ -31,7 +31,9 @@ export default function HomePage() {
           router.push("/setup")
         } else {
           // Onboarded, redirect to home workspace
-          const homeWorkspaceId = await getHomeWorkspaceByUserId(session.user.id)
+          const homeWorkspaceId = await getHomeWorkspaceByUserId(
+            session.user.id
+          )
 
           // Preserve query params (like subscription_success)
           const queryString = searchParams.toString()

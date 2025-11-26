@@ -4,12 +4,15 @@
 import { useDocumentStore } from "@/lib/stores/document-store" // Adjust path as needed
 
 export function TestDocPanel() {
-  console.log("TestDocPanel rendering attempt");
-  
-  const { isDocMode, documentContent } = useDocumentStore();
-  
-  console.log("TestDocPanel received from store:", { isDocMode, contentLength: documentContent.length });
-  
+  console.log("TestDocPanel rendering attempt")
+
+  const { isDocMode, documentContent } = useDocumentStore()
+
+  console.log("TestDocPanel received from store:", {
+    isDocMode,
+    contentLength: documentContent.length
+  })
+
   // Always render a small indicator regardless of isDocMode
   return (
     <>
@@ -17,7 +20,7 @@ export function TestDocPanel() {
       <div className="fixed right-4 top-4 z-50 rounded bg-yellow-300 p-2 text-black">
         DocPanel Status: {isDocMode ? "ACTIVE" : "inactive"}
       </div>
-      
+
       {/* The actual panel only shows when isDocMode is true */}
       {isDocMode && (
         <div className="fixed right-0 top-0 z-20 flex h-full w-1/3 flex-col border-l bg-white dark:bg-gray-800">
@@ -30,5 +33,5 @@ export function TestDocPanel() {
         </div>
       )}
     </>
-  );
+  )
 }

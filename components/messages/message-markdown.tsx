@@ -33,7 +33,7 @@ const LoadingIndicator: FC = () => {
       setIsTransitioning(true)
 
       setTimeout(() => {
-        setMessageIndex((prev) => (prev + 1) % loadingMessages.length)
+        setMessageIndex(prev => (prev + 1) % loadingMessages.length)
         setIsTransitioning(false)
       }, 300) // Wait for fade out before changing text
     }, 2000) // Change message every 2 seconds
@@ -56,25 +56,25 @@ const LoadingIndicator: FC = () => {
 
 export const MessageMarkdown: FC<MessageMarkdownProps> = ({ content }) => {
   const { loadDocument, setDocumentMode } = useDocumentStore()
-  
+
   // Check if this contains our special document marker
-  const documentMarkerRegex = /DOCUMENT_ID:(doc_\d+)/;
-  const documentMatch = content.match(documentMarkerRegex);
-  
+  const documentMarkerRegex = /DOCUMENT_ID:(doc_\d+)/
+  const documentMatch = content.match(documentMarkerRegex)
+
   // If we found a document marker, render a button instead of the normal content
   if (documentMatch) {
-    const documentId = documentMatch[1];
-    
+    const documentId = documentMatch[1]
+
     const handleOpenDocument = () => {
-      loadDocument(documentId);
-      setDocumentMode(true);
-    };
-    
+      loadDocument(documentId)
+      setDocumentMode(true)
+    }
+
     return (
       <div className="space-y-4">
         <p>I&apos;ve created a document based on your request.</p>
-        
-        <div 
+
+        <div
           onClick={handleOpenDocument}
           className="flex cursor-pointer items-center rounded-lg border border-blue-200 bg-blue-50 p-4 transition-colors hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-900/20 dark:hover:bg-blue-900/30"
         >
@@ -83,13 +83,15 @@ export const MessageMarkdown: FC<MessageMarkdownProps> = ({ content }) => {
           </div>
           <div>
             <div className="font-medium">Document Ready</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">Click to view and edit the document</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">
+              Click to view and edit the document
+            </div>
           </div>
         </div>
       </div>
-    );
+    )
   }
-  
+
   // Regular markdown rendering for non-document messages
   return (
     <MessageMarkdownMemoized
@@ -99,7 +101,7 @@ export const MessageMarkdown: FC<MessageMarkdownProps> = ({ content }) => {
         p({ children }) {
           // Process children to replace [Source X] with clickable citations
           const processChildren = (child: any): any => {
-            if (typeof child === 'string') {
+            if (typeof child === "string") {
               // Check if this string contains [Source X] patterns
               const sourcePattern = /\[Source (\d+)\]/g
               const matches = Array.from(child.matchAll(sourcePattern))
@@ -108,7 +110,7 @@ export const MessageMarkdown: FC<MessageMarkdownProps> = ({ content }) => {
                 const parts: any[] = []
                 let lastIndex = 0
 
-                matches.forEach((match) => {
+                matches.forEach(match => {
                   const fullMatch = match[0]
                   const sourceNum = parseInt(match[1])
                   const matchIndex = match.index!
@@ -141,7 +143,10 @@ export const MessageMarkdown: FC<MessageMarkdownProps> = ({ content }) => {
             return child
           }
 
-          const processedChildren = React.Children.map(children, processChildren)
+          const processedChildren = React.Children.map(
+            children,
+            processChildren
+          )
           return <p className="mb-2 last:mb-0">{processedChildren}</p>
         },
         img({ node, ...props }) {
@@ -155,7 +160,11 @@ export const MessageMarkdown: FC<MessageMarkdownProps> = ({ content }) => {
             : firstChild
 
           if (firstChildAsString === "▍") {
-            return <span className="mt-1"><LoadingIndicator /></span>
+            return (
+              <span className="mt-1">
+                <LoadingIndicator />
+              </span>
+            )
           }
 
           if (typeof firstChildAsString === "string") {
