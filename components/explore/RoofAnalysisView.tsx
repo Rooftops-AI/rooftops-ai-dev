@@ -233,7 +233,7 @@ const RoofAnalysisResults: React.FC<RoofAnalysisResultsProps> = ({ analysis }) =
                 <div className="rounded-lg bg-gray-800 p-4">
                   <h3 className="mb-2 text-sm font-medium text-blue-400">About These Images</h3>
                   <p className="mb-2 text-sm text-gray-300">
-                    These satellite images have been enhanced to help the AI analyze your roof's structure and features:
+                    These satellite images have been enhanced to help the AI analyze your roof&apos;s structure and features:
                   </p>
                   <ul className="list-inside list-disc space-y-1 text-sm text-gray-400">
                     <li>Edge detection highlights roof facets, ridges, and valleys</li>

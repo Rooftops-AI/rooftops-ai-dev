@@ -42,7 +42,7 @@ export const UpgradeModal: FC<UpgradeModalProps> = ({
         <DialogHeader>
           <DialogTitle className="text-2xl">Upgrade Your Plan</DialogTitle>
           <DialogDescription className="text-base">
-            You've reached your {featureName} limit ({currentUsage}/{limit} this month).
+            You&apos;ve reached your {featureName} limit ({currentUsage}/{limit} this month).
             Upgrade to continue using Rooftops AI.
           </DialogDescription>
         </DialogHeader>

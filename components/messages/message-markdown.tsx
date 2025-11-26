@@ -72,7 +72,7 @@ export const MessageMarkdown: FC<MessageMarkdownProps> = ({ content }) => {
     
     return (
       <div className="space-y-4">
-        <p>I've created a document based on your request.</p>
+        <p>I&apos;ve created a document based on your request.</p>
         
         <div 
           onClick={handleOpenDocument}
