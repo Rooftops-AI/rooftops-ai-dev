@@ -247,18 +247,10 @@ export const Message: FC<MessageProps> = ({
     if (!message.metadata) return null
 
     try {
-      // Add this debug log
-      console.log(
-        "Parsing metadata string:",
-        message.metadata.substring(0, 200) + "..."
-      )
-
       const metadata =
         typeof message.metadata === "string"
           ? JSON.parse(message.metadata)
           : message.metadata
-
-      console.log("Parsed metadata keys:", Object.keys(metadata))
 
       if (metadata.type === "property_report") {
         return {
@@ -281,11 +273,6 @@ export const Message: FC<MessageProps> = ({
   }
 
   const propertyReportData = getReportData()
-
-  // Debug logging
-  console.log("Message metadata:", message.metadata)
-  console.log("Is property report?", isPropertyReport)
-  console.log("Property report data:", propertyReportData)
 
   // Strict location extraction - only from explicit markers
   const extractLocationFromMessage = (content: string): string | null => {
@@ -452,11 +439,6 @@ export const Message: FC<MessageProps> = ({
       }
 
       if (isPropertyReport && propertyReportData) {
-        console.log("Rendering property report with data:", {
-          hasAnalysisData: !!propertyReportData.analysisData,
-          hasReportData: !!propertyReportData.reportData
-        })
-
         // If data is missing, create minimal data structure to avoid errors
         const safeAnalysisData = propertyReportData.analysisData || {
           rawAnalysis: "Report data unavailable",

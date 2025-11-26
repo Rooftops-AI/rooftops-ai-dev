@@ -113,19 +113,17 @@ export default function ChatPage() {
           {/* Centered content container */}
           <div className="flex w-full max-w-[800px] flex-col items-center justify-center space-y-8">
             {/* Mobile greeting text - visible on mobile only */}
-            <h1 className="text-center text-2xl font-medium tracking-tight text-gray-900 md:hidden dark:text-white">
-              Let&apos;s get to work
-              {selectedChat?.name ? `, ${selectedChat.name}` : ""}
+            <h1 className="text-center text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl md:hidden dark:text-white">
+              Let&apos;s get to work.
             </h1>
 
-            {/* Desktop greeting section with logo above text - hidden on mobile */}
-            <div className="hidden flex-col items-start md:flex">
-              <div className="mb-2 size-12 shrink-0">
+            {/* Desktop greeting section with logo inline with text - hidden on mobile */}
+            <div className="hidden items-center md:flex">
+              <div className="mr-3 size-12 shrink-0">
                 <RooftopsSVG width="48" height="48" />
               </div>
-              <h1 className="text-3xl font-medium tracking-tight text-gray-900 dark:text-white">
-                Let&apos;s get to work
-                {selectedChat?.name ? `, ${selectedChat.name}` : ""}
+              <h1 className="mt-1 text-[52px] font-bold leading-none tracking-tight text-gray-900 dark:text-white">
+                Let&apos;s get to work.
               </h1>
             </div>
 
