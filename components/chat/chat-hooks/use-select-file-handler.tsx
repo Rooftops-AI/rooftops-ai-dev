@@ -5,6 +5,49 @@ import mammoth from "mammoth"
 import { useContext, useEffect, useState } from "react"
 import { toast } from "sonner"
 
+// Convert HEIC/HEIF or any image to JPEG using Canvas API
+const convertImageToJPEG = async (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+
+    reader.onload = e => {
+      const img = new Image()
+
+      img.onload = () => {
+        // Create canvas to draw the image
+        const canvas = document.createElement("canvas")
+        canvas.width = img.width
+        canvas.height = img.height
+
+        const ctx = canvas.getContext("2d")
+        if (!ctx) {
+          reject(new Error("Failed to get canvas context"))
+          return
+        }
+
+        // Draw image on canvas
+        ctx.drawImage(img, 0, 0)
+
+        // Convert to JPEG with 90% quality
+        const jpegDataUrl = canvas.toDataURL("image/jpeg", 0.9)
+        resolve(jpegDataUrl)
+      }
+
+      img.onerror = () => {
+        reject(new Error("Failed to load image"))
+      }
+
+      img.src = e.target?.result as string
+    }
+
+    reader.onerror = () => {
+      reject(new Error("Failed to read file"))
+    }
+
+    reader.readAsDataURL(file)
+  })
+}
+
 export const ACCEPTED_FILE_TYPES = [
   "text/csv",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -142,13 +185,30 @@ export const useSelectFileHandler = () => {
             // Create a temp url for the image file
             const imageUrl = URL.createObjectURL(file)
 
+            // Convert all images to JPEG to ensure AI model compatibility
+            // This is especially important for HEIC/HEIF files from iPhones
+            let base64Image: string | ArrayBuffer | null = reader.result
+
+            try {
+              // Convert to JPEG if it's HEIC/HEIF or any other format
+              // This ensures compatibility with all AI models
+              base64Image = await convertImageToJPEG(file)
+            } catch (conversionError) {
+              console.warn(
+                "Image conversion failed, using original:",
+                conversionError
+              )
+              // Fall back to original if conversion fails
+              base64Image = reader.result
+            }
+
             // This is a temporary image for display purposes in the chat input
             setNewMessageImages(prev => [
               ...prev,
               {
                 messageId: "temp",
                 path: "",
-                base64: reader.result, // base64 image
+                base64: base64Image, // base64 image (converted to JPEG)
                 url: imageUrl,
                 file
               }
