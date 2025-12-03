@@ -130,10 +130,8 @@ function InnerWorkspaceLoader({ children }: { children: ReactNode }) {
     setChatSettings({
       model: (searchParams.get("model") ||
         (workspace as any).default_model ||
-        "gpt-3.5-turbo") as any,
-      prompt:
-        (workspace as any).default_prompt ||
-        "You are a friendly, helpful AI assistant.",
+        "gpt-5-mini") as any,
+      prompt: (workspace as any).default_prompt || "",
       temperature: (workspace as any).default_temperature ?? 0.5,
       contextLength: (workspace as any).default_context_length ?? 4096,
       includeProfileContext: (workspace as any).include_profile_context ?? true,

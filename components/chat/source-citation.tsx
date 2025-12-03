@@ -1,30 +1,25 @@
 "use client"
 
-import { useState, useEffect } from "react"
 import { Badge } from "@/components/ui/badge"
 import { FileText } from "lucide-react"
-import { DocumentSourceViewer } from "./document-source-viewer"
-import { createClient } from "@/lib/supabase/client"
 
 interface SourceCitationProps {
   sourceNumber: number
   messageContent: string
+  sourceData?: any // Optional direct source data from metadata
 }
 
 export function SourceCitation({
   sourceNumber,
-  messageContent
+  messageContent,
+  sourceData
 }: SourceCitationProps) {
-  const [isViewerOpen, setIsViewerOpen] = useState(false)
-  const [documentId, setDocumentId] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
-
   // Extract document info from the message content
-  // Look for pattern like "[Source 1] (Global Document: OSHA3755.pdf)"
+  // Look for pattern like "[Source 1] (Type: filename)" or "[Source 1] (Web Search: title)"
   const extractDocumentInfo = () => {
     // Try multiple patterns to match different formats
     const patterns = [
-      // Pattern 1: [Source X] (Type: filename)
+      // Pattern 1: [Source X] (Type: filename/title)
       new RegExp(
         `\\[Source ${sourceNumber}\\]\\s*\\([^:]+:\\s*([^)]+)\\)`,
         "i"
@@ -46,60 +41,65 @@ export function SourceCitation({
     return null
   }
 
-  const handleClick = async () => {
-    const fileName = extractDocumentInfo()
-    if (!fileName) {
-      console.error("Could not extract document info from source", {
-        sourceNumber,
-        messageSnippet: messageContent.substring(0, 500)
-      })
-      return
-    }
-
-    setLoading(true)
-    try {
-      const supabase = createClient()
-
-      // Search for document by file name
-      const { data, error } = await supabase
-        .from("documents")
-        .select("id")
-        .ilike("file_name", `%${fileName}%`)
-        .limit(1)
-        .single()
-
-      if (error) throw error
-
-      if (data) {
-        setDocumentId(data.id)
-        setIsViewerOpen(true)
+  // Truncate source name to 10 characters with ellipsis
+  const getTruncatedName = () => {
+    // Prefer sourceData if available
+    if (sourceData) {
+      const fullName =
+        sourceData.title || sourceData.fileName || `Source ${sourceNumber}`
+      if (fullName.length <= 10) {
+        return fullName
       }
-    } catch (err) {
-      console.error("Error finding document:", err)
-    } finally {
-      setLoading(false)
+      return fullName.substring(0, 10) + "..."
     }
+
+    // Fall back to extracting from message content
+    const fullName = extractDocumentInfo()
+    if (!fullName) return `Source ${sourceNumber}`
+
+    if (fullName.length <= 10) {
+      return fullName
+    }
+
+    return fullName.substring(0, 10) + "..."
+  }
+
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    console.log("[SourceCitation] Click handler called", {
+      sourceNumber,
+      sourceData,
+      fileName: sourceData?.fileName
+    })
+
+    // If sourceData has a URL (web search result), open it directly with UTM tracking
+    if (sourceData && sourceData.fileName) {
+      // Check if fileName is a URL (web search results store URL in fileName)
+      if (sourceData.fileName.startsWith("http")) {
+        const url = new URL(sourceData.fileName)
+        url.searchParams.set("utm_source", "rooftopsai")
+        url.searchParams.set("utm_medium", "chat")
+        url.searchParams.set("utm_campaign", "source_citation")
+        console.log("[SourceCitation] Opening URL:", url.toString())
+        window.open(url.toString(), "_blank", "noopener,noreferrer")
+        return
+      }
+    }
+
+    // For document sources (not implemented yet), you could handle them here
+    console.log("[SourceCitation] No URL found for source:", sourceNumber)
   }
 
   return (
-    <>
-      <Badge
-        variant="secondary"
-        className="hover:bg-primary/20 inline-flex cursor-pointer items-center gap-1 transition-colors"
-        onClick={handleClick}
-      >
-        <FileText className="size-3" />
-        Source {sourceNumber}
-      </Badge>
-
-      {documentId && (
-        <DocumentSourceViewer
-          documentId={documentId}
-          sourceNumber={sourceNumber}
-          isOpen={isViewerOpen}
-          onClose={() => setIsViewerOpen(false)}
-        />
-      )}
-    </>
+    <Badge
+      variant="outline"
+      className="bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground border-muted-foreground/20 inline-flex cursor-pointer items-center gap-1 px-2 py-0.5 text-xs transition-colors"
+      onClick={handleClick}
+    >
+      <FileText className="size-3" />
+      {getTruncatedName()}
+    </Badge>
   )
 }

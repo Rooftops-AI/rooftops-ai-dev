@@ -1113,6 +1113,9 @@ export type Database = {
           bio: string
           created_at: string
           display_name: string
+          dropbox_connected: boolean
+          extended_thinking_enabled: boolean
+          google_drive_connected: boolean
           google_gemini_api_key: string | null
           groq_api_key: string | null
           has_onboarded: boolean
@@ -1120,6 +1123,7 @@ export type Database = {
           image_path: string
           image_url: string
           mistral_api_key: string | null
+          onedrive_connected: boolean
           openai_api_key: string | null
           openai_organization_id: string | null
           openrouter_api_key: string | null
@@ -1129,6 +1133,7 @@ export type Database = {
           use_azure_openai: boolean
           user_id: string
           username: string
+          web_search_enabled: boolean
         }
         Insert: {
           anthropic_api_key?: string | null
@@ -1141,6 +1146,9 @@ export type Database = {
           bio: string
           created_at?: string
           display_name: string
+          dropbox_connected?: boolean
+          extended_thinking_enabled?: boolean
+          google_drive_connected?: boolean
           google_gemini_api_key?: string | null
           groq_api_key?: string | null
           has_onboarded?: boolean
@@ -1148,6 +1156,7 @@ export type Database = {
           image_path: string
           image_url: string
           mistral_api_key?: string | null
+          onedrive_connected?: boolean
           openai_api_key?: string | null
           openai_organization_id?: string | null
           openrouter_api_key?: string | null
@@ -1157,6 +1166,7 @@ export type Database = {
           use_azure_openai: boolean
           user_id: string
           username: string
+          web_search_enabled?: boolean
         }
         Update: {
           anthropic_api_key?: string | null
@@ -1169,6 +1179,9 @@ export type Database = {
           bio?: string
           created_at?: string
           display_name?: string
+          dropbox_connected?: boolean
+          extended_thinking_enabled?: boolean
+          google_drive_connected?: boolean
           google_gemini_api_key?: string | null
           groq_api_key?: string | null
           has_onboarded?: boolean
@@ -1176,6 +1189,7 @@ export type Database = {
           image_path?: string
           image_url?: string
           mistral_api_key?: string | null
+          onedrive_connected?: boolean
           openai_api_key?: string | null
           openai_organization_id?: string | null
           openrouter_api_key?: string | null
@@ -1185,6 +1199,7 @@ export type Database = {
           use_azure_openai?: boolean
           user_id?: string
           username?: string
+          web_search_enabled?: boolean
         }
         Relationships: [
           {

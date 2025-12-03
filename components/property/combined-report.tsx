@@ -90,7 +90,7 @@ const CombinedReport: FC<CombinedReportProps> = ({
   }
 
   // Extract data from analysis
-  const { rawAnalysis, structuredData, debug } = analysisData
+  const { analysis: rawAnalysis = "", structuredData, debug } = analysisData
   const userSummary = structuredData?.userSummary
 
   // Helper function to extract a summary from the raw analysis text
@@ -130,6 +130,85 @@ const CombinedReport: FC<CombinedReportProps> = ({
     return current !== undefined ? current : defaultValue
   }
 
+  // Helper to safely format a number with commas
+  const formatNumber = (num: any, fixed = 0): string => {
+    if (num === undefined || num === null) return "0"
+    return parseFloat(num.toString()).toLocaleString(undefined, {
+      maximumFractionDigits: fixed
+    })
+  }
+
+  // Load roof summary safely - defined early so it can be used in aiSummary fallback
+  const loadRoofSummary = () => {
+    const d = reportData?.jsonData || {}
+    const sd = analysisData.structuredData || {}
+
+    // Try to get roof area from Solar API if structuredData is empty
+    const solarPotential = d.solarPotential || d.solar?.potential
+    let roofArea = sd.roofArea
+    let facetCount = sd.facetCount
+
+    // If we don't have structured data, try to estimate from solar API
+    if (!roofArea && solarPotential) {
+      // Estimate roof area from solar panel data
+      // Typical solar panel is ~17.5 sq ft, but only ~60% of roof is usable
+      const maxPanels =
+        solarPotential.maxArrayPanelsCount || solarPotential.maxPanels || 0
+      const panelAreaSqFt = solarPotential.maxArrayAreaMeters2
+        ? solarPotential.maxArrayAreaMeters2 * 10.764 // Convert m² to sq ft
+        : maxPanels * 17.5
+
+      // Estimate total roof area (panel area is typically 60-70% of total)
+      roofArea = panelAreaSqFt > 0 ? Math.round(panelAreaSqFt / 0.65) : 0
+
+      // Estimate facet count based on roof complexity
+      // Simple roofs: 20-30 sq ft per panel, Complex roofs: 15-20 sq ft per panel
+      facetCount = maxPanels > 0 ? Math.max(4, Math.round(maxPanels / 15)) : 0
+    }
+
+    // Pick ranges if present, else fall back to single
+    const [facetMin, facetMax] = sd.facetCountRange ?? [
+      facetCount || 0,
+      facetCount || 0
+    ]
+    const [areaMin, areaMax] = sd.roofAreaRange ?? [
+      roofArea || 0,
+      roofArea || 0
+    ]
+    const [sqMin, sqMax] = sd.squaresRange ?? [sd.squares, sd.squares]
+    const [ridMin, ridMax] = sd.ridgeLengthRange ?? [
+      sd.ridgeLength,
+      sd.ridgeLength
+    ]
+    const [valMin, valMax] = sd.valleyLengthRange ?? [
+      sd.valleyLength,
+      sd.valleyLength
+    ]
+
+    // Choose "best guess" for single numbers
+    const bestArea = Math.round(roofArea || (areaMin + areaMax) / 2 || 0)
+    const bestFacets = facetCount || Math.round((facetMin + facetMax) / 2) || 0
+
+    return {
+      facetMin,
+      facetMax,
+      areaMin,
+      areaMax,
+      sqMin,
+      sqMax,
+      ridMin,
+      ridMax,
+      valMin,
+      valMax,
+      bestArea,
+      bestFacets,
+      totalRoofSquares: sd.squares ?? Math.round(bestArea / 100)
+    }
+  }
+
+  // Load roof summary early so it can be used in aiSummary fallback
+  const roofSummary = loadRoofSummary()
+
   const aiSummary =
     extractSummary(rawAnalysis) ||
     `In summary, this is a ${structuredData?.complexity || "moderately complex"} residential roof with ${roofSummary.facetMin}-${roofSummary.facetMax} facets, hip and gable dormer geometry, and an estimated area of ${formatNumber(roofSummary.areaMin)}–${formatNumber(roofSummary.areaMax)} square feet. Installation will require navigating multiple valleys, ridges, and dormers with approximately ${roofSummary.ridMin}-${roofSummary.ridMax} ft of ridges/hips and ${roofSummary.valMin}-${roofSummary.valMax} ft of valleys.`
@@ -168,14 +247,6 @@ const CombinedReport: FC<CombinedReportProps> = ({
       default:
         return "text-gray-600 dark:text-gray-400"
     }
-  }
-
-  // Helper to safely format a number with commas
-  const formatNumber = (num: any, fixed = 0): string => {
-    if (num === undefined || num === null) return "0"
-    return parseFloat(num.toString()).toLocaleString(undefined, {
-      maximumFractionDigits: fixed
-    })
   }
 
   // Get property address from any of the possible paths
@@ -290,48 +361,6 @@ const CombinedReport: FC<CombinedReportProps> = ({
     }
   }
 
-  // Load roof summary safely
-  const loadRoofSummary = () => {
-    const d = reportData?.jsonData || {}
-    const sd = analysisData.structuredData || {}
-
-    // Pick ranges if present, else fall back to single
-    const [facetMin, facetMax] = sd.facetCountRange ?? [
-      sd.facetCount,
-      sd.facetCount
-    ]
-    const [areaMin, areaMax] = sd.roofAreaRange ?? [sd.roofArea, sd.roofArea]
-    const [sqMin, sqMax] = sd.squaresRange ?? [sd.squares, sd.squares]
-    const [ridMin, ridMax] = sd.ridgeLengthRange ?? [
-      sd.ridgeLength,
-      sd.ridgeLength
-    ]
-    const [valMin, valMax] = sd.valleyLengthRange ?? [
-      sd.valleyLength,
-      sd.valleyLength
-    ]
-
-    // Choose “best guess” for single numbers
-    const bestArea = Math.round(sd.roofArea ?? (areaMin + areaMax) / 2)
-    const bestFacets = sd.facetCount ?? Math.round((facetMin + facetMax) / 2)
-
-    return {
-      facetMin,
-      facetMax, // for UI you can show `${facetMin}-${facetMax}`
-      areaMin,
-      areaMax, // same
-      sqMin,
-      sqMax,
-      ridMin,
-      ridMax,
-      valMin,
-      valMax,
-      bestArea,
-      bestFacets,
-      totalRoofSquares: sd.squares ?? Math.round(bestArea / 100)
-    }
-  }
-
   const loadPitchData = () => {
     // try detailed `roofDetails.facets` first
     const facetsArr = safeExtract(
@@ -340,7 +369,7 @@ const CombinedReport: FC<CombinedReportProps> = ({
       []
     )
     if (Array.isArray(facetsArr) && facetsArr.length) {
-      const total = loadRoofSummary().area
+      const total = roofSummary.bestArea
       const byPitch = facetsArr.reduce<Record<string, number>>(
         (acc, f: any) => {
           const pitch = f.pitch || "Unknown"
@@ -366,7 +395,7 @@ const CombinedReport: FC<CombinedReportProps> = ({
       return [
         {
           pitch: structuredData.pitch,
-          area: loadRoofSummary().area,
+          area: roofSummary.bestArea,
           percentage: 100
         }
       ]
@@ -608,7 +637,7 @@ const CombinedReport: FC<CombinedReportProps> = ({
 
   // Load data using the safe methods
   const propertyDetails = loadPropertyDetails()
-  const roofSummary = loadRoofSummary()
+  // roofSummary is loaded earlier (before aiSummary) to avoid temporal dead zone error
   const solarInfo = loadSolarData()
   const facetDetails = loadRoofFacetDetails()
   const pitchData = loadPitchData()

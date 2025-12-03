@@ -3,6 +3,7 @@
 
 import { ThemeProvider } from "next-themes"
 import { ChatbotUIProvider } from "@/context/context"
+import { CanvasProvider } from "@/context/CanvasContext"
 
 export function Providers({
   attribute,
@@ -16,7 +17,9 @@ export function Providers({
   return (
     <ThemeProvider attribute={attribute} defaultTheme={defaultTheme}>
       {/* 🎯 Wrap here so all downstream client components get context */}
-      <ChatbotUIProvider>{children}</ChatbotUIProvider>
+      <ChatbotUIProvider>
+        <CanvasProvider>{children}</CanvasProvider>
+      </ChatbotUIProvider>
     </ThemeProvider>
   )
 }

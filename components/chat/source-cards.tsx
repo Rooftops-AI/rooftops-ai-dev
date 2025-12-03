@@ -1,9 +1,7 @@
 "use client"
 
-import { useState } from "react"
 import { Card } from "@/components/ui/card"
-import { FileText, ExternalLink, Globe } from "lucide-react"
-import { DocumentSourceViewer } from "./document-source-viewer"
+import { FileText } from "lucide-react"
 import Image from "next/image"
 
 interface SourceInfo {
@@ -22,16 +20,6 @@ interface SourceCardsProps {
 }
 
 export function SourceCards({ messageMetadata }: SourceCardsProps) {
-  const [selectedDocument, setSelectedDocument] = useState<{
-    id: string
-    sourceNumber: number
-    chunkContent: string
-    title: string
-    fileName: string
-    documentType: string
-    isGlobal: boolean
-  } | null>(null)
-
   console.log("SourceCards - Received metadata:", messageMetadata)
 
   // Helper to strip HTML tags
@@ -77,15 +65,29 @@ export function SourceCards({ messageMetadata }: SourceCardsProps) {
   console.log("SourceCards - Rendering", sources.length, "source cards")
 
   const handleCardClick = (source: SourceInfo) => {
-    setSelectedDocument({
-      id: source.id,
+    console.log("[SourceCards] Card clicked", {
       sourceNumber: source.sourceNumber,
-      chunkContent: source.chunkContent,
-      title: source.title,
       fileName: source.fileName,
-      documentType: source.documentType,
-      isGlobal: source.isGlobal
+      documentType: source.documentType
     })
+
+    // If this is a web source (URL), open it directly with UTM tracking
+    if (source.fileName && source.fileName.startsWith("http")) {
+      try {
+        const url = new URL(source.fileName)
+        url.searchParams.set("utm_source", "rooftopsai")
+        url.searchParams.set("utm_medium", "chat")
+        url.searchParams.set("utm_campaign", "source_card")
+        console.log("[SourceCards] Opening URL:", url.toString())
+        window.open(url.toString(), "_blank", "noopener,noreferrer")
+      } catch (error) {
+        console.error("[SourceCards] Error opening URL:", error)
+      }
+      return
+    }
+
+    // For non-web sources (documents), you could handle them differently
+    console.log("[SourceCards] Non-web source clicked (no action taken)")
   }
 
   // Truncate preview text
@@ -115,72 +117,54 @@ export function SourceCards({ messageMetadata }: SourceCardsProps) {
   }
 
   return (
-    <>
-      <div className="not-prose mb-2 mt-4">
-        <div className="scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent flex gap-2 overflow-x-auto pb-2">
-          {sources.map(source => {
-            const isWebSource = source.documentType === "Web Search"
-            const faviconUrl = isWebSource
-              ? getFaviconUrl(source.fileName)
-              : null
-            const domain = getDomain(source.fileName)
+    <div className="not-prose mb-2 mt-4">
+      <div className="scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent flex gap-2 overflow-x-auto pb-2">
+        {sources.map(source => {
+          const isWebSource = source.documentType === "Web Search"
+          const faviconUrl = isWebSource ? getFaviconUrl(source.fileName) : null
+          const domain = getDomain(source.fileName)
 
-            return (
-              <Card
-                key={source.sourceNumber}
-                className="hover:bg-accent/50 group flex shrink-0 cursor-pointer items-start gap-2 border p-2.5 transition-colors duration-150"
-                style={{ width: "200px" }}
-                onClick={() => handleCardClick(source)}
-              >
-                {/* Number badge */}
-                <div className="bg-foreground/10 text-foreground mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-sm text-[10px] font-semibold">
-                  {source.sourceNumber}
+          return (
+            <Card
+              key={source.sourceNumber}
+              className="hover:bg-accent/50 group flex shrink-0 cursor-pointer items-start gap-2 border p-2.5 transition-colors duration-150"
+              style={{ width: "200px" }}
+              onClick={() => handleCardClick(source)}
+            >
+              {/* Number badge */}
+              <div className="bg-foreground/10 text-foreground mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-sm text-[10px] font-semibold">
+                {source.sourceNumber}
+              </div>
+
+              {/* Content */}
+              <div className="flex min-w-0 flex-1 flex-col gap-1">
+                {/* Title */}
+                <div className="line-clamp-2 text-xs font-medium leading-tight">
+                  {stripHtml(source.title)}
                 </div>
 
-                {/* Content */}
-                <div className="flex min-w-0 flex-1 flex-col gap-1">
-                  {/* Title */}
-                  <div className="line-clamp-2 text-xs font-medium leading-tight">
-                    {stripHtml(source.title)}
-                  </div>
-
-                  {/* Domain/Source with favicon */}
-                  <div className="flex items-center gap-1.5">
-                    {isWebSource && faviconUrl ? (
-                      <Image
-                        src={faviconUrl}
-                        alt=""
-                        width={12}
-                        height={12}
-                        className="shrink-0"
-                      />
-                    ) : (
-                      <FileText className="text-muted-foreground size-3 shrink-0" />
-                    )}
-                    <span className="text-muted-foreground truncate text-[10px]">
-                      {isWebSource && domain ? domain : source.documentType}
-                    </span>
-                  </div>
+                {/* Domain/Source with favicon */}
+                <div className="flex items-center gap-1.5">
+                  {isWebSource && faviconUrl ? (
+                    <Image
+                      src={faviconUrl}
+                      alt=""
+                      width={12}
+                      height={12}
+                      className="shrink-0"
+                    />
+                  ) : (
+                    <FileText className="text-muted-foreground size-3 shrink-0" />
+                  )}
+                  <span className="text-muted-foreground truncate text-[10px]">
+                    {isWebSource && domain ? domain : source.documentType}
+                  </span>
                 </div>
-              </Card>
-            )
-          })}
-        </div>
+              </div>
+            </Card>
+          )
+        })}
       </div>
-
-      {selectedDocument && (
-        <DocumentSourceViewer
-          documentId={selectedDocument.id}
-          sourceNumber={selectedDocument.sourceNumber}
-          chunkContent={selectedDocument.chunkContent}
-          title={selectedDocument.title}
-          fileName={selectedDocument.fileName}
-          documentType={selectedDocument.documentType}
-          isGlobal={selectedDocument.isGlobal}
-          isOpen={!!selectedDocument}
-          onClose={() => setSelectedDocument(null)}
-        />
-      )}
-    </>
+    </div>
   )
 }

@@ -5,7 +5,6 @@
 import React, { useState, useEffect, useCallback, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/components/ui/use-toast"
-import { Card, CardContent } from "@/components/ui/card"
 import { IconLoader2, IconInfoCircle, IconMapPin } from "@tabler/icons-react"
 import html2canvas from "html2canvas"
 import axios from "axios"
@@ -26,25 +25,9 @@ import {
   SelectValue
 } from "@/components/ui/select"
 
-// Combined model list with both Anthropic and OpenAI models
+// Available OpenAI models for roof analysis
 const availableModels = [
-  // Anthropic models
-  {
-    value: "claude-3-opus-20240229",
-    label: "Claude 3 Opus (Best Quality)",
-    provider: "anthropic"
-  },
-  {
-    value: "claude-3-7-sonnet-20250219",
-    label: "Claude 3 Sonnet (2025)",
-    provider: "anthropic"
-  },
-  {
-    value: "claude-3-haiku-20240307",
-    label: "Claude 3 Haiku (Fastest)",
-    provider: "anthropic"
-  },
-  // OpenAI models
+  { value: "gpt-5.1", label: "GPT-5.1 (Recommended)", provider: "openai" },
   { value: "gpt-4o", label: "GPT-4o (Balanced)", provider: "openai" },
   { value: "o4-mini-2025-04-16", label: "GPT-o4-mini", provider: "openai" },
   { value: "gpt-4.1-2025-04-14", label: "GPT-4.1", provider: "openai" }
@@ -71,8 +54,8 @@ const ExploreMap: React.FC<ExploreMapProps> = ({
   const [measuredDistance, setMeasuredDistance] = useState<string | null>(null)
   const [roofAnalysis, setRoofAnalysis] = useState(null)
   const [reportData, setReportData] = useState(null)
-  const [selectedModel, setSelectedModel] = useState("claude-3-opus-20240229")
-  const [isDebugMode, setIsDebugMode] = useState(true)
+  const [selectedModel, setSelectedModel] = useState("gpt-5.1")
+  const [isDebugMode, setIsDebugMode] = useState(false)
   const [debugLogs, setDebugLogs] = useState<string[]>([])
   const [captureAngle, setCaptureAngle] = useState(0)
   const [is3DMode, setIs3DMode] = useState(true)
@@ -500,56 +483,96 @@ const ExploreMap: React.FC<ExploreMapProps> = ({
 
       // Create a more detailed prompt that explains the enhancements and measurement grid
       const enhancedPrompt = `As an expert roofing analyst, I need your detailed assessment of a property at ${selectedAddress || `${selectedLocation?.lat.toFixed(6)}, ${selectedLocation?.lng.toFixed(6)}`}. Focus on the property most centered in these images and compare all images to determine the most accurate details about the subject property. We are pursuing highly accurate number of facets and square footage of the roof so that we can determine the number of squares needed to replace the subject roof.
-  
+
   IMPORTANT MEASUREMENT INFORMATION:
   - The images have been enhanced with edge detection to highlight roof facets and boundaries
   - A measurement grid has been added for reference (approximately 10x10 grid)
   - A scale bar shows approximately 10 meters / 30 feet
   - North direction is indicated in the top right corner
-  
+
+  CRITICAL: You MUST respond with valid JSON in this exact format:
+  {
+    "userSummary": "A 2-3 sentence executive summary for the property owner describing the roof in plain language",
+    "structuredData": {
+      "facetCount": <number of distinct roof planes>,
+      "roofArea": <total area in square feet>,
+      "roofAreaRange": [<min_estimate>, <max_estimate>],
+      "squares": <roofing squares (area/100)>,
+      "pitch": "<dominant pitch like 6/12 or 8/12>",
+      "ridgeLength": <linear feet of ridges>,
+      "valleyLength": <linear feet of valleys>,
+      "complexity": "<simple|moderate|complex>",
+      "confidence": "<low|medium|high>",
+      "material": "<observed roofing material>",
+      "condition": "<observed condition>"
+    },
+    "detailedAnalysis": "Your complete technical analysis with all measurements, observations, and recommendations"
+  }
+
   Please analyze the following aspects with the highest possible accuracy:
-  
+
   1. PRECISE ROOF MEASUREMENTS:
      - Total roof area in square feet (be as precise as possible)
      - Count all distinct roof facets/planes (be exact)
      - Measure the pitch of each major facet (e.g. 4/12, 6/12, etc.)
      - Identify and measure ridge lines, valleys, hips, and dormers
      - Where possible, provide dimensions of each major section
-  
+
   2. MATERIAL ASSESSMENT:
      - Identify probable roofing material and condition
-     - Note signs of aging, damage, or maintenance issues 
+     - Note signs of aging, damage, or maintenance issues
      - Evaluate solar potential based on orientation and shading
-  
+
   3. INSTALLATION CONSIDERATIONS:
      - Identify access challenges or safety concerns
      - Note complex features requiring special attention
      - Estimate total ridge and valley lengths (in linear feet)
-  
-  4. QUANTITATIVE METRICS (provide specific numbers with high precision):
-     - Total facet count
-     - Estimated roof area (sq. ft, be precise)
-     - Ridge length (linear ft)  
-     - Valley length (linear ft)
-     - Complexity rating (simple, moderate, complex)
-     - Confidence level in your assessment (low, medium, high)
-  
-  Use the measurement grid and scale bar to make the most accurate assessments possible. The grid cells are approximately equal in size, and the scale bar represents approximately 10 meters or 30 feet.`
+
+  Use the measurement grid and scale bar to make the most accurate assessments possible. The grid cells are approximately equal in size, and the scale bar represents approximately 10 meters or 30 feet.
+
+  REMEMBER: Respond ONLY with valid JSON. No markdown, no code blocks, just the JSON object.`
+
+      // Format payload to match OpenAI chat API expectations
+      const addressStr =
+        selectedAddress ||
+        `${selectedLocation?.lat.toFixed(6)}, ${selectedLocation?.lng.toFixed(6)}`
+
+      // Build the message content with images
+      const messageContent: any[] = [
+        {
+          type: "text",
+          text: `${enhancedPrompt}\n\nProperty Address: ${addressStr}`
+        }
+      ]
+
+      // Add satellite images to message content
+      validViews.forEach((view, index) => {
+        messageContent.push({
+          type: "image_url",
+          image_url: {
+            url: view.imageData,
+            detail: "high"
+          }
+        })
+      })
 
       const payload = {
-        satelliteViews: validViews,
-        address:
-          selectedAddress ||
-          `${selectedLocation?.lat.toFixed(6)}, ${selectedLocation?.lng.toFixed(6)}`,
-        model: selectedModel,
-        provider: provider,
-        enhancedPrompt: enhancedPrompt,
-        debug: isDebugMode,
-        imageEnhancementApplied: {
-          edges: imageProcessingOptions.enhanceEdges,
-          contrast: imageProcessingOptions.enhanceContrast,
-          measurementGrid: imageProcessingOptions.addMeasurementGrid
-        }
+        chatSettings: {
+          model: selectedModel,
+          temperature: 0.7
+        },
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are a roofing expert analyzing satellite imagery to assess roof conditions."
+          },
+          {
+            role: "user",
+            content: messageContent
+          }
+        ],
+        workspaceId: workspaceId
       }
 
       if (isDebugMode) {
@@ -558,14 +581,172 @@ const ExploreMap: React.FC<ExploreMapProps> = ({
         logDebug(
           `API payload size: ${Math.round((payloadSize / 1024 / 1024) * 100) / 100} MB`
         )
+        logDebug(
+          `Sending ${validViews.length} images to model: ${selectedModel}`
+        )
       }
 
-      // Update the API endpoint to use the enhanced prompt
-      const response = await axios.post("/api/analyze-roof", payload)
+      // Send to OpenAI chat API (Anthropic models removed)
+      const response = await axios.post("/api/chat/openai", payload)
 
       logDebug("Analysis completed successfully")
 
-      return response.data
+      // Parse the response - try to extract JSON first
+      let analysisResult: any = {}
+
+      if (typeof response.data === "string") {
+        const responseText = response.data.trim()
+
+        // Try to parse as JSON (GPT-4o should return JSON per our prompt)
+        try {
+          // Remove markdown code blocks if present
+          const jsonMatch =
+            responseText.match(/```(?:json)?\s*(\{[\s\S]*\})\s*```/) ||
+            responseText.match(/(\{[\s\S]*\})/)
+
+          if (jsonMatch) {
+            const parsed = JSON.parse(jsonMatch[1])
+
+            // Validate the structure
+            if (parsed.structuredData && parsed.userSummary) {
+              analysisResult = {
+                analysis: parsed.detailedAnalysis || responseText,
+                structuredData: {
+                  ...parsed.structuredData,
+                  userSummary: parsed.userSummary
+                },
+                capturedImages: validViews,
+                satelliteViews: validViews,
+                debug: {
+                  modelUsed: selectedModel,
+                  responseTime: Date.now() - Date.now(),
+                  imageCount: validViews.length
+                }
+              }
+              logDebug("Successfully parsed structured JSON response")
+            } else {
+              throw new Error("Invalid JSON structure")
+            }
+          } else {
+            throw new Error("No JSON found in response")
+          }
+        } catch (parseError) {
+          console.warn(
+            "Could not parse JSON, falling back to text parsing:",
+            parseError
+          )
+
+          // Fallback: Try to extract metrics from text
+          const metrics = {
+            facetCount: null as number | null,
+            roofArea: null as number | null,
+            roofAreaRange: null as [number, number] | null,
+            squares: null as number | null,
+            pitch: null as string | null,
+            ridgeLength: null as number | null,
+            valleyLength: null as number | null,
+            complexity: null as string | null,
+            confidence: null as string | null,
+            material: null as string | null,
+            condition: null as string | null
+          }
+
+          // Extract facet count
+          const facetMatch = responseText.match(
+            /(\d+)\s*(?:distinct\s*)?(?:roof\s*)?(?:facets?|planes?)/i
+          )
+          if (facetMatch) metrics.facetCount = parseInt(facetMatch[1])
+
+          // Extract roof area
+          const areaMatch = responseText.match(
+            /(\d{1,3}(?:,\d{3})*|\d+)\s*(?:square\s*)?(?:feet|ft|sq\.?\s*ft)/i
+          )
+          if (areaMatch)
+            metrics.roofArea = parseInt(areaMatch[1].replace(/,/g, ""))
+
+          // Extract area range
+          const rangeMatch = responseText.match(
+            /(\d{1,3}(?:,\d{3})*|\d+)\s*[-–]\s*(\d{1,3}(?:,\d{3})*|\d+)\s*(?:square\s*)?(?:feet|ft|sq\.?\s*ft)/i
+          )
+          if (rangeMatch) {
+            metrics.roofAreaRange = [
+              parseInt(rangeMatch[1].replace(/,/g, "")),
+              parseInt(rangeMatch[2].replace(/,/g, ""))
+            ]
+          }
+
+          // Extract squares
+          const squaresMatch = responseText.match(
+            /(\d+)\s*(?:roofing\s*)?squares?/i
+          )
+          if (squaresMatch) metrics.squares = parseInt(squaresMatch[1])
+          else if (metrics.roofArea)
+            metrics.squares = Math.round(metrics.roofArea / 100)
+
+          // Extract pitch
+          const pitchMatch =
+            responseText.match(/(\d+)\/12\s*pitch/i) ||
+            responseText.match(/pitch\s*(?:of\s*)?(\d+)\/12/i)
+          if (pitchMatch) metrics.pitch = `${pitchMatch[1]}/12`
+
+          // Extract ridge length
+          const ridgeMatch = responseText.match(
+            /ridge.*?(\d+)\s*(?:linear\s*)?(?:feet|ft)/i
+          )
+          if (ridgeMatch) metrics.ridgeLength = parseInt(ridgeMatch[1])
+
+          // Extract valley length
+          const valleyMatch = responseText.match(
+            /valley.*?(\d+)\s*(?:linear\s*)?(?:feet|ft)/i
+          )
+          if (valleyMatch) metrics.valleyLength = parseInt(valleyMatch[1])
+
+          // Extract complexity
+          if (/complex/i.test(responseText)) metrics.complexity = "complex"
+          else if (/moderate/i.test(responseText))
+            metrics.complexity = "moderate"
+          else if (/simple/i.test(responseText)) metrics.complexity = "simple"
+
+          // Extract confidence
+          if (/high\s*confidence/i.test(responseText))
+            metrics.confidence = "high"
+          else if (/medium\s*confidence/i.test(responseText))
+            metrics.confidence = "medium"
+          else if (/low\s*confidence/i.test(responseText))
+            metrics.confidence = "low"
+
+          // Generate a summary from the first paragraph
+          const paragraphs = responseText
+            .split("\n\n")
+            .filter(p => p.trim().length > 50)
+          const userSummary =
+            paragraphs[0]?.substring(0, 300) ||
+            "AI analysis completed. Review the detailed analysis section for measurements and recommendations."
+
+          analysisResult = {
+            analysis: responseText,
+            structuredData: {
+              ...metrics,
+              userSummary
+            },
+            capturedImages: validViews,
+            satelliteViews: validViews,
+            debug: {
+              modelUsed: selectedModel,
+              responseTime: Date.now() - Date.now(),
+              imageCount: validViews.length,
+              parsingMethod: "text_extraction"
+            }
+          }
+
+          logDebug("Used text parsing fallback to extract metrics")
+        }
+      } else {
+        // Response is already an object
+        analysisResult = response.data
+      }
+
+      return analysisResult
     } catch (error) {
       console.error("Error in LLM analysis:", error)
       logDebug(`Analysis error: ${error.message}`)
@@ -835,115 +1016,66 @@ const ExploreMap: React.FC<ExploreMapProps> = ({
 
   // Render the main component
   return (
-    <div className="explore-map-container">
-      <Card className="overflow-hidden rounded-xl border border-gray-200 shadow-md dark:border-gray-800">
-        <CardContent className="p-4">
-          <div className="mb-4 flex flex-wrap items-center gap-2">
-            <div className="flex size-8 items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-purple-600">
-              <IconMapPin size={18} className="text-white" />
-            </div>
-            <h2 className="text-xl font-bold text-gray-900 md:text-2xl dark:text-white">
-              AI Property Explorer
-            </h2>
+    <div className="explore-map-container flex h-full flex-col p-2 pb-[180px] md:p-4">
+      <div className="mb-3 flex flex-wrap items-center gap-2">
+        <div className="flex size-8 items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-purple-600">
+          <IconMapPin size={18} className="text-white" />
+        </div>
+        <h2 className="text-lg font-bold text-gray-900 md:text-2xl dark:text-white">
+          AI Property Explorer
+        </h2>
+      </div>
 
-            {/* Model selector */}
-            <div className="ml-auto">
-              <Select value={selectedModel} onValueChange={setSelectedModel}>
-                <SelectTrigger className="h-9 w-[160px] border-gray-200 bg-white sm:w-[200px] dark:border-gray-700 dark:bg-gray-800">
-                  <SelectValue placeholder="Select model" />
-                </SelectTrigger>
-                <SelectContent className="border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
-                  <div className="p-2 text-xs font-semibold text-gray-500 dark:text-gray-400">
-                    Anthropic Models
-                  </div>
-                  {availableModels
-                    .filter(model => model.provider === "anthropic")
-                    .map(model => (
-                      <SelectItem
-                        key={model.value}
-                        value={model.value}
-                        className="text-sm text-gray-700 dark:text-gray-300"
-                      >
-                        {model.label}
-                      </SelectItem>
-                    ))}
-                  <div className="mt-1 border-t border-gray-200 p-2 text-xs font-semibold text-gray-500 dark:border-gray-700 dark:text-gray-400">
-                    OpenAI Models
-                  </div>
-                  {availableModels
-                    .filter(model => model.provider === "openai")
-                    .map(model => (
-                      <SelectItem
-                        key={model.value}
-                        value={model.value}
-                        className="text-sm text-gray-700 dark:text-gray-300"
-                      >
-                        {model.label}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
-            </div>
+      <p className="mb-3 text-sm text-gray-600 md:text-base dark:text-gray-300">
+        Search for an address or click on any rooftop to analyze solar potential
+        and generate a property report.
+      </p>
 
-            {/* Debug mode toggle */}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={toggleDebugMode}
-              className={`${isDebugMode ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100" : ""}`}
-            >
-              <IconInfoCircle size={16} className="mr-1" />
-              Debug
-            </Button>
-          </div>
+      {/* Map Component */}
+      <div
+        className={`overflow-hidden ${roofAnalysis || reportData ? "h-[400px]" : "min-h-[400px] flex-1"}`}
+      >
+        <MapView
+          workspaceId={workspaceId}
+          selectedLocation={selectedLocation}
+          setSelectedLocation={setSelectedLocation}
+          selectedAddress={selectedAddress}
+          setSelectedAddress={setSelectedAddress}
+          isAnalyzing={isAnalyzing}
+          captureProgress={captureProgress}
+          captureAngle={captureAngle}
+          is3DMode={is3DMode}
+          toggleIs3DMode={toggleIs3DMode}
+          isDebugMode={isDebugMode}
+          logDebug={logDebug}
+          measuredArea={measuredArea}
+          setMeasuredArea={setMeasuredArea}
+          measuredDistance={measuredDistance}
+          setMeasuredDistance={setMeasuredDistance}
+          captureMapView={captureMapView}
+          onAnalyzePropertyClick={handleAnalyzePropertyClick}
+          setMapContainerRef={el => {
+            mapContainerRef.current = el
+            console.log("Map container ref set:", el ? "success" : "null")
+          }}
+          setMapRef={map => {
+            mapRef.current = map
+            console.log("Map reference set:", map ? "success" : "null")
+          }}
+          setInfoWindowRef={infoWindow => {
+            infoWindowRef.current = infoWindow
+          }}
+          imageProcessingOptions={imageProcessingOptions}
+          onToggleImageProcessingOption={toggleImageProcessingOption}
+          selectedModel={selectedModel}
+          onModelChange={setSelectedModel}
+          availableModels={availableModels}
+          onToggleDebugMode={toggleDebugMode}
+        />
+      </div>
 
-          <p className="mb-4 text-gray-600 dark:text-gray-300">
-            Search for an address or click on any rooftop to analyze solar
-            potential and generate a property report.
-          </p>
-
-          {/* Map Component */}
-          <div
-            style={{ height: "500px", width: "100%" }}
-            className="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700"
-          >
-            <MapView
-              workspaceId={workspaceId}
-              selectedLocation={selectedLocation}
-              setSelectedLocation={setSelectedLocation}
-              selectedAddress={selectedAddress}
-              setSelectedAddress={setSelectedAddress}
-              isAnalyzing={isAnalyzing}
-              captureProgress={captureProgress}
-              captureAngle={captureAngle}
-              is3DMode={is3DMode}
-              toggleIs3DMode={toggleIs3DMode}
-              isDebugMode={isDebugMode}
-              logDebug={logDebug}
-              measuredArea={measuredArea}
-              setMeasuredArea={setMeasuredArea}
-              measuredDistance={measuredDistance}
-              setMeasuredDistance={setMeasuredDistance}
-              captureMapView={captureMapView}
-              onAnalyzePropertyClick={handleAnalyzePropertyClick}
-              setMapContainerRef={el => {
-                mapContainerRef.current = el
-                console.log("Map container ref set:", el ? "success" : "null")
-              }}
-              setMapRef={map => {
-                mapRef.current = map
-                console.log("Map reference set:", map ? "success" : "null")
-              }}
-              setInfoWindowRef={infoWindow => {
-                infoWindowRef.current = infoWindow
-              }}
-              imageProcessingOptions={imageProcessingOptions}
-              onToggleImageProcessingOption={toggleImageProcessingOption}
-            />
-          </div>
-
-          {/* Image Enhancement Controls */}
-          {/* <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
+      {/* Image Enhancement Controls */}
+      {/* <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
             <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Image Enhancement Options
             </h3>
@@ -1011,66 +1143,58 @@ const ExploreMap: React.FC<ExploreMapProps> = ({
             </div>
           </div> */}
 
-          {/* Results Section */}
-          <div className="mt-6">
-            {/* If there's a report, render a "back to map" button */}
-            {(roofAnalysis || reportData) && (
-              <div className="mb-4 flex justify-end">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setRoofAnalysis(null)
-                    setReportData(null)
-                  }}
-                  className="text-blue-600 dark:text-blue-400"
-                >
-                  Close Report
-                </Button>
-              </div>
-            )}
-
-            {/* Loading state */}
-            {isLoading && !roofAnalysis && !reportData && (
-              <div className="flex items-center justify-center py-12">
-                <div className="flex flex-col items-center space-y-4">
-                  <IconLoader2
-                    size={36}
-                    className="animate-spin text-blue-500"
-                  />
-                  <p className="text-gray-600 dark:text-gray-300">
-                    Analyzing property and generating report...
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {/* New combined report component with unified design */}
-            {(roofAnalysis || reportData) && (
-              <CombinedReport
-                analysisData={roofAnalysis}
-                reportData={reportData}
-              />
-            )}
+      {/* Results Section */}
+      <div className="mt-4">
+        {/* If there's a report, render a "back to map" button */}
+        {(roofAnalysis || reportData) && (
+          <div className="mb-4 flex justify-end">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setRoofAnalysis(null)
+                setReportData(null)
+              }}
+              className="text-blue-600 dark:text-blue-400"
+            >
+              Close Report
+            </Button>
           </div>
+        )}
 
-          {/* Debug Logs */}
-          {isDebugMode && debugLogs.length > 0 && (
-            <div className="mt-6 rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900">
-              <h3 className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                Debug Logs
-              </h3>
-              <div className="h-40 overflow-y-auto rounded bg-white p-3 font-mono text-xs text-gray-700 dark:bg-gray-800 dark:text-gray-300">
-                {debugLogs.map((log, index) => (
-                  <div key={index} className="mb-1">
-                    {log}
-                  </div>
-                ))}
-              </div>
+        {/* Loading state */}
+        {isLoading && !roofAnalysis && !reportData && (
+          <div className="flex items-center justify-center py-12">
+            <div className="flex flex-col items-center space-y-4">
+              <IconLoader2 size={36} className="animate-spin text-blue-500" />
+              <p className="text-gray-600 dark:text-gray-300">
+                Analyzing property and generating report...
+              </p>
             </div>
-          )}
-        </CardContent>
-      </Card>
+          </div>
+        )}
+
+        {/* New combined report component with unified design */}
+        {(roofAnalysis || reportData) && (
+          <CombinedReport analysisData={roofAnalysis} reportData={reportData} />
+        )}
+      </div>
+
+      {/* Debug Logs */}
+      {isDebugMode && debugLogs.length > 0 && (
+        <div className="mt-4 rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-900">
+          <h3 className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+            Debug Logs
+          </h3>
+          <div className="h-32 overflow-y-auto rounded bg-white p-2 font-mono text-xs text-gray-700 dark:bg-gray-800 dark:text-gray-300">
+            {debugLogs.map((log, index) => (
+              <div key={index} className="mb-1">
+                {log}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

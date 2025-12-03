@@ -8,13 +8,22 @@ import { useToast } from "@/components/ui/use-toast"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select"
+import {
   IconSearch,
   IconMapPin,
   IconLoader2,
   IconBuildingSkyscraper,
   IconInfoCircle,
   IconRuler,
-  Icon3dRotate
+  Icon3dRotate,
+  IconMap,
+  IconCurrentLocation
 } from "@tabler/icons-react"
 import Script from "next/script"
 
@@ -58,6 +67,12 @@ interface MapViewProps {
     pitchEnhancement?: boolean
   }
   onToggleImageProcessingOption?: (option: string) => void
+  // Model selector props
+  selectedModel?: string
+  onModelChange?: (model: string) => void
+  availableModels?: Array<{ value: string; label: string; provider: string }>
+  // Debug toggle
+  onToggleDebugMode?: () => void
 }
 
 const MapView: React.FC<MapViewProps> = ({
@@ -80,7 +95,11 @@ const MapView: React.FC<MapViewProps> = ({
   captureMapView,
   onAnalyzePropertyClick,
   setMapContainerRef,
-  setMapRef
+  setMapRef,
+  selectedModel,
+  onModelChange,
+  availableModels,
+  onToggleDebugMode
 }) => {
   const [isClient, setIsClient] = useState(false)
   const [mapInitialized, setMapInitialized] = useState(false)
@@ -97,6 +116,11 @@ const MapView: React.FC<MapViewProps> = ({
   const mapContainerRef = useRef<HTMLDivElement | null>(null)
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null)
   const autocompleteInputRef = useRef<HTMLInputElement | null>(null)
+  // Separate ref for mobile input
+  const autocompleteInputRefMobile = useRef<HTMLInputElement | null>(null)
+  const autocompleteRefMobile = useRef<google.maps.places.Autocomplete | null>(
+    null
+  )
   const geocoderRef = useRef<google.maps.Geocoder | null>(null)
   const markerRef = useRef<google.maps.Marker | null>(null)
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null)
@@ -111,10 +135,15 @@ const MapView: React.FC<MapViewProps> = ({
   const { toast } = useToast()
   const apiKey = process.env.NEXT_PUBLIC_GOOGLEMAPS_API_KEY || ""
 
-  // Effect to update searchInputValue when selectedAddress changes
+  // Effect to update search input when selectedAddress changes
   useEffect(() => {
     if (selectedAddress) {
-      setSearchInputValue(selectedAddress)
+      if (autocompleteInputRef.current) {
+        autocompleteInputRef.current.value = selectedAddress
+      }
+      if (autocompleteInputRefMobile.current) {
+        autocompleteInputRefMobile.current.value = selectedAddress
+      }
     }
   }, [selectedAddress])
 
@@ -261,9 +290,10 @@ const MapView: React.FC<MapViewProps> = ({
     setShowDrawingTools(!showDrawingTools)
   }, [showDrawingTools, logDebug, toast, setMeasuredArea, setMeasuredDistance])
 
-  // Handle search input change
+  // Handle search input change (keeping for compatibility but not needed for uncontrolled input)
   const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchInputValue(e.target.value)
+    // Don't update state - let Google Places Autocomplete handle the input
+    // setSearchInputValue(e.target.value)
   }
 
   // Initialize the map once the script is loaded and the DOM is ready
@@ -348,7 +378,10 @@ const MapView: React.FC<MapViewProps> = ({
 
             if (place.formatted_address) {
               setSelectedAddress(place.formatted_address)
-              setSearchInputValue(place.formatted_address) // Update search input value
+              // Update the input directly for uncontrolled component
+              if (autocompleteInputRef.current) {
+                autocompleteInputRef.current.value = place.formatted_address
+              }
               logDebug(`Selected address: ${place.formatted_address}`)
             }
 
@@ -395,6 +428,71 @@ const MapView: React.FC<MapViewProps> = ({
         })
 
         autocompleteRef.current = autocomplete
+      }
+
+      // Initialize autocomplete for MOBILE input too
+      if (autocompleteInputRefMobile.current) {
+        const autocompleteMobile = new window.google.maps.places.Autocomplete(
+          autocompleteInputRefMobile.current,
+          {
+            types: ["address"]
+          }
+        )
+
+        autocompleteMobile.addListener("place_changed", () => {
+          const place = autocompleteMobile.getPlace()
+          if (place.geometry && place.geometry.location) {
+            const lat = place.geometry.location.lat()
+            const lng = place.geometry.location.lng()
+
+            newMap.setCenter({ lat, lng })
+            newMap.setZoom(19)
+
+            setCenter({ lat, lng })
+            setSelectedLocation({ lat, lng })
+
+            if (place.formatted_address) {
+              setSelectedAddress(place.formatted_address)
+              // Update BOTH inputs
+              if (autocompleteInputRef.current) {
+                autocompleteInputRef.current.value = place.formatted_address
+              }
+              if (autocompleteInputRefMobile.current) {
+                autocompleteInputRefMobile.current.value =
+                  place.formatted_address
+              }
+              logDebug(`Selected address (mobile): ${place.formatted_address}`)
+            }
+
+            // Create or move marker (same logic as desktop)
+            if (markerRef.current) {
+              markerRef.current.setPosition({ lat, lng })
+            } else {
+              const marker = new window.google.maps.Marker({
+                position: { lat, lng },
+                map: newMap,
+                animation: window.google.maps.Animation.DROP,
+                icon: {
+                  path: window.google.maps.SymbolPath.CIRCLE,
+                  scale: 10,
+                  fillColor: "#4285F4",
+                  fillOpacity: 0.8,
+                  strokeColor: "white",
+                  strokeWeight: 2
+                }
+              })
+              markerRef.current = marker
+            }
+
+            // Update heatmap if visible
+            if (heatmapRef.current && heatmapVisible) {
+              const newData = generateHeatmapData({ lat, lng })
+              heatmapRef.current.setData(newData)
+            }
+          }
+        })
+
+        autocompleteRefMobile.current = autocompleteMobile
       }
 
       // Add click listener to map
@@ -454,8 +552,15 @@ const MapView: React.FC<MapViewProps> = ({
                 results[0]
               ) {
                 setSelectedAddress(results[0].formatted_address)
-                // Update the search input with the new address
-                setSearchInputValue(results[0].formatted_address)
+                // Update both search inputs with the new address directly
+                if (autocompleteInputRef.current) {
+                  autocompleteInputRef.current.value =
+                    results[0].formatted_address
+                }
+                if (autocompleteInputRefMobile.current) {
+                  autocompleteInputRefMobile.current.value =
+                    results[0].formatted_address
+                }
                 logDebug(`Reverse geocoded to: ${results[0].formatted_address}`)
 
                 // Update info window content
@@ -471,7 +576,10 @@ const MapView: React.FC<MapViewProps> = ({
                 }
               } else {
                 setSelectedAddress("")
-                setSearchInputValue("") // Clear search input when reverse geocoding fails
+                // Clear search input when reverse geocoding fails
+                if (autocompleteInputRef.current) {
+                  autocompleteInputRef.current.value = ""
+                }
                 logDebug("Reverse geocoding failed")
               }
             }
@@ -874,11 +982,8 @@ const MapView: React.FC<MapViewProps> = ({
 
   if (!isClient) {
     return (
-      <div className="explore-map-container">
-        <div
-          className="flex items-center justify-center bg-gray-100"
-          style={{ height: "500px" }}
-        >
+      <div className="explore-map-container h-full">
+        <div className="flex h-full items-center justify-center bg-gray-100">
           <div className="flex flex-col items-center text-gray-500">
             <IconLoader2 size={48} className="text-primary mb-2 animate-spin" />
             <div>Initializing map explorer...</div>
@@ -917,8 +1022,97 @@ const MapView: React.FC<MapViewProps> = ({
     )
   }
 
+  // Handler to get current location
+  const handleCurrentLocation = () => {
+    if (navigator.geolocation) {
+      setIsSearching(true)
+      navigator.geolocation.getCurrentPosition(
+        position => {
+          const userLocation = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          }
+          setCenter(userLocation)
+          mapRef.current?.setCenter(userLocation)
+          mapRef.current?.setZoom(18)
+          setZoom(18)
+          setSelectedLocation(userLocation)
+
+          // Reverse geocode to get address
+          if (geocoderRef.current) {
+            geocoderRef.current.geocode(
+              { location: userLocation },
+              (results, status) => {
+                if (
+                  status === window.google.maps.GeocoderStatus.OK &&
+                  results &&
+                  results[0]
+                ) {
+                  setSelectedAddress(results[0].formatted_address)
+                  // Update both search inputs directly
+                  if (autocompleteInputRef.current) {
+                    autocompleteInputRef.current.value =
+                      results[0].formatted_address
+                  }
+                  if (autocompleteInputRefMobile.current) {
+                    autocompleteInputRefMobile.current.value =
+                      results[0].formatted_address
+                  }
+                  logDebug(`Current location: ${results[0].formatted_address}`)
+                }
+                setIsSearching(false)
+              }
+            )
+          } else {
+            setIsSearching(false)
+          }
+
+          // Update marker
+          if (markerRef.current) {
+            markerRef.current.setPosition(userLocation)
+          } else if (mapRef.current) {
+            const marker = new window.google.maps.Marker({
+              position: userLocation,
+              map: mapRef.current,
+              animation: window.google.maps.Animation.DROP,
+              icon: {
+                path: window.google.maps.SymbolPath.CIRCLE,
+                scale: 10,
+                fillColor: "#4285F4",
+                fillOpacity: 0.8,
+                strokeColor: "white",
+                strokeWeight: 2
+              }
+            })
+            markerRef.current = marker
+          }
+
+          toast({
+            title: "Location Found",
+            description: "Map centered on your current location"
+          })
+        },
+        error => {
+          setIsSearching(false)
+          toast({
+            title: "Location Access Denied",
+            description:
+              "Please enable location permissions to use this feature.",
+            variant: "destructive"
+          })
+        }
+      )
+    } else {
+      toast({
+        title: "Not Supported",
+        description: "Geolocation is not supported by your browser.",
+        variant: "destructive"
+      })
+    }
+  }
+
   return (
-    <div className="size-full" style={{ height: "500px" }}>
+    <div className="size-full">
       {/* Load Google Maps script directly with Next.js Script component */}
       <Script
         src={`https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places,drawing,visualization,geometry`}
@@ -927,10 +1121,10 @@ const MapView: React.FC<MapViewProps> = ({
       />
 
       <Card className="h-full overflow-hidden border-0 bg-gray-50 shadow-lg dark:bg-gray-900">
-        <CardContent className="flex h-full flex-col p-4">
-          {/* Search and Generate Button Container */}
-          <div className="mb-3 rounded-lg bg-white p-4 shadow-sm dark:bg-gray-800">
-            <div className="flex flex-col gap-4 md:flex-row">
+        <CardContent className="flex h-full flex-col p-2 md:p-4">
+          {/* Desktop: Search at Top (hidden on mobile) */}
+          <div className="mb-3 hidden flex-col gap-3 md:flex">
+            <div className="flex flex-col gap-2 md:flex-row md:gap-4">
               <div className="relative grow">
                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                   <IconSearch className="size-5 text-gray-400" />
@@ -940,8 +1134,7 @@ const MapView: React.FC<MapViewProps> = ({
                   type="text"
                   placeholder="Search for an address"
                   className="w-full border-gray-200 bg-white py-2 pl-10 pr-4 focus:border-blue-500 dark:border-gray-700 dark:bg-gray-800"
-                  value={searchInputValue}
-                  onChange={handleSearchInputChange}
+                  defaultValue={searchInputValue}
                 />
               </div>
 
@@ -966,18 +1159,8 @@ const MapView: React.FC<MapViewProps> = ({
               </div>
             </div>
 
-            {/* Advanced options and 3D toggle */}
-            <div className="mt-3 flex flex-wrap items-center gap-3">
-              {/* <Button
-                variant="outline"
-                size="sm"
-                onClick={toggleIs3DMode}
-                className={`text-xs px-2 ${is3DMode ? 'bg-blue-700 hover:bg-blue-800 text-white' : 'bg-white hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700'} border-gray-200 dark:border-gray-700`}
-              >
-                <Icon3dRotate size={14} className="mr-1" />
-                {is3DMode ? '3D Mode On' : '3D Mode Off'}
-              </Button> */}
-
+            {/* Desktop tools */}
+            <div className="flex flex-wrap items-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
@@ -987,44 +1170,63 @@ const MapView: React.FC<MapViewProps> = ({
                 <IconRuler size={14} className="mr-1" />
                 {showDrawingTools ? "Hide Measurement Tools" : "Drawing Tools"}
               </Button>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleCurrentLocation}
+                disabled={isSearching}
+                className="border-gray-200 px-2 text-xs dark:border-gray-700"
+              >
+                <IconCurrentLocation size={14} className="mr-1" />
+                Current Location
+              </Button>
             </div>
 
-            {/* Selected Location and Measurements Info */}
-            <div className="mt-3 text-sm">
-              {selectedLocation && (
-                <div className="mb-1">
-                  <span className="font-medium text-blue-600 dark:text-blue-400">
-                    Selected Location:{" "}
-                  </span>
-                  <span className="text-gray-700 dark:text-gray-300">
-                    {selectedAddress ||
-                      `${selectedLocation.lat.toFixed(6)}, ${selectedLocation.lng.toFixed(6)}`}
-                  </span>
-                </div>
-              )}
+            {/* Desktop measurements info */}
+            {(selectedLocation || measuredArea || measuredDistance) && (
+              <div className="text-sm">
+                {selectedLocation && (
+                  <div className="mb-1">
+                    <span className="font-medium text-blue-600 dark:text-blue-400">
+                      Selected Location:{" "}
+                    </span>
+                    <span className="text-gray-700 dark:text-gray-300">
+                      {selectedAddress ||
+                        `${selectedLocation.lat.toFixed(6)}, ${selectedLocation.lng.toFixed(6)}`}
+                    </span>
+                  </div>
+                )}
 
-              {measuredArea && (
-                <div className="mb-1">
-                  <span className="font-medium text-green-600 dark:text-green-400">
-                    <IconBuildingSkyscraper size={14} className="mr-1 inline" />
-                    {measuredArea}
-                  </span>
-                </div>
-              )}
+                {measuredArea && (
+                  <div className="mb-1">
+                    <span className="font-medium text-green-600 dark:text-green-400">
+                      <IconBuildingSkyscraper
+                        size={14}
+                        className="mr-1 inline"
+                      />
+                      {measuredArea}
+                    </span>
+                  </div>
+                )}
 
-              {measuredDistance && (
-                <div>
-                  <span className="font-medium text-yellow-600 dark:text-yellow-400">
-                    <IconRuler size={14} className="mr-1 inline" />
-                    {measuredDistance}
-                  </span>
-                </div>
-              )}
-            </div>
+                {measuredDistance && (
+                  <div>
+                    <span className="font-medium text-yellow-600 dark:text-yellow-400">
+                      <IconRuler size={14} className="mr-1 inline" />
+                      {measuredDistance}
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
-          {/* Map Container - Using flex-grow and position relative/absolute */}
-          <div className="relative grow" style={{ minHeight: "300px" }}>
+          {/* Map Container */}
+          <div
+            className="relative mb-2 grow md:mb-0"
+            style={{ minHeight: "300px" }}
+          >
             {isSearching && (
               <div className="absolute inset-0 z-10 flex items-center justify-center bg-black bg-opacity-60">
                 <div className="flex items-center space-x-3 rounded-lg bg-gray-800 p-4 text-white">
@@ -1063,6 +1265,117 @@ const MapView: React.FC<MapViewProps> = ({
               style={mapContainerStyle}
               className="absolute inset-0 bg-gray-200 dark:bg-gray-800"
             ></div>
+          </div>
+
+          {/* Mobile: Chat-style Input at Bottom (sticky on mobile, hidden on desktop) */}
+          <div className="fixed inset-x-0 bottom-0 z-20 border-t border-gray-200 bg-white p-3 shadow-lg md:hidden dark:border-gray-700 dark:bg-gray-800">
+            {/* Main Search Row */}
+            <div className="flex items-center gap-2">
+              {/* Map Icon on Left */}
+              <div className="flex items-center justify-center text-gray-400">
+                <IconMap size={20} />
+              </div>
+
+              {/* Address Search Input */}
+              <div className="relative grow">
+                <Input
+                  ref={autocompleteInputRefMobile}
+                  type="text"
+                  placeholder="Search for an address or click the map..."
+                  className="w-full border-0 bg-transparent py-2 pr-10 focus-visible:ring-0 focus-visible:ring-offset-0"
+                  defaultValue={searchInputValue}
+                />
+              </div>
+
+              {/* Current Location Button on Right */}
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleCurrentLocation}
+                disabled={isSearching}
+                className="size-8 shrink-0 text-gray-500 hover:text-blue-500"
+                title="Use current location"
+              >
+                {isSearching ? (
+                  <IconLoader2 size={18} className="animate-spin" />
+                ) : (
+                  <IconCurrentLocation size={18} />
+                )}
+              </Button>
+
+              {/* Analyze Button */}
+              <Button
+                onClick={onAnalyzePropertyClick}
+                disabled={!selectedLocation || isAnalyzing}
+                size="sm"
+                className="shrink-0 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 px-4 hover:from-blue-700 hover:to-indigo-700"
+              >
+                {isAnalyzing ? (
+                  <IconLoader2 size={16} className="animate-spin" />
+                ) : (
+                  <IconBuildingSkyscraper size={16} />
+                )}
+              </Button>
+            </div>
+
+            {/* Bottom Row - Model Selector, Debug, and Tools */}
+            <div className="mt-2 flex items-center gap-2 overflow-x-auto text-xs">
+              {/* Model Selector as Pill */}
+              {selectedModel && onModelChange && availableModels && (
+                <Select value={selectedModel} onValueChange={onModelChange}>
+                  <SelectTrigger className="h-6 w-auto min-w-[100px] rounded-full border px-2.5 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableModels.map(model => (
+                      <SelectItem
+                        key={model.value}
+                        value={model.value}
+                        className="text-xs"
+                      >
+                        {model.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+
+              {/* Debug Button as Pill */}
+              {onToggleDebugMode && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={onToggleDebugMode}
+                  className={`h-6 rounded-full border px-2.5 text-xs ${isDebugMode ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300" : "text-gray-600"}`}
+                >
+                  <IconInfoCircle size={12} className="mr-1" />
+                  Debug
+                </Button>
+              )}
+
+              {/* Measure Tools Button as Pill */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={toggleDrawingTools}
+                className={`h-6 rounded-full border px-2.5 text-xs ${showDrawingTools ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300" : "text-gray-600"}`}
+              >
+                <IconRuler size={12} className="mr-1" />
+                {showDrawingTools ? "Hide" : "Measure"}
+              </Button>
+
+              {measuredArea && (
+                <span className="whitespace-nowrap text-xs text-gray-600 dark:text-gray-400">
+                  {measuredArea}
+                </span>
+              )}
+
+              {measuredDistance && (
+                <span className="whitespace-nowrap text-xs text-gray-600 dark:text-gray-400">
+                  {measuredDistance}
+                </span>
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>

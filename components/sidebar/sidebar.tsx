@@ -10,6 +10,7 @@ import { SidebarContent } from "./sidebar-content"
 import { Button } from "@/components/ui/button"
 import { IconLayoutSidebarLeftCollapse, IconCrown } from "@tabler/icons-react"
 import Link from "next/link"
+import { WithTooltip } from "@/components/ui/with-tooltip"
 
 interface SidebarProps {
   contentType: ContentType
@@ -79,15 +80,36 @@ export const Sidebar: FC<SidebarProps> = ({
             <img
               src="https://uploads-ssl.webflow.com/64e9150f53771ac56ef528b7/64ee16bb300d3e08d25a03ac_rooftops-logo-gr-black.png"
               alt="Rooftops AI"
-              className="h-6 w-auto dark:invert"
+              className="h-7 w-auto dark:invert"
             />
             {isPremium && (
-              <IconCrown
-                size={18}
-                className="text-gray-800 dark:text-gray-200"
+              <WithTooltip
+                delayDuration={0}
+                display={<div>Premium Account</div>}
+                trigger={
+                  <IconCrown
+                    size={20}
+                    className="text-[#FFD700]"
+                    fill="currentColor"
+                    stroke={0}
+                  />
+                }
               />
             )}
-            {isBusiness && <IconCrown size={18} className="text-yellow-500" />}
+            {isBusiness && (
+              <WithTooltip
+                delayDuration={0}
+                display={<div>Premium Account</div>}
+                trigger={
+                  <IconCrown
+                    size={20}
+                    className="text-[#FFD700]"
+                    fill="currentColor"
+                    stroke={0}
+                  />
+                }
+              />
+            )}
           </div>
           <Button
             variant="ghost"
@@ -97,8 +119,9 @@ export const Sidebar: FC<SidebarProps> = ({
             aria-label="Collapse sidebar"
           >
             <IconLayoutSidebarLeftCollapse
-              size={18}
-              className="text-muted-foreground"
+              size={22}
+              className="text-black dark:text-white"
+              stroke={2}
             />
           </Button>
         </div>
@@ -107,19 +130,24 @@ export const Sidebar: FC<SidebarProps> = ({
         {!hasActiveSubscription && (
           <div className="mb-3 px-1">
             <Link href="/pricing">
-              <Button className="h-[36px] w-full border-0 bg-gradient-to-r from-[#ffd700] via-[#ffb700] to-[#ff8c00] text-white hover:from-[#ffb700] hover:via-[#ff8c00] hover:to-[#ffd700]">
-                <IconCrown size={18} className="mr-2" />
+              <Button className="h-[36px] w-full border-0 bg-gradient-to-r from-[#ffd700] via-[#ffb700] to-[#ff8c00] font-semibold text-white hover:from-[#ffb700] hover:via-[#ff8c00] hover:to-[#ffd700]">
+                <IconCrown
+                  size={20}
+                  className="mr-2"
+                  fill="currentColor"
+                  stroke={0}
+                />
                 Upgrade to Pro
               </Button>
             </Link>
           </div>
         )}
 
-        {/* Workspace switcher */}
-        <div className="mb-3 flex items-center justify-between gap-2 px-1">
+        {/* Workspace switcher - Hidden */}
+        {/* <div className="mb-3 flex items-center justify-between gap-2 px-1">
           <WorkspaceSwitcher />
           <WorkspaceSettings />
-        </div>
+        </div> */}
 
         {/* Main content area */}
         <div className="-mx-1 flex-1 overflow-auto">

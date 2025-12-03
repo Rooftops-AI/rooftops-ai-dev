@@ -11,8 +11,6 @@ import { Inter } from "next/font/google"
 import { cookies } from "next/headers"
 import { ReactNode } from "react"
 import "./globals.css"
-import { DocumentPanel } from "@/components/ui/documentPanel"
-import { DocumentManager } from "@/components/ui/documentManager"
 
 const inter = Inter({ subsets: ["latin"] })
 const APP_NAME = "Rooftops AI"
@@ -101,15 +99,7 @@ export default async function RootLayout({
           >
             <Toaster richColors position="top-center" duration={3000} />
             <div className="bg-background text-foreground flex h-dvh flex-col items-center overflow-x-auto">
-              {session ? (
-                <GlobalState>
-                  {children}
-                  <DocumentPanel />
-                  <DocumentManager />
-                </GlobalState>
-              ) : (
-                children
-              )}
+              {session ? <GlobalState>{children}</GlobalState> : children}
             </div>
           </TranslationsProvider>
         </Providers>

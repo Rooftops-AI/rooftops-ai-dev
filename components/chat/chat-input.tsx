@@ -5,10 +5,12 @@ import { cn } from "@/lib/utils"
 import {
   IconArrowUp,
   IconBolt,
+  IconBrandGoogleDrive,
   IconCirclePlus,
   IconPlayerStopFilled,
   IconSend,
-  IconWaveSine
+  IconWaveSine,
+  IconX
 } from "@tabler/icons-react"
 import Image from "next/image"
 import { FC, useContext, useEffect, useRef, useState } from "react"
@@ -27,6 +29,9 @@ import { PropertyMessageHandler } from "@/lib/property/property-message-handler"
 import { nanoid } from "nanoid"
 // Import the ReportLoading component
 import { ReportLoading } from "@/components/property/report-loading"
+import { FilePickerDropdown } from "./file-picker-dropdown"
+import { WebSearchToggle } from "./web-search-toggle"
+import { ModelSelector } from "./model-selector"
 
 interface ChatInputProps {
   onVoiceModeClick?: () => void
@@ -47,6 +52,37 @@ export const ChatInput: FC<ChatInputProps> = ({ onVoiceModeClick }) => {
   })
 
   const [isTyping, setIsTyping] = useState<boolean>(false)
+  const [attachedDriveFile, setAttachedDriveFile] = useState<string | null>(
+    null
+  )
+
+  // Check for attached Drive file on mount and when sessionStorage changes
+  useEffect(() => {
+    const checkAttachedFile = () => {
+      const fileName = sessionStorage.getItem("pendingFileName")
+      setAttachedDriveFile(fileName)
+    }
+
+    checkAttachedFile()
+
+    // Listen for storage events to update when file is attached
+    window.addEventListener("storage", checkAttachedFile)
+
+    // Check periodically since sessionStorage doesn't fire events in same window
+    const interval = setInterval(checkAttachedFile, 500)
+
+    return () => {
+      window.removeEventListener("storage", checkAttachedFile)
+      clearInterval(interval)
+    }
+  }, [])
+
+  const handleRemoveAttachedFile = () => {
+    sessionStorage.removeItem("pendingFileContext")
+    sessionStorage.removeItem("pendingFileName")
+    setAttachedDriveFile(null)
+    toast.success("File removed")
+  }
 
   const {
     isAssistantPickerOpen,
@@ -285,6 +321,28 @@ export const ChatInput: FC<ChatInputProps> = ({ onVoiceModeClick }) => {
         {/* Show the loading animation when generating a property report */}
         {isGeneratingPropertyReport && <ReportLoading />}
 
+        {/* Show attached Google Drive file indicator */}
+        {attachedDriveFile && (
+          <div className="flex justify-center">
+            <div className="flex items-center space-x-2 rounded-lg border border-blue-500/50 bg-blue-50 px-3 py-1.5 dark:bg-blue-950/30">
+              <IconBrandGoogleDrive
+                size={16}
+                className="text-blue-600 dark:text-blue-400"
+              />
+              <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
+                {attachedDriveFile}
+              </span>
+              <button
+                onClick={handleRemoveAttachedFile}
+                className="ml-1 rounded-full p-0.5 hover:bg-blue-100 dark:hover:bg-blue-900"
+                aria-label="Remove file"
+              >
+                <IconX size={14} className="text-blue-600 dark:text-blue-400" />
+              </button>
+            </div>
+          </div>
+        )}
+
         {selectedTools &&
           selectedTools.map((tool, index) => (
             <div
@@ -329,75 +387,92 @@ export const ChatInput: FC<ChatInputProps> = ({ onVoiceModeClick }) => {
         )}
       </div>
 
+      {/* Claude-like input container */}
       <div className="relative mt-3 w-full">
-        <div className="absolute bottom-[76px] left-0 max-h-[300px] w-full overflow-auto rounded-xl">
+        {/* Command Input (above main container) */}
+        <div className="absolute bottom-[calc(100%+8px)] left-0 max-h-[300px] w-full overflow-auto rounded-xl">
           <ChatCommandInput />
         </div>
 
-        <>
-          <IconCirclePlus
-            className="absolute bottom-[12px] left-3 z-10 cursor-pointer p-1 hover:opacity-50"
-            size={32}
-            onClick={() => fileInputRef.current?.click()}
-          />
-
-          {/* Hidden input to select files from device */}
-          <Input
-            ref={fileInputRef}
-            className="hidden"
-            type="file"
-            onChange={e => {
-              if (!e.target.files) return
-              handleSelectDeviceFile(e.target.files[0])
-            }}
-            accept={filesToAccept}
-          />
-        </>
-
-        <TextareaAutosize
-          textareaRef={chatInputRef}
-          className="ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring text-md bg-background flex w-full resize-none rounded-xl border-none px-14 py-4 shadow-[0_0_20px_rgba(59,130,246,0.15),0_0_40px_rgba(139,92,246,0.1)] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-          placeholder={t(`Ask me anything...`)}
-          onValueChange={handleInputChange}
-          value={userInput}
-          minRows={1}
-          maxRows={18}
-          onKeyDown={handleKeyDown}
-          onPaste={handlePaste}
-          onCompositionStart={() => setIsTyping(true)}
-          onCompositionEnd={() => setIsTyping(false)}
-        />
-
-        <div className="absolute bottom-[14px] right-3 z-10 cursor-pointer hover:opacity-50">
-          {isGenerating ? (
-            <IconPlayerStopFilled
-              className="hover:bg-background animate-pulse rounded bg-transparent p-1"
-              onClick={handleStopMessage}
-              size={30}
+        {/* Main input container */}
+        <div className="bg-background flex w-full flex-col rounded-2xl border shadow-lg">
+          {/* Text input row */}
+          <div className="relative flex items-center">
+            <TextareaAutosize
+              textareaRef={chatInputRef}
+              className="ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring text-md flex w-full resize-none border-none bg-transparent px-4 py-3 pr-14 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+              placeholder={t(`Ask me anything...`)}
+              onValueChange={handleInputChange}
+              value={userInput}
+              minRows={1}
+              maxRows={18}
+              onKeyDown={handleKeyDown}
+              onPaste={handlePaste}
+              onCompositionStart={() => setIsTyping(true)}
+              onCompositionEnd={() => setIsTyping(false)}
             />
-          ) : !userInput && onVoiceModeClick ? (
-            <button
-              onClick={onVoiceModeClick}
-              className="flex items-center gap-2 rounded-full bg-black px-3 py-1.5 text-white transition-colors hover:bg-gray-800"
-            >
-              <IconWaveSine size={20} />
-              <span className="text-sm font-medium">Voice</span>
-            </button>
-          ) : (
-            <IconArrowUp
-              className={cn(
-                "rounded-full bg-black p-1 text-white",
-                !userInput && "cursor-not-allowed opacity-50"
+
+            {/* Voice/Submit buttons (aligned with textarea) */}
+            <div className="absolute right-3 top-3 cursor-pointer hover:opacity-50">
+              {isGenerating ? (
+                <IconPlayerStopFilled
+                  className="hover:bg-background animate-pulse rounded bg-transparent p-1"
+                  onClick={handleStopMessage}
+                  size={30}
+                />
+              ) : !userInput && onVoiceModeClick ? (
+                <button
+                  onClick={onVoiceModeClick}
+                  className="flex items-center gap-2 rounded-full bg-black px-3 py-1.5 text-white transition-colors hover:bg-gray-800"
+                >
+                  <IconWaveSine size={20} />
+                  <span className="text-sm font-medium">Voice</span>
+                </button>
+              ) : (
+                <IconArrowUp
+                  className={cn(
+                    "rounded-full bg-black p-1 text-white",
+                    !userInput && "cursor-not-allowed opacity-50"
+                  )}
+                  onClick={() => {
+                    if (!userInput) return
+                    handleSendMessage(userInput, chatMessages, false)
+                  }}
+                  size={30}
+                />
               )}
-              onClick={() => {
-                if (!userInput) return
+            </div>
+          </div>
 
-                handleSendMessage(userInput, chatMessages, false)
-              }}
-              size={30}
-            />
-          )}
+          {/* Bottom toolbar row */}
+          <div className="px-3 py-2">
+            <div className="flex items-center gap-2">
+              {/* File Picker */}
+              <FilePickerDropdown
+                onLocalFileClick={() => fileInputRef.current?.click()}
+                filesToAccept={filesToAccept}
+              />
+
+              {/* Web Search Toggle */}
+              <WebSearchToggle />
+
+              {/* Model Selector */}
+              <ModelSelector />
+            </div>
+          </div>
         </div>
+
+        {/* Hidden input to select files from device */}
+        <Input
+          ref={fileInputRef}
+          className="hidden"
+          type="file"
+          onChange={e => {
+            if (!e.target.files) return
+            handleSelectDeviceFile(e.target.files[0])
+          }}
+          accept={filesToAccept}
+        />
       </div>
     </>
   )

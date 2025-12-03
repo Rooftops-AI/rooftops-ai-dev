@@ -24,7 +24,7 @@ const GPT5Mini: LLM = {
   modelId: "gpt-5-mini",
   modelName: "GPT-5 Mini",
   provider: "openai",
-  hostedId: "gpt-5-mini",
+  hostedId: "gpt-5-mini-2025-08-07",
   platformLink: OPENAI_PLATORM_LINK,
   imageInput: true,
   pricing: {

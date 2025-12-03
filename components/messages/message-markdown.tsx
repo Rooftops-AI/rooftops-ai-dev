@@ -10,6 +10,7 @@ import { SourceCitation } from "../chat/source-citation"
 
 interface MessageMarkdownProps {
   content: string
+  metadata?: string // JSON string containing source metadata
 }
 
 // Loading status messages that rotate
@@ -54,8 +55,34 @@ const LoadingIndicator: FC = () => {
   )
 }
 
-export const MessageMarkdown: FC<MessageMarkdownProps> = ({ content }) => {
+export const MessageMarkdown: FC<MessageMarkdownProps> = ({
+  content,
+  metadata
+}) => {
   const { loadDocument, setDocumentMode } = useDocumentStore()
+
+  // Parse metadata to get sources
+  let sourcesMap: { [key: number]: any } = {}
+  console.log("[MessageMarkdown] Received metadata:", metadata)
+  if (metadata) {
+    try {
+      const parsed = JSON.parse(metadata)
+      console.log("[MessageMarkdown] Parsed metadata:", parsed)
+      if (parsed.sources && Array.isArray(parsed.sources)) {
+        // Create a map of sourceNumber -> source data
+        parsed.sources.forEach((source: any) => {
+          sourcesMap[source.sourceNumber] = source
+        })
+        console.log("[MessageMarkdown] Created sourcesMap:", sourcesMap)
+      } else {
+        console.log("[MessageMarkdown] No sources array in parsed metadata")
+      }
+    } catch (error) {
+      console.error("[MessageMarkdown] Error parsing message metadata:", error)
+    }
+  } else {
+    console.log("[MessageMarkdown] No metadata provided")
+  }
 
   // Check if this contains our special document marker
   const documentMarkerRegex = /DOCUMENT_ID:(doc_\d+)/
@@ -121,11 +148,13 @@ export const MessageMarkdown: FC<MessageMarkdownProps> = ({ content }) => {
                   }
 
                   // Add the citation component
+                  const sourceData = sourcesMap[sourceNum]
                   parts.push(
                     <SourceCitation
                       key={`source-${sourceNum}-${matchIndex}`}
                       sourceNumber={sourceNum}
                       messageContent={content}
+                      sourceData={sourceData}
                     />
                   )
 

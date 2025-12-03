@@ -26,7 +26,7 @@ export const metadata: Metadata = {
 export default async function Login({
   searchParams
 }: {
-  searchParams: { message: string }
+  searchParams: { message: string; type?: string }
 }) {
   const cookieStore = cookies()
   const supabase = createServerClient<Database>(
@@ -145,7 +145,9 @@ export default async function Login({
       return redirect(`/login?message=${error.message}`)
     }
 
-    return redirect("/setup")
+    return redirect(
+      "/login?message=Account created successfully! You can now sign in with your email and password.&type=success"
+    )
 
     // USE IF YOU WANT TO SEND EMAIL VERIFICATION, ALSO CHANGE TOML FILE
     // return redirect("/login?message=Check email to continue sign in process")
@@ -229,6 +231,19 @@ export default async function Login({
               Sign in to your account to continue
             </p>
           </div>
+
+          {/* Message banner at the top */}
+          {searchParams?.message && (
+            <div
+              className={`mb-6 rounded-lg p-4 text-sm font-medium shadow-sm ${
+                searchParams.type === "success"
+                  ? "border-2 border-green-200 bg-green-50 text-green-700 dark:border-green-700 dark:bg-green-900/30 dark:text-green-200"
+                  : "border-2 border-red-200 bg-red-50 text-red-700 dark:border-red-700 dark:bg-red-900/30 dark:text-red-200"
+              }`}
+            >
+              {searchParams.message}
+            </div>
+          )}
 
           {/* Google Sign-in - Separate form to avoid validation conflicts */}
           <form action={signInWithGoogle} className="mb-4">
@@ -314,25 +329,20 @@ export default async function Login({
 
             <SubmitButton
               formAction={signUp}
-              className="border-foreground/20 hover:bg-accent rounded-md border px-4 py-2.5 font-medium transition-colors"
+              className="border-foreground/20 hover:bg-accent w-full rounded-md border px-4 py-2.5 font-medium transition-colors"
             >
               Create account
             </SubmitButton>
 
             <div className="text-muted-foreground mt-2 flex justify-center text-sm">
               <button
+                type="button"
                 formAction={handleResetPassword}
                 className="text-primary underline hover:opacity-80"
               >
                 Forgot your password?
               </button>
             </div>
-
-            {searchParams?.message && (
-              <div className="bg-destructive/10 text-destructive mt-4 rounded-md p-4 text-sm">
-                {searchParams.message}
-              </div>
-            )}
           </form>
         </div>
       </div>

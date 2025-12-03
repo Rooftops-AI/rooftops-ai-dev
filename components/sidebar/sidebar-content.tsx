@@ -5,6 +5,7 @@ import { FC, useState } from "react"
 import { SidebarCreateButtons } from "./sidebar-create-buttons"
 import { SidebarDataList } from "./sidebar-data-list"
 import { SidebarSearch } from "./sidebar-search"
+import { ConnectionsList } from "./items/tools/connections-list"
 import Link from "next/link"
 import { IconSparkles, IconPalette, IconCrown } from "@tabler/icons-react"
 import { usePathname } from "next/navigation"
@@ -36,35 +37,51 @@ export const SidebarContent: FC<SidebarContentProps> = ({
     // Subtract 50px for the height of the workspace settings
     <div className="flex max-h-[calc(100%-10px)] grow flex-col">
       {/* AI Property Reports button - styled like New Chat button with crown badge */}
-      <div className="mb-2 px-1">
-        <Button className="h-[36px] w-full justify-between" asChild>
+      <div className="mb-2">
+        <Button
+          variant="ghost"
+          className="hover:border-border h-[36px] w-full justify-start border-0 border-b border-transparent bg-transparent font-semibold hover:bg-transparent"
+          style={{ padding: "0px 10px 0px 4px" }}
+          asChild
+        >
           <Link
             href={
               currentWorkspaceId ? `/${currentWorkspaceId}/explore` : "/explore"
             }
           >
-            <div className="flex items-center">
-              <IconSparkles size={18} className="mr-2" />
-              <span>AI Property Reports</span>
-            </div>
-            <IconCrown size={14} className="ml-2 opacity-70" />
+            <IconSparkles size={20} className="mr-2" stroke={2} />
+            <span>AI Property Reports</span>
+            <IconCrown
+              size={22}
+              className="ml-auto opacity-70"
+              fill="currentColor"
+              stroke={0}
+            />
           </Link>
         </Button>
       </div>
 
       {/* Creator Studio button - styled like New Chat button with crown badge */}
-      <div className="mb-2 px-1">
-        <Button className="h-[36px] w-full justify-between" asChild>
+      <div className="mb-2">
+        <Button
+          variant="ghost"
+          className="hover:border-border h-[36px] w-full justify-start border-0 border-b border-transparent bg-transparent font-semibold hover:bg-transparent"
+          style={{ padding: "0px 10px 0px 4px" }}
+          asChild
+        >
           <Link
             href={
               currentWorkspaceId ? `/${currentWorkspaceId}/creator` : "/creator"
             }
           >
-            <div className="flex items-center">
-              <IconPalette size={18} className="mr-2" />
-              <span>Creator Studio</span>
-            </div>
-            <IconCrown size={14} className="ml-2 opacity-70" />
+            <IconPalette size={20} className="mr-2" stroke={2} />
+            <span>Creator Studio</span>
+            <IconCrown
+              size={22}
+              className="ml-auto opacity-70"
+              fill="currentColor"
+              stroke={0}
+            />
           </Link>
         </Button>
       </div>
@@ -83,6 +100,15 @@ export const SidebarContent: FC<SidebarContentProps> = ({
           setSearchTerm={setSearchTerm}
         />
       </div>
+
+      {contentType === "tools" && (
+        <div className="mt-2">
+          <div className="text-muted-foreground mb-2 px-2 text-xs font-semibold">
+            CONNECTIONS
+          </div>
+          <ConnectionsList />
+        </div>
+      )}
 
       <SidebarDataList
         contentType={contentType}

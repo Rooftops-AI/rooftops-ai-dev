@@ -12,6 +12,7 @@ import { CreateModel } from "./items/models/create-model"
 import { CreatePreset } from "./items/presets/create-preset"
 import { CreatePrompt } from "./items/prompts/create-prompt"
 import { CreateTool } from "./items/tools/create-tool"
+import { CreateConnector } from "./items/tools/create-connector"
 
 interface SidebarCreateButtonsProps {
   contentType: ContentType
@@ -31,6 +32,7 @@ export const SidebarCreateButtons: FC<SidebarCreateButtonsProps> = ({
   const [isCreatingCollection, setIsCreatingCollection] = useState(false)
   const [isCreatingAssistant, setIsCreatingAssistant] = useState(false)
   const [isCreatingTool, setIsCreatingTool] = useState(false)
+  const [isCreatingConnector, setIsCreatingConnector] = useState(false)
   const [isCreatingModel, setIsCreatingModel] = useState(false)
 
   const handleCreateFolder = async () => {
@@ -81,7 +83,7 @@ export const SidebarCreateButtons: FC<SidebarCreateButtonsProps> = ({
 
       case "tools":
         return async () => {
-          setIsCreatingTool(true)
+          setIsCreatingConnector(true)
         }
 
       case "models":
@@ -96,16 +98,28 @@ export const SidebarCreateButtons: FC<SidebarCreateButtonsProps> = ({
 
   return (
     <div className="flex w-full space-x-2">
-      <Button className="flex h-[36px] grow" onClick={getCreateFunction()}>
-        <IconPlus className="mr-1" size={20} />
+      <Button
+        variant="ghost"
+        className="hover:border-border flex h-[36px] grow justify-start border-0 border-b border-transparent bg-transparent font-semibold hover:bg-transparent"
+        style={{ padding: "0px 10px 0px 4px" }}
+        onClick={getCreateFunction()}
+      >
+        <IconPlus className="mr-2" size={20} strokeWidth={2} />
         New{" "}
-        {contentType.charAt(0).toUpperCase() +
-          contentType.slice(1, contentType.length - 1)}
+        {contentType === "tools"
+          ? "Connector"
+          : contentType.charAt(0).toUpperCase() +
+            contentType.slice(1, contentType.length - 1)}
       </Button>
 
       {hasData && (
-        <Button className="size-[36px] p-1" onClick={handleCreateFolder}>
-          <IconFolderPlus size={20} />
+        <Button
+          variant="ghost"
+          className="hover:border-border size-[36px] border-0 border-b border-transparent bg-transparent hover:bg-transparent"
+          style={{ padding: "0px 10px 0px 4px" }}
+          onClick={handleCreateFolder}
+        >
+          <IconFolderPlus size={22} strokeWidth={1.75} />
         </Button>
       )}
 
@@ -149,6 +163,13 @@ export const SidebarCreateButtons: FC<SidebarCreateButtonsProps> = ({
         <CreateModel
           isOpen={isCreatingModel}
           onOpenChange={setIsCreatingModel}
+        />
+      )}
+
+      {isCreatingConnector && (
+        <CreateConnector
+          isOpen={isCreatingConnector}
+          onOpenChange={setIsCreatingConnector}
         />
       )}
     </div>

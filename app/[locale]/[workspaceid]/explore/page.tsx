@@ -1,83 +1,64 @@
 // @ts-nocheck
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useParams } from "next/navigation"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import ExploreMap from "@/components/explore/ExploreMap"
-import { PropertyReportMessage } from "@/components/property/property-report"
 import { PropertyData } from "@/lib/property/property-service"
+import { useChatbotUI } from "@/context/context"
+import { Button } from "@/components/ui/button"
+import { IconMenu2, IconSparkles, IconCrown } from "@tabler/icons-react"
+import { Brand } from "@/components/ui/brand"
+import Link from "next/link"
 
 export default function ExplorePage() {
   const params = useParams()
-  const workspaceId = params.workspaceId as string
-  const [activeTab, setActiveTab] = useState("map")
+  const workspaceId = params.workspaceid as string
   const [propertyData, setPropertyData] = useState<PropertyData | null>(null)
+  const { userSubscription, showSidebar, setShowSidebar } = useChatbotUI()
 
   const handlePropertySelect = (data: any) => {
     setPropertyData(data.propertyData)
-    setActiveTab("report")
   }
 
-  return (
-    <div className="h-full flex-1 overflow-auto p-2">
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsContent value="map" className="mt-0">
-          <ExploreMap
-            onPropertySelect={handlePropertySelect}
-            workspaceId={workspaceId}
-          />
-        </TabsContent>
+  const isPremium = userSubscription?.status === "active"
 
-        <TabsContent value="report" className="mt-0">
-          {propertyData ? (
-            <PropertyReportMessage
-              message={{
-                content: `Property Report for ${propertyData.address.fullAddress}`
-              }}
-              reportData={{
-                jsonData: {
-                  property: {
-                    address: propertyData.address.fullAddress,
-                    details: propertyData.propertyDetails
-                  },
-                  roof: {
-                    summary: {
-                      area: propertyData.roofDetails.roofArea,
-                      facets: propertyData.roofDetails.roofFacets,
-                      pitch: propertyData.roofDetails.roofPitch,
-                      totalRoofSquares:
-                        propertyData.roofDetails.totalRoofSquares || 0
-                    },
-                    facetDetails: propertyData.roofDetails.facets
-                  },
-                  solar: {
-                    potential: {
-                      maxPanels: propertyData.solarPotential.maxArrayPanels,
-                      yearlyEnergy:
-                        propertyData.solarPotential.yearlyEnergyDcKwh,
-                      sunshineHours: propertyData.solarPotential.sunshineHours
-                    },
-                    financials: propertyData.solarPotential.costsAndSavings
-                  },
-                  metadata: {
-                    generated: propertyData.timestamp,
-                    version: "1.0"
-                  }
-                },
-                markdown: "",
-                htmlContent: ""
-              }}
-            />
-          ) : (
-            <div className="py-12 text-center">
-              <p className="text-gray-600">
-                No property selected. Use the Map View to select a property.
-              </p>
-            </div>
-          )}
-        </TabsContent>
-      </Tabs>
+  return (
+    <div className="flex size-full flex-col">
+      {/* Mobile Header - only show on mobile */}
+      <div className="flex items-center justify-between px-4 py-3 md:hidden">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setShowSidebar(!showSidebar)}
+          className="size-9"
+        >
+          <IconMenu2 size={20} />
+        </Button>
+
+        <Brand compact={true} />
+
+        {isPremium ? (
+          <div className="flex size-9 items-center justify-center rounded-lg bg-gradient-to-br from-yellow-400 to-orange-500">
+            <IconCrown size={18} className="text-white" />
+          </div>
+        ) : (
+          <Link href={`/${params.locale}/${workspaceId}/upgrade`}>
+            <Button variant="default" size="sm" className="h-9">
+              <IconSparkles size={16} className="mr-1" />
+              Upgrade
+            </Button>
+          </Link>
+        )}
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 overflow-auto">
+        <ExploreMap
+          onPropertySelect={handlePropertySelect}
+          workspaceId={workspaceId}
+        />
+      </div>
     </div>
   )
 }

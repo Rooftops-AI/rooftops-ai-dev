@@ -31,6 +31,9 @@ import { MessageMarkdown } from "./message-markdown"
 import { ChatWeatherLookup } from "@/components/weather/ChatWeatherLookup"
 import { SourceCards } from "../chat/source-cards"
 import { RooftopsSVG } from "../icons/rooftops-svg"
+import { ArtifactMessageProcessor } from "../canvas/artifact-message-processor"
+import { ArtifactGeneratingPreview } from "../canvas/artifact-generating-preview"
+import { ArtifactCompleteCard } from "../canvas/artifact-complete-card"
 
 const ICON_SIZE = 32
 
@@ -485,7 +488,12 @@ export const Message: FC<MessageProps> = ({
         return (
           <div>
             {/* Only render the message content if it's not empty after cleaning */}
-            {cleanContent && <MessageMarkdown content={cleanContent} />}
+            {cleanContent && (
+              <MessageMarkdown
+                content={cleanContent}
+                metadata={message.metadata}
+              />
+            )}
 
             {/* Show source cards at bottom for assistant messages with sources */}
             {message.role === "assistant" && message.metadata && (
@@ -519,19 +527,69 @@ export const Message: FC<MessageProps> = ({
         )
       } else {
         // Regular message rendering
+        // Remove artifact tags from display (they're shown in canvas instead)
+        let cleanContent = message.content
+        if (message.role === "assistant") {
+          // First, remove complete artifacts (with closing tag)
+          cleanContent = message.content.replace(
+            /<artifact\s+type="[^"]+"\s+title="[^"]+">[\s\S]*?<\/artifact>/g,
+            ""
+          )
+
+          // Also remove incomplete artifacts (during streaming - no closing tag yet)
+          cleanContent = cleanContent.replace(
+            /<artifact\s+type="[^"]+"\s+title="[^"]+">[\s\S]*$/g,
+            ""
+          )
+
+          cleanContent = cleanContent.trim()
+        }
+
         return (
           <div>
-            <MessageMarkdown content={message.content} />
+            {cleanContent && (
+              <MessageMarkdown
+                content={cleanContent}
+                metadata={message.metadata}
+              />
+            )}
+            {/* Bottom message actions right after content */}
+            {!isEditing && (
+              <div className="mt-4 flex justify-end">
+                <MessageActions
+                  onCopy={handleCopy}
+                  onEdit={handleStartEdit}
+                  isAssistant={message.role === "assistant"}
+                  isLast={isLast}
+                  isEditing={isEditing}
+                  isHovering={true}
+                  onRegenerate={handleRegenerate}
+                />
+              </div>
+            )}
             {/* Show source cards at bottom for assistant messages with sources */}
             {message.role === "assistant" && message.metadata && (
               <SourceCards messageMetadata={message.metadata} />
+            )}
+            {/* Show artifact generating preview for assistant messages */}
+            {message.role === "assistant" && (
+              <ArtifactGeneratingPreview messageContent={message.content} />
+            )}
+            {/* Show artifact complete card for assistant messages */}
+            {message.role === "assistant" && (
+              <ArtifactCompleteCard messageContent={message.content} />
             )}
           </div>
         )
       }
     } catch (error) {
       console.error("Error rendering message content:", error)
-      return <MessageMarkdown content={message.content} />
+      return (
+        <MessageMarkdown
+          content={message.content}
+          metadata={message.metadata}
+        />
+      )
     }
   }
 
@@ -740,6 +798,13 @@ export const Message: FC<MessageProps> = ({
           }}
         />
       )}
+
+      {/* Artifact processor - automatically detects and creates artifacts from AI responses */}
+      <ArtifactMessageProcessor
+        messageContent={message.content}
+        messageId={message.id}
+        role={message.role}
+      />
     </div>
   )
 }

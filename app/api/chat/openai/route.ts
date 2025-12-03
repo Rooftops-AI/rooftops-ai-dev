@@ -106,172 +106,82 @@ export async function POST(request: Request) {
 
       console.log("OpenAI RAG - Query:", userQuery?.substring(0, 100))
       console.log("OpenAI RAG - WorkspaceId:", workspaceId)
+      console.log(
+        "OpenAI RAG - Web search enabled:",
+        profile.web_search_enabled
+      )
 
-      // Check if query is relevant for document retrieval
-      const isRelevantQuery = (query: string): boolean => {
-        const lowerQuery = query.toLowerCase()
+      // Check if user has web search enabled (default: true)
+      const shouldUseWebSearch = profile.web_search_enabled !== false
 
-        // Skip RAG for conversational/greeting queries
-        const conversationalPatterns = [
-          /^(hi|hello|hey|greetings|good morning|good afternoon|good evening)/i,
-          /what('s| is) (your|the) (name|time|date)/i,
-          /who are you/i,
-          /how are you/i,
-          /tell me about yourself/i,
-          /^(thanks|thank you|thx)/i,
-          /^(ok|okay|yes|no|sure|alright)$/i
-        ]
-
-        if (conversationalPatterns.some(pattern => pattern.test(query))) {
-          return false
-        }
-
-        // Only use RAG for queries that seem to need specific information
-        const documentRelevantKeywords = [
-          "specification",
-          "specifications",
-          "datasheet",
-          "manual",
-          "guide",
-          "documentation",
-          "document",
-          "standard",
-          "requirement",
-          "requirements",
-          "code",
-          "regulation",
-          "osha",
-          "safety",
-          "installation",
-          "procedure",
-          "warranty",
-          "product",
-          "material",
-          "manufacturer",
-          "technical",
-          "model",
-          "compliance",
-          "certified",
-          "rating",
-          "dimension",
-          "what does",
-          "how to",
-          "according to",
-          "as per",
-          "refer to"
-        ]
-
-        return documentRelevantKeywords.some(keyword =>
-          lowerQuery.includes(keyword)
-        )
-      }
-
-      if (userQuery && workspaceId && isRelevantQuery(userQuery)) {
-        // Generate embedding for the query
-        const embeddingResponse = await openai.embeddings.create({
-          model: "text-embedding-ada-002",
-          input: userQuery
-        })
-        const queryEmbedding = embeddingResponse.data[0].embedding
-
-        // Search documents using Supabase
-        const supabase = createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.SUPABASE_SERVICE_ROLE_KEY!
-        )
-
-        const { data: results, error } = await supabase.rpc(
-          "search_documents",
-          {
-            query_embedding: queryEmbedding,
-            match_threshold: 0.7,
-            match_count: 3,
-            filter_workspace_id: workspaceId
-          }
-        )
-
+      if (userQuery && workspaceId && shouldUseWebSearch) {
+        // Skip document RAG search and go straight to web search
         let sourceCounter = 0
 
-        if (!error && results && results.length > 0) {
-          console.log("OpenAI RAG - Found", results.length, "document chunks")
-          documentContext = "\n\n--- RELEVANT DOCUMENTATION ---\n"
-          documentContext +=
-            "The following information has been retrieved from uploaded manufacturer documentation. Please cite these sources in your response:\n\n"
-
-          results.forEach((result: any) => {
-            sourceCounter++
-            const sourceType = result.is_global
-              ? "Rooftops AI Search"
-              : "Your Documents"
-            documentContext += `[Source ${sourceCounter}] (${sourceType}: ${result.document_title || result.file_name})\n${result.content}\n\n`
-
-            sourceDocs.push({
-              id: result.document_id,
-              sourceNumber: sourceCounter,
-              title: result.document_title || result.file_name,
-              fileName: result.file_name,
-              isGlobal: result.is_global,
-              documentType: sourceType,
-              chunkContent: result.content,
-              preview: result.content.substring(0, 50).trim()
-            })
-          })
-        } else {
-          console.log("OpenAI RAG - No results found. Error:", error)
-        }
-
-        // Also search the web with Brave (no timeout)
+        // Search the web with Brave directly (no internal API call)
         try {
-          console.log("OpenAI RAG - Starting Brave search")
-          const braveStartTime = Date.now()
+          const braveApiKey =
+            process.env.BRAVE_SEARCH_API_KEY || process.env.BRAVE_AI_API_KEY
 
-          const braveResponse = await fetch(
-            `${process.env.NEXT_PUBLIC_URL || "http://localhost:3000"}/api/search/brave`,
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ query: userQuery, count: 3 })
-            }
-          )
+          if (braveApiKey) {
+            console.log("OpenAI RAG - Starting Brave search")
+            const braveStartTime = Date.now()
 
-          const braveElapsed = Date.now() - braveStartTime
-          console.log(
-            `OpenAI RAG - Brave response received after ${braveElapsed}ms, status: ${braveResponse.status}`
-          )
-
-          if (braveResponse.ok) {
-            const braveData = await braveResponse.json()
-            if (braveData.success && braveData.results?.length > 0) {
-              console.log(
-                "OpenAI RAG - Found",
-                braveData.results.length,
-                "web results"
-              )
-
-              if (!documentContext) {
-                documentContext = "\n\n--- RELEVANT INFORMATION ---\n"
+            const braveResponse = await fetch(
+              `https://api.search.brave.com/res/v1/web/search?q=${encodeURIComponent(userQuery)}&count=10`,
+              {
+                headers: {
+                  Accept: "application/json",
+                  "X-Subscription-Token": braveApiKey
+                }
               }
+            )
 
-              documentContext += "\n--- WEB SEARCH RESULTS ---\n"
+            const braveElapsed = Date.now() - braveStartTime
+            console.log(
+              `OpenAI RAG - Brave response received after ${braveElapsed}ms, status: ${braveResponse.status}`
+            )
 
-              braveData.results.forEach((result: any) => {
-                sourceCounter++
-                const snippet =
-                  result.description || result.extra_snippets?.[0] || ""
-                documentContext += `[Source ${sourceCounter}] (Web Search: ${result.title})\nURL: ${result.url}\n${snippet}\n\n`
+            if (braveResponse.ok) {
+              const braveData = await braveResponse.json()
+              const webResults = braveData.web?.results || []
 
-                sourceDocs.push({
-                  id: `web-${sourceCounter}`,
-                  sourceNumber: sourceCounter,
-                  title: result.title,
-                  fileName: result.url,
-                  isGlobal: false,
-                  documentType: "Web Search",
-                  chunkContent: `${result.title}\n\n${snippet}\n\nSource: ${result.url}`,
-                  preview: snippet.substring(0, 50).trim()
+              if (webResults.length > 0) {
+                console.log(
+                  "OpenAI RAG - Found",
+                  webResults.length,
+                  "web results"
+                )
+
+                if (!documentContext) {
+                  documentContext = "\n\n--- RELEVANT INFORMATION ---\n"
+                }
+
+                documentContext += "\n--- WEB SEARCH RESULTS ---\n"
+
+                webResults.forEach((result: any) => {
+                  sourceCounter++
+                  const snippet = result.description || ""
+                  documentContext += `[Source ${sourceCounter}] (Web Search: ${result.title})\nURL: ${result.url}\n${snippet}\n\n`
+
+                  sourceDocs.push({
+                    id: `web-${sourceCounter}`,
+                    sourceNumber: sourceCounter,
+                    title: result.title,
+                    fileName: result.url,
+                    isGlobal: false,
+                    documentType: "Web Search",
+                    chunkContent: `${result.title}\n\n${snippet}\n\nSource: ${result.url}`,
+                    preview: snippet.substring(0, 50).trim()
+                  })
                 })
-              })
+              }
+            } else {
+              const errorText = await braveResponse.text()
+              console.error("OpenAI RAG - Brave API error:", errorText)
             }
+          } else {
+            console.log("OpenAI RAG - Brave API key not configured")
           }
         } catch (braveError: any) {
           console.error("OpenAI RAG - Brave search error:", {
@@ -306,8 +216,19 @@ export async function POST(request: Request) {
     }
 
     // Prepend document context and roofing expert prompt to system message
+    // BUT skip this for vision requests (messages with images)
     const modifiedMessages = [...messages]
-    if (modifiedMessages.length > 0) {
+
+    // Check if this is a vision request (has image_url content)
+    const hasImages = modifiedMessages.some((msg: any) => {
+      if (Array.isArray(msg.content)) {
+        return msg.content.some((item: any) => item.type === "image_url")
+      }
+      return false
+    })
+
+    if (modifiedMessages.length > 0 && !hasImages) {
+      // Only add roofing expert prompt for non-vision requests
       // Combine roofing expert prompt, document context, and original system message
       const systemContent =
         ROOFING_EXPERT_SYSTEM_PROMPT +
@@ -317,6 +238,15 @@ export async function POST(request: Request) {
       modifiedMessages[0] = {
         ...modifiedMessages[0],
         content: systemContent
+      }
+    } else if (hasImages && documentContext) {
+      // For vision requests, only add document context if available (no roofing prompt)
+      const firstSystemMsg = modifiedMessages.find(
+        (m: any) => m.role === "system"
+      )
+      if (firstSystemMsg) {
+        firstSystemMsg.content =
+          documentContext + "\n\n" + firstSystemMsg.content
       }
     }
 
@@ -375,6 +305,13 @@ export async function POST(request: Request) {
 
     return new StreamingTextResponse(stream)
   } catch (error: any) {
+    console.error("[OpenAI Route] Error occurred:", {
+      name: error.name,
+      message: error.message,
+      status: error.status,
+      stack: error.stack?.split("\n").slice(0, 3)
+    })
+
     let errorMessage = error.message || "An unexpected error occurred"
     const errorCode = error.status || 500
 
@@ -385,6 +322,11 @@ export async function POST(request: Request) {
       errorMessage =
         "OpenAI API Key is incorrect. Please fix it in your profile settings."
     }
+
+    console.error("[OpenAI Route] Returning error response:", {
+      status: errorCode,
+      message: errorMessage
+    })
 
     return new Response(JSON.stringify({ message: errorMessage }), {
       status: errorCode

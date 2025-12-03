@@ -22,6 +22,7 @@ import { ChatScrollButtons } from "./chat-scroll-buttons"
 import { ChatSecondaryButtons } from "./chat-secondary-buttons"
 import { useDocumentStore } from "@/lib/stores/document-store"
 import { VoiceMode } from "@/components/voice-mode/VoiceMode"
+import { CanvasDrawer } from "../canvas/canvas-drawer"
 
 interface ChatUIProps {}
 
@@ -278,6 +279,9 @@ export const ChatUI: FC<ChatUIProps> = ({}) => {
           <VoiceMode onClose={() => setIsVoiceModeOpen(false)} />
         </div>
       )}
+
+      {/* Canvas Drawer for artifacts/documents */}
+      <CanvasDrawer />
     </div>
   )
 }

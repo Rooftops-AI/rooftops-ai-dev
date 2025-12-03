@@ -285,6 +285,23 @@ export const useChatHandler = () => {
     chatMessages: ChatMessage[],
     isRegeneration: boolean
   ) => {
+    // Check for pending Google Drive file context
+    const pendingFileContext = sessionStorage.getItem("pendingFileContext")
+    const pendingFileName = sessionStorage.getItem("pendingFileName")
+
+    if (pendingFileContext && !isRegeneration) {
+      // Prepend file context to the message
+      messageContent = `${pendingFileContext}\n\nUser question: ${messageContent}`
+
+      // Clear the session storage
+      sessionStorage.removeItem("pendingFileContext")
+      sessionStorage.removeItem("pendingFileName")
+
+      console.log(
+        `Added Google Drive file "${pendingFileName}" to message context`
+      )
+    }
+
     // Check if this is a weather-related query
     const isWeatherRequest = isWeatherQuery(messageContent)
 
