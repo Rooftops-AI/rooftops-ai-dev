@@ -53,7 +53,7 @@ export const StepContainer: FC<StepContainerProps> = ({
         <div className="bg-black px-4 py-12">
           <div className="mx-auto max-w-2xl">
             <h1 className="mb-3 text-center text-5xl font-bold tracking-tight text-white">
-              Let&apos;s create your profile
+              Welcome to the future of roofing
             </h1>
 
             <p className="mb-10 text-center text-base text-zinc-400">
