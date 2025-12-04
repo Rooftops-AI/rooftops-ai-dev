@@ -45,11 +45,11 @@ export const StepContainer: FC<StepContainerProps> = ({
 
   return (
     <Card
-      className="max-h-[calc(100vh-60px)] w-full max-w-[700px] overflow-auto px-4 sm:px-0"
+      className="max-h-[calc(100vh-60px)] w-full max-w-[700px] overflow-auto border-zinc-800 bg-black px-4 shadow-xl sm:px-0"
       onKeyDown={handleKeyDown}
     >
       {showHeroSection && (
-        <div className="bg-black px-8 py-12">
+        <div className="bg-black px-4 py-12">
           <div className="mx-auto max-w-2xl">
             <h1 className="mb-3 text-center text-3xl font-bold tracking-tight text-white">
               Welcome to the{" "}
@@ -87,7 +87,7 @@ export const StepContainer: FC<StepContainerProps> = ({
         </div>
       )}
 
-      <CardHeader className="bg-black px-8 pb-6 pt-8">
+      <CardHeader className="bg-black px-4 pb-6 pt-8">
         <CardTitle className="text-2xl font-bold text-white">
           {stepTitle}
         </CardTitle>
@@ -96,11 +96,11 @@ export const StepContainer: FC<StepContainerProps> = ({
         </CardDescription>
       </CardHeader>
 
-      <CardContent className="space-y-6 bg-black px-8 pb-8">
+      <CardContent className="space-y-6 bg-black px-4 pb-8">
         {children}
       </CardContent>
 
-      <CardFooter className="bg-black px-8 py-6">
+      <CardFooter className="bg-black px-4 py-6">
         <div className="w-full space-y-3">
           {showNextButton && (
             <Button
