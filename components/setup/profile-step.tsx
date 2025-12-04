@@ -90,50 +90,21 @@ export const ProfileStep: FC<ProfileStepProps> = ({
   return (
     <>
       <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <Label className="text-sm font-semibold">Username</Label>
-          <div className="text-xs font-medium">
-            {usernameAvailable ? (
-              <span className="text-emerald-600 dark:text-emerald-400">
-                AVAILABLE
-              </span>
-            ) : (
-              <span className="text-rose-600 dark:text-rose-400">
-                UNAVAILABLE
-              </span>
-            )}
-          </div>
-        </div>
+        <Label className="text-sm font-semibold">Username</Label>
 
-        <div className="relative">
-          <Input
-            className="h-12 rounded-lg border-zinc-300 pr-10 text-base dark:border-zinc-700"
-            placeholder="username"
-            value={username}
-            onChange={e => {
-              onUsernameChange(e.target.value)
-              checkUsernameAvailability(e.target.value)
-            }}
-            minLength={PROFILE_USERNAME_MIN}
-            maxLength={PROFILE_USERNAME_MAX}
-          />
-
-          <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-            {loading ? (
-              <IconLoader2 className="size-5 animate-spin text-cyan-600" />
-            ) : usernameAvailable ? (
-              <IconCircleCheckFilled className="size-5 text-emerald-600 dark:text-emerald-400" />
-            ) : (
-              <IconCircleXFilled className="size-5 text-rose-600 dark:text-rose-400" />
-            )}
-          </div>
-        </div>
-
-        <LimitDisplay used={username.length} limit={PROFILE_USERNAME_MAX} />
+        <Input
+          className="h-12 rounded-lg border-zinc-300 text-base dark:border-zinc-700"
+          placeholder="username"
+          value={username}
+          disabled
+          readOnly
+        />
       </div>
 
       <div className="space-y-2">
-        <Label className="text-sm font-semibold">Your Name</Label>
+        <Label className="text-sm font-semibold">
+          Your Name <span className="text-rose-600">*</span>
+        </Label>
 
         <Input
           className="h-12 rounded-lg border-zinc-300 text-base dark:border-zinc-700"
@@ -141,6 +112,7 @@ export const ProfileStep: FC<ProfileStepProps> = ({
           value={displayName}
           onChange={e => onDisplayNameChange(e.target.value)}
           maxLength={PROFILE_DISPLAY_NAME_MAX}
+          required
         />
 
         <LimitDisplay

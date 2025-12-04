@@ -172,7 +172,7 @@ export default function SetupPage() {
             stepNum={currentStep}
             stepTitle="Welcome to Rooftops AI"
             onShouldProceed={handleShouldProceed}
-            showNextButton={!!(username && usernameAvailable)}
+            showNextButton={!!(username && displayName)}
             showBackButton={false}
           >
             <ProfileStep
