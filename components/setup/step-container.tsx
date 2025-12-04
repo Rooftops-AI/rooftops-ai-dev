@@ -51,20 +51,20 @@ export const StepContainer: FC<StepContainerProps> = ({
       onKeyDown={handleKeyDown}
     >
       {showHeroSection && (
-        <div className="bg-black px-6 py-12">
+        <div className="bg-black px-6 py-8">
           <div className="mx-auto max-w-2xl">
             {/* Logo */}
-            <div className="mb-8">
+            <div className="mb-6">
               <Brand theme="light" />
             </div>
 
             {/* Main Heading */}
-            <h1 className="mb-10 text-center text-4xl font-bold tracking-tight text-white">
+            <h1 className="mb-8 text-center text-4xl font-bold tracking-tight text-white">
               Welcome to the future of roofing
             </h1>
 
             {/* Features */}
-            <div className="mb-12 space-y-6 text-left">
+            <div className="mx-auto mb-8 max-w-md space-y-5 text-left">
               <div className="flex items-start gap-4">
                 <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-cyan-500 to-blue-600">
                   <IconFileText className="size-6 text-white" strokeWidth={2} />
@@ -99,25 +99,25 @@ export const StepContainer: FC<StepContainerProps> = ({
             </div>
 
             {/* Form Section Heading */}
-            <h2 className="mb-4 text-center text-2xl font-semibold text-white">
+            <h2 className="mb-3 text-center text-2xl font-semibold text-white">
               Let&apos;s create your profile
             </h2>
           </div>
         </div>
       )}
 
-      <CardContent className="space-y-6 bg-black px-6 pb-8">
+      <CardContent className="space-y-4 bg-black px-6 pb-6">
         {children}
       </CardContent>
 
-      <CardFooter className="bg-black p-6">
+      <CardFooter className="bg-black px-6 pb-6 pt-4">
         <div className="w-full space-y-3">
           <Button
             ref={buttonRef}
             size="lg"
             onClick={() => onShouldProceed(true)}
             disabled={!showNextButton}
-            className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 font-semibold text-white shadow-lg shadow-cyan-500/30 hover:from-cyan-600 hover:to-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 font-semibold text-white shadow-lg shadow-cyan-500/30 hover:from-cyan-600 hover:to-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
             Next
           </Button>
