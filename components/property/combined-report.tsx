@@ -202,7 +202,10 @@ const CombinedReport: FC<CombinedReportProps> = ({
       complex: "highly complex"
     }
 
-    const complexityText = complexityMap[complexity.toLowerCase()] || complexity
+    const complexityText =
+      complexity && typeof complexity === "string"
+        ? complexityMap[complexity.toLowerCase()] || complexity
+        : "unknown"
 
     let summary = `This is a residential property with an estimated ${facetCount || "unknown"} facets and ${complexityText} roof structure.`
 
