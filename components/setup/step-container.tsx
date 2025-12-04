@@ -47,7 +47,7 @@ export const StepContainer: FC<StepContainerProps> = ({
 
   return (
     <Card
-      className="w-full max-w-[700px] border-zinc-800 bg-black px-4 shadow-xl sm:px-0"
+      className="w-full max-w-[700px] border-none bg-transparent px-4 shadow-none sm:px-0"
       onKeyDown={handleKeyDown}
     >
       {showHeroSection && (
@@ -99,7 +99,7 @@ export const StepContainer: FC<StepContainerProps> = ({
             </div>
 
             {/* Form Section Heading */}
-            <h2 className="mb-6 text-center text-2xl font-semibold text-white">
+            <h2 className="mb-4 text-center text-2xl font-semibold text-white">
               Let&apos;s create your profile
             </h2>
           </div>
@@ -112,16 +112,15 @@ export const StepContainer: FC<StepContainerProps> = ({
 
       <CardFooter className="bg-black p-6">
         <div className="w-full space-y-3">
-          {showNextButton && (
-            <Button
-              ref={buttonRef}
-              size="lg"
-              onClick={() => onShouldProceed(true)}
-              className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 font-semibold text-white shadow-lg shadow-cyan-500/30 hover:from-cyan-600 hover:to-blue-700"
-            >
-              Next
-            </Button>
-          )}
+          <Button
+            ref={buttonRef}
+            size="lg"
+            onClick={() => onShouldProceed(true)}
+            disabled={!showNextButton}
+            className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 font-semibold text-white shadow-lg shadow-cyan-500/30 hover:from-cyan-600 hover:to-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Next
+          </Button>
           {showBackButton && (
             <Button
               size="lg"

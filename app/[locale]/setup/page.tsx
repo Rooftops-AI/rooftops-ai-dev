@@ -256,7 +256,7 @@ export default function SetupPage() {
   }
 
   return (
-    <div className="flex h-full items-center justify-center bg-black p-4">
+    <div className="flex min-h-screen w-full items-center justify-center bg-black p-4">
       {renderStep(currentStep)}
     </div>
   )
