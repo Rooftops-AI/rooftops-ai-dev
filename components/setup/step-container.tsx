@@ -7,6 +7,7 @@ import {
   CardHeader,
   CardTitle
 } from "@/components/ui/card"
+import { Brand } from "@/components/ui/brand"
 import { IconFileText, IconMessageCircle } from "@tabler/icons-react"
 import { FC, useRef } from "react"
 
@@ -50,24 +51,23 @@ export const StepContainer: FC<StepContainerProps> = ({
       onKeyDown={handleKeyDown}
     >
       {showHeroSection && (
-        <div className="bg-black px-4 py-12">
+        <div className="bg-black px-6 py-12">
           <div className="mx-auto max-w-2xl">
-            <h1 className="mb-3 text-center text-5xl font-bold tracking-tight text-white">
+            {/* Logo */}
+            <div className="mb-8">
+              <Brand theme="light" />
+            </div>
+
+            {/* Main Heading */}
+            <h1 className="mb-10 text-center text-4xl font-bold tracking-tight text-white">
               Welcome to the future of roofing
             </h1>
 
-            <p className="mb-10 text-center text-base text-zinc-400">
-              AI tools built specifically for roofing professionals to save time
-              and close more deals.
-            </p>
-
-            <div className="space-y-6 text-left">
-              <div className="flex items-start gap-3">
-                <div className="shrink-0">
-                  <IconFileText
-                    className="size-6 bg-gradient-to-r from-cyan-500 to-blue-600 bg-clip-text text-transparent"
-                    strokeWidth={2}
-                  />
+            {/* Features */}
+            <div className="mb-12 space-y-6 text-left">
+              <div className="flex items-start gap-4">
+                <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-cyan-500 to-blue-600">
+                  <IconFileText className="size-6 text-white" strokeWidth={2} />
                 </div>
                 <div>
                   <h3 className="mb-1 text-lg font-semibold text-white">
@@ -80,10 +80,10 @@ export const StepContainer: FC<StepContainerProps> = ({
                 </div>
               </div>
 
-              <div className="flex items-start gap-3">
-                <div className="shrink-0">
+              <div className="flex items-start gap-4">
+                <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-cyan-500 to-blue-600">
                   <IconMessageCircle
-                    className="size-6 bg-gradient-to-r from-cyan-500 to-blue-600 bg-clip-text text-transparent"
+                    className="size-6 text-white"
                     strokeWidth={2}
                   />
                 </div>
@@ -97,21 +97,20 @@ export const StepContainer: FC<StepContainerProps> = ({
                 </div>
               </div>
             </div>
+
+            {/* Form Section Heading */}
+            <h2 className="mb-6 text-center text-2xl font-semibold text-white">
+              Let&apos;s create your profile
+            </h2>
           </div>
         </div>
       )}
 
-      <CardHeader className="bg-black px-4 pb-6 pt-8">
-        <CardDescription className="text-base text-white">
-          {stepDescription}
-        </CardDescription>
-      </CardHeader>
-
-      <CardContent className="space-y-6 bg-black px-4 pb-8">
+      <CardContent className="space-y-6 bg-black px-6 pb-8">
         {children}
       </CardContent>
 
-      <CardFooter className="bg-black px-4 py-6">
+      <CardFooter className="bg-black p-6">
         <div className="w-full space-y-3">
           {showNextButton && (
             <Button
