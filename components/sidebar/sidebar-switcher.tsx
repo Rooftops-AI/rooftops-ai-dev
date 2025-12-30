@@ -1,22 +1,21 @@
 import { ContentType } from "@/types"
 import {
-  IconAdjustmentsHorizontal,
-  IconPlug,
-  IconBooks,
-  IconFile,
-  IconMessage,
-  IconPencil,
-  IconRobotFace,
+  IconMessageCircle,
+  IconHome,
+  IconFolders,
+  IconStack2,
   IconSparkles,
-  IconHome
+  IconPlugConnected,
+  IconQuestionMark
 } from "@tabler/icons-react"
 import { FC } from "react"
+import Link from "next/link"
 import { TabsList } from "../ui/tabs"
 import { WithTooltip } from "../ui/with-tooltip"
 import { ProfileSettings } from "../utility/profile-settings"
 import { SidebarSwitchItem } from "./sidebar-switch-item"
 
-export const SIDEBAR_ICON_SIZE = 20
+export const SIDEBAR_ICON_SIZE = 22
 
 interface SidebarSwitcherProps {
   onContentTypeChange: (contentType: ContentType) => void
@@ -26,25 +25,38 @@ export const SidebarSwitcher: FC<SidebarSwitcherProps> = ({
   onContentTypeChange
 }) => {
   return (
-    <div className="flex flex-col justify-between border-r border-blue-500/10 py-3 dark:border-blue-400/15">
-      <TabsList className="grid h-auto grid-rows-8 gap-1 bg-transparent p-1">
+    <div className="flex h-full flex-col justify-between border-r border-gray-800/50 bg-black py-3">
+      <TabsList className="grid h-auto grid-rows-6 gap-1 bg-transparent p-1">
         <SidebarSwitchItem
-          icon={<IconMessage size={SIDEBAR_ICON_SIZE} />}
+          icon={
+            <IconMessageCircle
+              size={SIDEBAR_ICON_SIZE}
+              className="text-gray-200"
+            />
+          }
           contentType="chats"
           onContentTypeChange={onContentTypeChange}
         />
 
         <SidebarSwitchItem
-          icon={<IconAdjustmentsHorizontal size={SIDEBAR_ICON_SIZE} />}
-          contentType="presets"
+          icon={<IconHome size={SIDEBAR_ICON_SIZE} className="text-gray-200" />}
+          contentType="reports"
           onContentTypeChange={onContentTypeChange}
         />
 
-        <SidebarSwitchItem
+        {/* Presets tab hidden - not needed for users */}
+        {/* <SidebarSwitchItem
+          icon={<IconAdjustmentsHorizontal size={SIDEBAR_ICON_SIZE} />}
+          contentType="presets"
+          onContentTypeChange={onContentTypeChange}
+        /> */}
+
+        {/* Prompts tab hidden - not needed for users */}
+        {/* <SidebarSwitchItem
           icon={<IconPencil size={SIDEBAR_ICON_SIZE} />}
           contentType="prompts"
           onContentTypeChange={onContentTypeChange}
-        />
+        /> */}
 
         {/* Models tab hidden - users don't need to add custom models */}
         {/* <SidebarSwitchItem
@@ -54,37 +66,58 @@ export const SidebarSwitcher: FC<SidebarSwitcherProps> = ({
         /> */}
 
         <SidebarSwitchItem
-          icon={<IconFile size={SIDEBAR_ICON_SIZE} />}
+          icon={
+            <IconFolders size={SIDEBAR_ICON_SIZE} className="text-gray-200" />
+          }
           contentType="files"
           onContentTypeChange={onContentTypeChange}
         />
 
         <SidebarSwitchItem
-          icon={<IconBooks size={SIDEBAR_ICON_SIZE} />}
+          icon={
+            <IconStack2 size={SIDEBAR_ICON_SIZE} className="text-gray-200" />
+          }
           contentType="collections"
           onContentTypeChange={onContentTypeChange}
         />
 
         <SidebarSwitchItem
-          icon={<IconRobotFace size={SIDEBAR_ICON_SIZE} />}
+          icon={
+            <IconSparkles size={SIDEBAR_ICON_SIZE} className="text-gray-200" />
+          }
           contentType="assistants"
           onContentTypeChange={onContentTypeChange}
         />
 
         <SidebarSwitchItem
-          icon={<IconPlug size={SIDEBAR_ICON_SIZE} />}
+          icon={
+            <IconPlugConnected
+              size={SIDEBAR_ICON_SIZE}
+              className="text-gray-200"
+            />
+          }
           contentType="tools"
-          onContentTypeChange={onContentTypeChange}
-        />
-
-        <SidebarSwitchItem
-          icon={<IconHome size={SIDEBAR_ICON_SIZE} />}
-          contentType="reports"
           onContentTypeChange={onContentTypeChange}
         />
       </TabsList>
 
-      <div className="flex flex-col items-center p-1">
+      <div className="flex flex-col items-center gap-2 p-1">
+        <WithTooltip
+          display={<div>Help Center</div>}
+          trigger={
+            <Link
+              href="https://resources.rooftops.ai/apphelpcenter"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex size-10 items-center justify-center rounded-[5px] transition-all hover:bg-gray-800/50"
+            >
+              <IconQuestionMark
+                size={SIDEBAR_ICON_SIZE}
+                className="text-gray-200"
+              />
+            </Link>
+          }
+        />
         <WithTooltip
           display={<div>Profile Settings</div>}
           trigger={<ProfileSettings />}

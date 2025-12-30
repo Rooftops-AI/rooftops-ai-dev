@@ -334,6 +334,7 @@ export const useChatHandler = () => {
       setIsPromptPickerOpen(false)
       setIsFilePickerOpen(false)
       setNewMessageImages([])
+      setNewMessageFiles([]) // Clear files after sending message
 
       const newAbort = new AbortController()
       setAbortController(newAbort)
@@ -407,12 +408,21 @@ export const useChatHandler = () => {
       const b64s = newMessageImages.map(img => img.base64)
       let retrieved: Tables<"file_items">[] = []
 
-      if ((newMessageFiles.length || chatFiles.length) && useRetrieval) {
+      // Filter out files that are still loading before retrieval
+      const validNewFiles = newMessageFiles.filter(
+        file => file.id !== "loading" && file.id && file.id.length > 0
+      )
+      const validChatFiles = chatFiles.filter(
+        file => file.id !== "loading" && file.id && file.id.length > 0
+      )
+
+      // Always retrieve uploaded files - they should be automatically available
+      if (validNewFiles.length || validChatFiles.length) {
         setToolInUse("retrieval")
         retrieved = await handleRetrieval(
           userInput,
-          newMessageFiles,
-          chatFiles,
+          validNewFiles,
+          validChatFiles,
           chatSettings!.embeddingsProvider,
           sourceCount
         )
@@ -576,7 +586,7 @@ export const useChatHandler = () => {
           selectedWorkspace!,
           messageContent,
           selectedAssistant!,
-          newMessageFiles,
+          validNewFiles,
           setSelectedChat,
           setChats,
           setChatFiles

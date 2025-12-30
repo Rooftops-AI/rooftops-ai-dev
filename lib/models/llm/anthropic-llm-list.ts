@@ -85,6 +85,22 @@ const CLAUDE_3_OPUS: LLM = {
   }
 }
 
+// Claude 3.5 Haiku (UPDATED 10/22/24)
+const CLAUDE_3_5_HAIKU: LLM = {
+  modelId: "claude-3-5-haiku-20241022",
+  modelName: "Claude 3.5 Haiku",
+  provider: "anthropic",
+  hostedId: "claude-3-5-haiku-20241022",
+  platformLink: ANTHROPIC_PLATFORM_LINK,
+  imageInput: true,
+  pricing: {
+    currency: "USD",
+    unit: "1M tokens",
+    inputCost: 1,
+    outputCost: 5
+  }
+}
+
 // Claude 3.5 Sonnet (UPDATED 06/20/24)
 const CLAUDE_3_5_SONNET: LLM = {
   modelId: "claude-3-5-sonnet-20240620",
@@ -105,6 +121,7 @@ export const ANTHROPIC_LLM_LIST: LLM[] = [
   CLAUDE_2,
   CLAUDE_INSTANT,
   CLAUDE_3_HAIKU,
+  CLAUDE_3_5_HAIKU,
   CLAUDE_3_SONNET,
   CLAUDE_3_OPUS,
   CLAUDE_3_5_SONNET

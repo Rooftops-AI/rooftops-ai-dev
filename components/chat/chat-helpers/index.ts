@@ -60,25 +60,31 @@ export const handleRetrieval = async (
   embeddingsProvider: "openai" | "local",
   sourceCount: number
 ) => {
-  const response = await fetch("/api/retrieval/retrieve", {
-    method: "POST",
-    body: JSON.stringify({
-      userInput,
-      fileIds: [...newMessageFiles, ...chatFiles].map(file => file.id),
-      embeddingsProvider,
-      sourceCount
+  try {
+    const response = await fetch("/api/retrieval/retrieve", {
+      method: "POST",
+      body: JSON.stringify({
+        userInput,
+        fileIds: [...newMessageFiles, ...chatFiles].map(file => file.id),
+        embeddingsProvider,
+        sourceCount
+      })
     })
-  })
 
-  if (!response.ok) {
-    console.error("Error retrieving:", response)
+    if (!response.ok) {
+      console.error("Error retrieving:", response)
+      return []
+    }
+
+    const { results } = (await response.json()) as {
+      results: Tables<"file_items">[]
+    }
+
+    return results || []
+  } catch (error) {
+    console.error("Error in handleRetrieval:", error)
+    return []
   }
-
-  const { results } = (await response.json()) as {
-    results: Tables<"file_items">[]
-  }
-
-  return results
 }
 
 export const createTempMessages = (
@@ -411,15 +417,22 @@ export const handleCreateChat = async (
   setSelectedChat(createdChat)
   setChats(chats => [createdChat, ...chats])
 
-  await createChatFiles(
-    newMessageFiles.map(file => ({
-      user_id: profile.user_id,
-      chat_id: createdChat.id,
-      file_id: file.id
-    }))
+  // Filter out files that are still loading (don't have valid IDs yet)
+  const validFiles = newMessageFiles.filter(
+    file => file.id !== "loading" && file.id && file.id.length > 0
   )
 
-  setChatFiles(prev => [...prev, ...newMessageFiles])
+  // Only create chat files if there are valid files
+  if (validFiles.length > 0) {
+    await createChatFiles(
+      validFiles.map(file => ({
+        user_id: profile.user_id,
+        chat_id: createdChat.id,
+        file_id: file.id
+      }))
+    )
+    setChatFiles(prev => [...prev, ...validFiles])
+  }
 
   return createdChat
 }

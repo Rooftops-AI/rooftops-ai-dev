@@ -7,6 +7,7 @@ import {
   IconBolt,
   IconBrandGoogleDrive,
   IconCirclePlus,
+  IconLoader2,
   IconPlayerStopFilled,
   IconSend,
   IconWaveSine,
@@ -308,7 +309,8 @@ export const ChatInput: FC<ChatInputProps> = ({ onVoiceModeClick }) => {
   return (
     <>
       <div className="flex flex-col flex-wrap justify-center gap-2">
-        <ChatFilesDisplay />
+        {/* Only show file display when not generating (i.e., before sending message) */}
+        {!isGenerating && <ChatFilesDisplay />}
 
         {/* Show the loading animation when generating a property report */}
         {isGeneratingPropertyReport && <ReportLoading />}
@@ -407,11 +409,13 @@ export const ChatInput: FC<ChatInputProps> = ({ onVoiceModeClick }) => {
             {/* Voice/Submit buttons (aligned with textarea) */}
             <div className="absolute right-3 top-3 cursor-pointer hover:opacity-50">
               {isGenerating ? (
-                <IconPlayerStopFilled
-                  className="hover:bg-background animate-pulse rounded bg-transparent p-1"
-                  onClick={handleStopMessage}
-                  size={30}
-                />
+                <div className="flex items-center gap-2">
+                  <IconLoader2
+                    className="animate-spin text-[#60A5FA]"
+                    size={30}
+                    strokeWidth={2.5}
+                  />
+                </div>
               ) : !userInput && onVoiceModeClick ? (
                 <button
                   onClick={onVoiceModeClick}

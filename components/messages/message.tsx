@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils"
 import { Tables } from "@/supabase/types"
 import { LLM, LLMID, MessageImage, ModelProvider } from "@/types"
 import CombinedReport from "@/components/property/combined-report"
+import { getFileFromStorage } from "@/db/storage/files"
 
 import {
   IconBolt,
@@ -16,7 +17,15 @@ import {
   IconCloudRain,
   IconFileText,
   IconMoodSmile,
-  IconPencil
+  IconPencil,
+  IconFileTypePdf,
+  IconFileTypeDocx,
+  IconFileTypeTxt,
+  IconFileTypeCsv,
+  IconJson,
+  IconMarkdown,
+  IconFileFilled,
+  IconX
 } from "@tabler/icons-react"
 import Image from "next/image"
 import { FC, useContext, useEffect, useRef, useState } from "react"
@@ -82,6 +91,7 @@ const LoadingIndicator: FC = () => {
 interface MessageProps {
   message: Tables<"messages">
   fileItems: Tables<"file_items">[]
+  attachedFiles?: any[]
   isEditing: boolean
   isLast: boolean
   onStartEdit: (message: Tables<"messages">) => void
@@ -92,6 +102,7 @@ interface MessageProps {
 export const Message: FC<MessageProps> = ({
   message,
   fileItems,
+  attachedFiles = [],
   isEditing,
   isLast,
   onStartEdit,
@@ -759,6 +770,68 @@ export const Message: FC<MessageProps> = ({
             )
           })}
         </div>
+
+        {/* Attached files section for user messages */}
+        {message.role === "user" && attachedFiles.length > 0 && (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {attachedFiles
+              .filter(
+                (file, index, self) =>
+                  // Remove duplicates
+                  self.findIndex(f => f.id === file.id) === index
+              )
+              .map(file => {
+                const handleFileClick = async () => {
+                  const fileRecord = files.find(f => f.id === file.id)
+                  if (!fileRecord) return
+                  const link = await getFileFromStorage(fileRecord.file_path)
+                  window.open(link, "_blank")
+                }
+
+                return (
+                  <div
+                    key={file.id}
+                    className="relative flex h-[64px] cursor-pointer items-center space-x-3 rounded-xl border-2 border-blue-500/30 bg-blue-50/50 px-4 py-3 hover:bg-blue-100/50 dark:border-blue-500/50 dark:bg-blue-950/30 dark:hover:bg-blue-900/40"
+                    onClick={handleFileClick}
+                  >
+                    <div className="rounded bg-blue-500 p-2">
+                      {(() => {
+                        let fileExtension = file.type.includes("/")
+                          ? file.type.split("/")[1]
+                          : file.type
+
+                        switch (fileExtension) {
+                          case "pdf":
+                            return <IconFileTypePdf className="text-white" />
+                          case "markdown":
+                            return <IconMarkdown className="text-white" />
+                          case "txt":
+                            return <IconFileTypeTxt className="text-white" />
+                          case "json":
+                            return <IconJson className="text-white" />
+                          case "csv":
+                            return <IconFileTypeCsv className="text-white" />
+                          case "docx":
+                            return <IconFileTypeDocx className="text-white" />
+                          default:
+                            return <IconFileFilled className="text-white" />
+                        }
+                      })()}
+                    </div>
+
+                    <div className="truncate text-sm">
+                      <div className="truncate font-medium text-blue-700 dark:text-blue-300">
+                        {file.name}
+                      </div>
+                      <div className="truncate text-xs text-blue-600/70 dark:text-blue-400/70">
+                        {file.type}
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+          </div>
+        )}
 
         {/* Edit buttons section */}
         {isEditing && (

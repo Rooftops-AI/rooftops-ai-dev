@@ -1044,7 +1044,7 @@ const MapView: React.FC<MapViewProps> = ({
           {/* Status Message */}
           <div className="text-center">
             <div className="text-sm font-medium uppercase tracking-widest text-gray-400">
-              Property Analysis in Progress
+              Rooftops Agent is Working
             </div>
             <div className="mt-3 text-2xl font-semibold text-white">
               {currentStep > 0 ? analysisSteps[currentStep - 1]?.name : message}

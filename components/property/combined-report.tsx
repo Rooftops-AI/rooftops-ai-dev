@@ -520,17 +520,31 @@ const CombinedReport: FC<CombinedReportProps> = ({
     }
 
     return (
-      <div className="space-y-6">
+      <div className="space-y-4">
         {sections.map((section, index) => (
-          <div key={index} className="space-y-3">
+          <div
+            key={index}
+            className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-gray-700 dark:bg-gray-800/50"
+          >
             {section.title && (
-              <h4 className="text-sm font-semibold uppercase tracking-wide text-gray-900 dark:text-gray-100">
-                {section.title}
+              <h4 className="mb-3 flex items-center gap-2 border-b border-gray-200 pb-2 text-sm font-semibold uppercase tracking-wide text-gray-900 dark:border-gray-700 dark:text-gray-100">
+                <span className="text-blue-500 dark:text-blue-400">
+                  {section.title.includes("MEASUREMENTS") && "📐"}
+                  {section.title.includes("CONDITION") && "🔍"}
+                  {section.title.includes("COST") && "💰"}
+                  {section.title.includes("QUALITY") && "✅"}
+                  {section.title.includes("RECOMMENDATIONS") && "🎯"}
+                  {section.title.includes("KEY FINDINGS") && "📋"}
+                  {section.title.includes("DISCLAIMERS") && "⚠️"}
+                </span>
+                {section.title.replace(/[📐🔍💰✅🎯📋⚠️]/g, "").trim()}
               </h4>
             )}
             <div className="space-y-2 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
               {section.content.map((paragraph, pIndex) => (
-                <p key={pIndex}>{paragraph}</p>
+                <p key={pIndex} className="leading-relaxed">
+                  {paragraph}
+                </p>
               ))}
             </div>
           </div>
@@ -1214,58 +1228,61 @@ Be realistic and professional. Show actual calculations.`
             </h2>
           </div>
 
-          <div className="flex gap-2">
-            <Button
-              onClick={handleShare}
-              disabled={isSharing}
-              size="sm"
-              variant="outline"
-              className="border-gray-300 dark:border-gray-600"
-            >
-              {isSharing ? (
-                <>
-                  <IconLoader2 className="size-4 animate-spin sm:mr-2" />
-                  <span className="hidden sm:inline">Sharing...</span>
-                </>
-              ) : (
-                <>
-                  <svg
-                    className="size-4 sm:mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
-                    />
-                  </svg>
-                  <span className="hidden sm:inline">Share</span>
-                </>
-              )}
-            </Button>
+          {/* Temporarily hidden until Share and Download PDF features are fixed */}
+          {false && (
+            <div className="flex gap-2">
+              <Button
+                onClick={handleShare}
+                disabled={isSharing}
+                size="sm"
+                variant="outline"
+                className="border-gray-300 dark:border-gray-600"
+              >
+                {isSharing ? (
+                  <>
+                    <IconLoader2 className="size-4 animate-spin sm:mr-2" />
+                    <span className="hidden sm:inline">Sharing...</span>
+                  </>
+                ) : (
+                  <>
+                    <svg
+                      className="size-4 sm:mr-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+                      />
+                    </svg>
+                    <span className="hidden sm:inline">Share</span>
+                  </>
+                )}
+              </Button>
 
-            <Button
-              onClick={downloadAsPDF}
-              disabled={isDownloading}
-              size="sm"
-              className="bg-blue-600 text-white hover:bg-blue-700"
-            >
-              {isDownloading ? (
-                <>
-                  <IconLoader2 className="size-4 animate-spin sm:mr-2" />
-                  <span className="hidden sm:inline">Generating...</span>
-                </>
-              ) : (
-                <>
-                  <IconDownload className="size-4 sm:mr-2" />
-                  <span className="hidden sm:inline">Download PDF</span>
-                </>
-              )}
-            </Button>
-          </div>
+              <Button
+                onClick={downloadAsPDF}
+                disabled={isDownloading}
+                size="sm"
+                className="bg-blue-600 text-white hover:bg-blue-700"
+              >
+                {isDownloading ? (
+                  <>
+                    <IconLoader2 className="size-4 animate-spin sm:mr-2" />
+                    <span className="hidden sm:inline">Generating...</span>
+                  </>
+                ) : (
+                  <>
+                    <IconDownload className="size-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Download PDF</span>
+                  </>
+                )}
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* Mobile view address */}

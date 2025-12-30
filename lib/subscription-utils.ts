@@ -44,7 +44,7 @@ export const PLAN_LIMITS: Record<
 export function getAllowedModels(planType: PlanType): string[] {
   switch (planType) {
     case "free":
-      return ["gpt-4o"] // Free plan gets only gpt-4o
+      return ["gpt-4o", "claude-3-5-haiku-20241022"] // Free plan gets gpt-4o and claude haiku
     case "premium":
       return ["gpt-4o", "gpt-5-mini"] // Premium gets gpt-4o and gpt-5-mini
     case "business":

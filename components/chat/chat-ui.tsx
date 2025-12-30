@@ -277,10 +277,6 @@ export const ChatUI: FC<ChatUIProps> = ({}) => {
         </p>
       </div>
 
-      <div className="absolute bottom-2 right-2 hidden md:block lg:bottom-4 lg:right-4">
-        <ChatHelp />
-      </div>
-
       {/* Voice Mode Modal - Fullscreen */}
       {isVoiceModeOpen && (
         <div className="fixed inset-0 z-[9999]">

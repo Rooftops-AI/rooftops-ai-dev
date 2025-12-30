@@ -7,6 +7,69 @@ import { getServerProfile } from "@/lib/server/server-chat-helpers"
 
 export const maxDuration = 300 // 5 minutes for multi-agent processing
 
+// Retry helper with exponential backoff
+async function fetchWithRetry(
+  url: string,
+  options: RequestInit,
+  maxRetries = 3,
+  initialDelay = 1000
+): Promise<Response> {
+  let lastError: Error | null = null
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      console.log(`[Fetch] Attempt ${attempt}/${maxRetries} for ${url}`)
+
+      // Add timeout to the fetch
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 60000) // 60s timeout
+
+      const response = await fetch(url, {
+        ...options,
+        signal: controller.signal
+      })
+
+      clearTimeout(timeoutId)
+
+      // If successful, return immediately
+      if (response.ok) {
+        console.log(`[Fetch] Success on attempt ${attempt}`)
+        return response
+      }
+
+      // If 4xx error, don't retry (client error)
+      if (response.status >= 400 && response.status < 500) {
+        console.error(`[Fetch] Client error ${response.status}, not retrying`)
+        return response
+      }
+
+      // For 5xx errors, retry
+      lastError = new Error(`HTTP ${response.status}: ${response.statusText}`)
+      console.warn(`[Fetch] Attempt ${attempt} failed with ${response.status}`)
+    } catch (error: any) {
+      lastError = error
+      console.error(`[Fetch] Attempt ${attempt} error:`, error.message)
+
+      // Don't retry on abort
+      if (error.name === "AbortError") {
+        throw new Error(`Request timeout after 60 seconds: ${url}`)
+      }
+    }
+
+    // Wait before retrying (exponential backoff)
+    if (attempt < maxRetries) {
+      const delay = initialDelay * Math.pow(2, attempt - 1)
+      console.log(`[Fetch] Waiting ${delay}ms before retry...`)
+      await new Promise(resolve => setTimeout(resolve, delay))
+    }
+  }
+
+  // All retries failed
+  throw new Error(
+    `Failed after ${maxRetries} attempts: ${lastError?.message || "Unknown error"}. URL: ${url}`
+  )
+}
+
 export async function POST(req: NextRequest) {
   const startTime = Date.now()
 
@@ -28,6 +91,22 @@ export async function POST(req: NextRequest) {
     console.log(
       `[Multi-Agent Orchestrator] ${capturedImages.length} images received`
     )
+
+    // Get base URL for API calls - use the request's origin
+    let baseUrl = process.env.NEXT_PUBLIC_SITE_URL
+
+    if (!baseUrl && process.env.VERCEL_URL) {
+      baseUrl = `https://${process.env.VERCEL_URL}`
+    }
+
+    if (!baseUrl) {
+      // Use the request's host to construct the URL
+      const host = req.headers.get("host") || "localhost:3000"
+      const protocol = host.includes("localhost") ? "http" : "https"
+      baseUrl = `${protocol}://${host}`
+    }
+
+    console.log(`[Multi-Agent Orchestrator] Using base URL: ${baseUrl}`)
 
     // Separate overhead images from angled views
     // Images have 'viewName' property, not 'name' (e.g., "Overhead (Context)", "Overhead (Detail)")
@@ -62,8 +141,8 @@ export async function POST(req: NextRequest) {
       console.log("[Agent 1] Starting Measurement Specialist...")
       const agent1Start = Date.now()
 
-      const measurementResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3001"}/api/agents/measurement-specialist`,
+      const measurementResponse = await fetchWithRetry(
+        `${baseUrl}/api/agents/measurement-specialist`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -76,8 +155,9 @@ export async function POST(req: NextRequest) {
       )
 
       if (!measurementResponse.ok) {
+        const errorText = await measurementResponse.text()
         throw new Error(
-          `Measurement agent failed: ${await measurementResponse.text()}`
+          `Measurement agent returned ${measurementResponse.status}: ${errorText}`
         )
       }
 
@@ -90,10 +170,16 @@ export async function POST(req: NextRequest) {
       console.log(
         `[Agent 1] Area: ${agentResults.measurement?.data?.measurements?.totalRoofArea} sq ft`
       )
-    } catch (error) {
+    } catch (error: any) {
       console.error("[Agent 1] Error:", error)
       return NextResponse.json(
-        { error: "Measurement Specialist failed", details: error.message },
+        {
+          error: "Measurement Specialist failed",
+          details: error.message,
+          agent: "measurement-specialist",
+          timestamp: new Date().toISOString(),
+          baseUrl
+        },
         { status: 500 }
       )
     }
@@ -109,34 +195,28 @@ export async function POST(req: NextRequest) {
 
       const [conditionResponse, costResponse] = await Promise.all([
         // Agent 2: Condition Inspector
-        fetch(
-          `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3001"}/api/agents/condition-inspector`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              allImages,
-              address,
-              measurementData: agentResults.measurement?.data
-            })
-          }
-        ),
+        fetchWithRetry(`${baseUrl}/api/agents/condition-inspector`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            allImages,
+            address,
+            measurementData: agentResults.measurement?.data
+          })
+        }),
         // Agent 3: Cost Estimator
-        fetch(
-          `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3001"}/api/agents/cost-estimator`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              measurementData: agentResults.measurement?.data,
-              conditionData: {
-                condition: { material: { type: "Estimating..." } }
-              }, // Placeholder for parallel execution
-              address,
-              location
-            })
-          }
-        )
+        fetchWithRetry(`${baseUrl}/api/agents/cost-estimator`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            measurementData: agentResults.measurement?.data,
+            conditionData: {
+              condition: { material: { type: "Estimating..." } }
+            }, // Placeholder for parallel execution
+            address,
+            location
+          })
+        })
       ])
 
       const parallelTime = Date.now() - parallelStart
@@ -145,12 +225,16 @@ export async function POST(req: NextRequest) {
       )
 
       if (!conditionResponse.ok) {
+        const errorText = await conditionResponse.text()
         throw new Error(
-          `Condition agent failed: ${await conditionResponse.text()}`
+          `Condition agent returned ${conditionResponse.status}: ${errorText}`
         )
       }
       if (!costResponse.ok) {
-        throw new Error(`Cost agent failed: ${await costResponse.text()}`)
+        const errorText = await costResponse.text()
+        throw new Error(
+          `Cost agent returned ${costResponse.status}: ${errorText}`
+        )
       }
 
       agentResults.condition = await conditionResponse.json()
@@ -171,8 +255,8 @@ export async function POST(req: NextRequest) {
 
       // Now update cost estimator with actual condition data
       console.log("[Agent 3] Refining cost estimate with condition data...")
-      const refinedCostResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3001"}/api/agents/cost-estimator`,
+      const refinedCostResponse = await fetchWithRetry(
+        `${baseUrl}/api/agents/cost-estimator`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -189,10 +273,16 @@ export async function POST(req: NextRequest) {
         agentResults.cost = await refinedCostResponse.json()
         console.log("[Agent 3] Cost estimate refined with condition data")
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("[Agents 2 & 3] Error:", error)
       return NextResponse.json(
-        { error: "Condition or Cost agent failed", details: error.message },
+        {
+          error: "Condition or Cost agent failed",
+          details: error.message,
+          agent: "condition-inspector or cost-estimator",
+          timestamp: new Date().toISOString(),
+          baseUrl
+        },
         { status: 500 }
       )
     }
@@ -204,8 +294,8 @@ export async function POST(req: NextRequest) {
       console.log("[Agent 4] Starting Quality Controller...")
       const agent4Start = Date.now()
 
-      const qualityResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3001"}/api/agents/quality-controller`,
+      const qualityResponse = await fetchWithRetry(
+        `${baseUrl}/api/agents/quality-controller`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -220,8 +310,9 @@ export async function POST(req: NextRequest) {
       )
 
       if (!qualityResponse.ok) {
+        const errorText = await qualityResponse.text()
         throw new Error(
-          `Quality controller failed: ${await qualityResponse.text()}`
+          `Quality controller returned ${qualityResponse.status}: ${errorText}`
         )
       }
 
@@ -234,10 +325,16 @@ export async function POST(req: NextRequest) {
       console.log(
         `[Agent 4] Quality score: ${agentResults.quality?.data?.metadata?.qualityScore}/100`
       )
-    } catch (error) {
+    } catch (error: any) {
       console.error("[Agent 4] Error:", error)
       return NextResponse.json(
-        { error: "Quality Controller failed", details: error.message },
+        {
+          error: "Quality Controller failed",
+          details: error.message,
+          agent: "quality-controller",
+          timestamp: new Date().toISOString(),
+          baseUrl
+        },
         { status: 500 }
       )
     }

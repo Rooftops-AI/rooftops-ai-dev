@@ -196,7 +196,74 @@ export async function POST(request: NextRequest) {
 
         // Also search the web with Brave (no timeout)
         try {
-          console.log("Anthropic RAG - Starting Brave search")
+          // Reformulate query based on conversation context
+          let searchQuery = userQuery
+
+          // Get last 4 messages (2 exchanges) for context
+          const recentMessages = messages.slice(-4)
+
+          if (recentMessages.length > 1) {
+            console.log(
+              "Anthropic RAG - Reformulating search query with context"
+            )
+            try {
+              const reformulationResponse = await fetch(
+                "https://api.openai.com/v1/chat/completions",
+                {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${
+                      profile?.openai_api_key || process.env.OPENAI_API_KEY
+                    }`
+                  },
+                  body: JSON.stringify({
+                    model: "gpt-4o-mini",
+                    messages: [
+                      {
+                        role: "system",
+                        content:
+                          "You are a search query optimizer. Given a conversation, create a concise, focused web search query (5-10 words max) that captures the user's intent with all relevant context. Only return the search query, nothing else."
+                      },
+                      ...recentMessages.map((msg: any) => ({
+                        role: msg.role,
+                        content:
+                          typeof msg.content === "string"
+                            ? msg.content
+                            : msg.content?.[0]?.text || ""
+                      }))
+                    ],
+                    temperature: 0.3,
+                    max_tokens: 50
+                  })
+                }
+              )
+
+              if (reformulationResponse.ok) {
+                const reformulationData = await reformulationResponse.json()
+                const reformulatedQuery =
+                  reformulationData.choices?.[0]?.message?.content?.trim()
+
+                if (reformulatedQuery && reformulatedQuery.length > 0) {
+                  searchQuery = reformulatedQuery
+                  console.log(
+                    "Anthropic RAG - Reformulated query:",
+                    searchQuery
+                  )
+                }
+              }
+            } catch (error) {
+              console.error(
+                "Anthropic RAG - Query reformulation failed, using original:",
+                error
+              )
+            }
+          }
+
+          console.log(
+            "Anthropic RAG - Starting Brave search with query:",
+            searchQuery
+          )
           const braveStartTime = Date.now()
 
           const braveResponse = await fetch(
@@ -204,7 +271,7 @@ export async function POST(request: NextRequest) {
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ query: userQuery, count: 3 })
+              body: JSON.stringify({ query: searchQuery, count: 3 })
             }
           )
 

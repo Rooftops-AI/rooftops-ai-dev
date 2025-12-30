@@ -364,9 +364,7 @@ const ExploreMap: React.FC<ExploreMapProps> = ({
         const zoomLevel = zoomLevels[zoomIdx]
         const zoomLabel = zoomLabels[zoomIdx]
 
-        setCurrentCaptureStage(
-          `Capturing overhead view (${zoomLabel} - Zoom ${zoomLevel})...`
-        )
+        setCurrentCaptureStage(`Capturing overhead view...`)
         logDebug(`Capturing top view at zoom ${zoomLevel} (${zoomLabel})`)
 
         // Check if we have the map reference before trying to use it
@@ -443,7 +441,7 @@ const ExploreMap: React.FC<ExploreMapProps> = ({
         const angle = angles[i]
         setCaptureAngle(angle)
         setCurrentCaptureStage(
-          `Capturing ${getDirectionName(angle).toUpperCase()} view (${angle}°)...`
+          `Capturing ${getDirectionName(angle).toUpperCase()} view...`
         )
 
         // Calculate optimal zoom for this specific angle and tilt, then add +1 to get closer
@@ -927,11 +925,38 @@ const ExploreMap: React.FC<ExploreMapProps> = ({
 
       // Show agent progress while API call is processing
       let currentAgentIndex = 0
+      let qualityControlMessageIndex = 0
+
+      // Rotating messages for Quality Controller stage
+      const qualityControlMessages = [
+        "Quality Control Agent Verifying...",
+        "This may take up to 1-3 minutes",
+        "Do not close this tab",
+        "Trees or obstructions may limit accuracy",
+        "Analyzing roof measurements for accuracy",
+        "Cross-referencing data from multiple views",
+        "Validating material identification",
+        "Finalizing comprehensive roof analysis"
+      ]
+
       const progressInterval = setInterval(() => {
         if (currentAgentIndex < agentStatuses.length) {
           const agent = agentStatuses[currentAgentIndex]
-          setCurrentCaptureStage(`Step ${agent.step}/4: ${agent.name}`)
-          currentAgentIndex++
+
+          // For Quality Controller (step 4), rotate through helpful messages
+          if (agent.step === 4) {
+            const message =
+              qualityControlMessages[
+                qualityControlMessageIndex % qualityControlMessages.length
+              ]
+            setCurrentCaptureStage(`Step 4/4: ${message}`)
+            qualityControlMessageIndex++
+            // Stay on step 4 and keep rotating messages
+          } else {
+            setCurrentCaptureStage(`Step ${agent.step}/4: ${agent.name}`)
+            // Move to next agent for steps 1-3
+            currentAgentIndex++
+          }
         }
       }, 3000) // Update every 3 seconds
 
@@ -940,9 +965,34 @@ const ExploreMap: React.FC<ExploreMapProps> = ({
       clearInterval(progressInterval)
 
       if (!response.ok) {
-        const errorText = await response.text()
-        console.error("Multi-agent analysis failed:", errorText)
-        throw new Error(`Multi-agent analysis failed: ${response.statusText}`)
+        let errorData
+        try {
+          const errorText = await response.text()
+          errorData = JSON.parse(errorText)
+        } catch {
+          errorData = {
+            error: response.statusText,
+            details: "Unable to parse error details"
+          }
+        }
+
+        console.error("Multi-agent analysis failed:", errorData)
+
+        // Create detailed error object for reporting
+        const errorInfo = {
+          status: response.status,
+          agent: errorData.agent || "unknown",
+          error: errorData.error || response.statusText,
+          details: errorData.details || "No additional details",
+          timestamp: errorData.timestamp || new Date().toISOString(),
+          baseUrl: errorData.baseUrl || "unknown",
+          address: selectedAddress || "unknown location"
+        }
+
+        // Throw error with stringified error info for better tracking
+        const error = new Error(JSON.stringify(errorInfo))
+        error.name = "MultiAgentAnalysisError"
+        throw error
       }
 
       // Update status: Processing response
@@ -1018,7 +1068,6 @@ const ExploreMap: React.FC<ExploreMapProps> = ({
           // Detailed analysis from all agents
           detailedAnalysis: `
 MULTI-AGENT PROPERTY ANALYSIS REPORT
-Generated using 4 specialized AI agents powered by GPT-5.1
 
 ${result.executiveSummary}
 
@@ -1026,16 +1075,10 @@ ${result.executiveSummary}
 📐 MEASUREMENTS (Agent 1: Measurement Specialist)
 ═══════════════════════════════════════════════════════════════════
 
-${result.agents?.measurement?.methodology || ""}
-
-Validated Measurements:
 • Roof Area: ${result.finalReport?.measurements?.roofArea} sq ft (${result.finalReport?.measurements?.squares} squares)
 • Facet Count: ${result.finalReport?.measurements?.facets}
 • Pitch: ${result.finalReport?.measurements?.pitch}
-• Ridge Length: ${result.finalReport?.measurements?.ridgeLength} ft
-• Valley Length: ${result.finalReport?.measurements?.valleyLength} ft
 • Complexity: ${result.finalReport?.measurements?.complexity}
-• Confidence: ${result.overallConfidence?.measurements}
 
 ${result.finalReport?.measurements?.notes || ""}
 
@@ -1045,18 +1088,11 @@ ${result.finalReport?.measurements?.notes || ""}
 
 ${result.agents?.condition?.professionalAssessment || ""}
 
-Validated Condition:
 • Material: ${result.finalReport?.condition?.material}
 • Overall Condition: ${result.finalReport?.condition?.overallCondition}
 • Estimated Age: ${result.finalReport?.condition?.age} years
 • Remaining Life: ${result.finalReport?.condition?.remainingLife} years
-• Damage Present: ${result.finalReport?.condition?.damagePresent ? "Yes" : "No"}
-• Damage Severity: ${result.finalReport?.condition?.damageSeverity}
 • Urgency: ${result.finalReport?.condition?.urgency}
-• Confidence: ${result.overallConfidence?.condition}
-
-Maintenance Needs:
-${result.finalReport?.condition?.maintenanceNeeds?.map(need => `• ${need}`).join("\n") || "None identified"}
 
 ${result.finalReport?.condition?.notes || ""}
 
@@ -1067,18 +1103,14 @@ ${result.finalReport?.condition?.notes || ""}
 Recommended Material: ${result.finalReport?.costEstimate?.recommendedMaterial}
 
 Estimated Cost Range: $${result.finalReport?.costEstimate?.estimatedCost?.low?.toLocaleString()} - $${result.finalReport?.costEstimate?.estimatedCost?.high?.toLocaleString()}
-Mid-Range Estimate: $${result.finalReport?.costEstimate?.estimatedCost?.mid?.toLocaleString()}
 
 Cost Breakdown:
 • Materials: $${result.finalReport?.costEstimate?.breakdown?.materials?.toLocaleString()}
 • Labor: $${result.finalReport?.costEstimate?.breakdown?.labor?.toLocaleString()}
 • Tear-Off/Disposal: $${result.finalReport?.costEstimate?.breakdown?.tearOff?.toLocaleString()}
-• Other: $${result.finalReport?.costEstimate?.breakdown?.other?.toLocaleString()}
 
 Alternative Options:
 ${result.finalReport?.costEstimate?.alternativeOptions?.map(opt => `• ${opt.material}: ${opt.costRange} (${opt.expectedLife} years) ${opt.recommended ? "✓ Recommended" : ""}`).join("\n") || ""}
-
-Confidence: ${result.overallConfidence?.costs}
 
 ${result.finalReport?.costEstimate?.notes || ""}
 
@@ -1087,35 +1119,22 @@ ${result.finalReport?.costEstimate?.notes || ""}
 ═══════════════════════════════════════════════════════════════════
 
 Overall Quality Score: ${result.metadata?.qualityScore}/100
-Combined Confidence: ${result.overallConfidence?.combined}
 
-Validation Results:
+Validation Status:
 • Measurements: ${result.validation?.measurementValidation?.status}
-• Condition Alignment: ${result.validation?.conditionAlignment?.status}
-• Cost Alignment: ${result.validation?.costAlignment?.status}
-• Solar API Comparison: ${result.validation?.solarAPIComparison?.status}
-
-${
-  result.flaggedIssues && result.flaggedIssues.length > 0
-    ? `
-Flagged Issues:
-${result.flaggedIssues.map(issue => `• [${issue.severity.toUpperCase()}] ${issue.issue}\n  Recommendation: ${issue.recommendation}`).join("\n")}
-`
-    : "No significant issues flagged."
-}
+• Condition Assessment: ${result.validation?.conditionAlignment?.status}
+• Cost Estimate: ${result.validation?.costAlignment?.status}
 
 ═══════════════════════════════════════════════════════════════════
 🎯 RECOMMENDATIONS
 ═══════════════════════════════════════════════════════════════════
 
-Primary Recommendation: ${result.finalReport?.recommendations?.primaryRecommendation}
+${result.finalReport?.recommendations?.primaryRecommendation}
+
 Timeline: ${result.finalReport?.recommendations?.timeline}
 
 Priority Actions:
 ${result.finalReport?.recommendations?.priorityActions?.map((action, i) => `${i + 1}. ${action}`).join("\n") || ""}
-
-Next Steps:
-${result.finalReport?.recommendations?.nextSteps?.map((step, i) => `${i + 1}. ${step}`).join("\n") || ""}
 
 ${result.finalReport?.recommendations?.budgetGuidance || ""}
 
@@ -1130,20 +1149,6 @@ ${result.finalReport?.keyFindings?.map((finding, i) => `${i + 1}. ${finding}`).j
 ═══════════════════════════════════════════════════════════════════
 
 ${result.finalReport?.disclaimers?.map(disclaimer => `• ${disclaimer}`).join("\n") || ""}
-
-═══════════════════════════════════════════════════════════════════
-📊 ANALYSIS METADATA
-═══════════════════════════════════════════════════════════════════
-
-• Model: GPT-5.1-2025-11-13 (All 4 Agents)
-• Total Analysis Time: ${result.performance?.totalTime}ms
-• Agent 1 (Measurement): ${result.performance?.agentTimings?.measurement}ms
-• Agents 2 & 3 (Condition & Cost): ${result.performance?.agentTimings?.condition}ms
-• Agent 4 (Quality Control): ${result.performance?.agentTimings?.quality}ms
-• Images Analyzed: ${result.metadata?.imageCount}
-• Solar API Data: ${result.metadata?.hasSolarData ? "Yes" : "No"}
-• Quality Score: ${result.metadata?.qualityScore}/100
-• Timestamp: ${result.metadata?.timestamp}
           `
         },
 
@@ -1174,12 +1179,51 @@ ${result.finalReport?.disclaimers?.map(disclaimer => `• ${disclaimer}`).join("
         analysisResult.structuredData.detailedAnalysis
 
       return analysisResult
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error in multi-agent analysis:", error)
       logDebug(`Multi-agent analysis error: ${error.message}`)
+
+      // Parse error details if available
+      let errorInfo
+      try {
+        errorInfo = JSON.parse(error.message)
+      } catch {
+        errorInfo = {
+          error: "Analysis failed",
+          details: error.message || "Unknown error occurred",
+          timestamp: new Date().toISOString()
+        }
+      }
+
+      // Show user-friendly error with details and report option
+      const errorMessage = `Property report failed: ${errorInfo.error}`
+      const errorDetails = `Agent: ${errorInfo.agent || "Unknown"}\nDetails: ${errorInfo.details}\nTime: ${new Date(errorInfo.timestamp).toLocaleString()}`
+
       toast.error(
-        error.message || "Could not complete multi-agent roof analysis"
+        <div className="flex flex-col gap-2">
+          <div className="font-semibold">{errorMessage}</div>
+          <div className="whitespace-pre-line text-xs text-gray-600 dark:text-gray-400">
+            {errorDetails}
+          </div>
+          <button
+            onClick={() => {
+              // Copy error details to clipboard
+              navigator.clipboard.writeText(JSON.stringify(errorInfo, null, 2))
+              toast.success(
+                "Error details copied to clipboard. Please email them to support@rooftopsai.com"
+              )
+            }}
+            className="mt-2 rounded-md bg-red-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-red-700"
+          >
+            Report this problem
+          </button>
+        </div>,
+        {
+          duration: 10000, // Show for 10 seconds
+          important: true
+        }
       )
+
       return null
     }
   }
@@ -1771,15 +1815,12 @@ ${referenceSection}
       const analysis = await captureSatelliteViews()
 
       if (!analysis) {
-        throw new Error("Roof analysis failed")
+        // Error was already shown in captureSatelliteViews, just return
+        return
       }
 
       // Store the analysis result
       setRoofAnalysis(analysis)
-
-      toast.success(
-        "AI roof analysis has been completed successfully. Generating report..."
-      )
 
       // Extract address from analysis text if necessary
       let addressToUse = selectedAddress
@@ -1961,18 +2002,44 @@ ${referenceSection}
       })
 
       logDebug("Property report generated and displayed in map view")
-
-      toast.success(
-        `Property report for ${addressToUse || "selected location"} is ready.`
-      )
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error in combined analysis and report:", error)
       logDebug(`Combined process error: ${error.message}`)
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Failed to complete analysis and report generation"
-      )
+
+      // Only show error if it's not a MultiAgentAnalysisError (already shown)
+      if (error.name !== "MultiAgentAnalysisError") {
+        toast.error(
+          <div className="flex flex-col gap-2">
+            <div className="font-semibold">Report generation failed</div>
+            <div className="text-xs text-gray-600 dark:text-gray-400">
+              {error.message || "An unexpected error occurred"}
+            </div>
+            <button
+              onClick={() => {
+                const errorInfo = {
+                  error: error.message || "Unknown error",
+                  stack: error.stack,
+                  timestamp: new Date().toISOString(),
+                  location: selectedAddress || "unknown"
+                }
+                navigator.clipboard.writeText(
+                  JSON.stringify(errorInfo, null, 2)
+                )
+                toast.success(
+                  "Error details copied. Please email them to support@rooftopsai.com"
+                )
+              }}
+              className="mt-2 rounded-md bg-red-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-red-700"
+            >
+              Report this problem
+            </button>
+          </div>,
+          {
+            duration: 10000,
+            important: true
+          }
+        )
+      }
     } finally {
       setIsLoading(false)
     }

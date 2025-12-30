@@ -8,7 +8,8 @@ import { loadDocument, setDocumentMode } from "@/lib/stores/document-store"
 interface ChatMessagesProps {}
 
 export const ChatMessages: FC<ChatMessagesProps> = ({}) => {
-  const { chatMessages, chatFileItems } = useChatbotUI()
+  const { chatMessages, chatFileItems, chatFiles, newMessageFiles } =
+    useChatbotUI()
   const { handleSendEdit } = useChatHandler()
   const [editingMessage, setEditingMessage] = useState<Tables<"messages">>()
 
@@ -62,6 +63,17 @@ export const ChatMessages: FC<ChatMessagesProps> = ({}) => {
         `
       }
 
+      const isLastMessage = index === array.length - 1
+      const isUserMessage = chatMessage.message.role === "user"
+
+      // For user messages, show attached files
+      // Last user message gets newMessageFiles, previous get chatFiles
+      const messageAttachedFiles = isUserMessage
+        ? isLastMessage
+          ? newMessageFiles
+          : chatFiles
+        : []
+
       return (
         <Message
           key={chatMessage.message.sequence_number}
@@ -70,8 +82,9 @@ export const ChatMessages: FC<ChatMessagesProps> = ({}) => {
             content: messageContent // Use the cleaned content
           }}
           fileItems={messageFileItems}
+          attachedFiles={messageAttachedFiles}
           isEditing={editingMessage?.id === chatMessage.message.id}
-          isLast={index === array.length - 1}
+          isLast={isLastMessage}
           onStartEdit={setEditingMessage}
           onCancelEdit={() => setEditingMessage(undefined)}
           onSubmitEdit={handleSendEdit}

@@ -54,12 +54,9 @@ export const ChatFilesDisplay: FC<ChatFilesDisplayProps> = ({}) => {
     )
   ]
 
-  const combinedChatFiles = [
-    ...newMessageFiles.filter(
-      file => !chatFiles.some(chatFile => chatFile.id === file.id)
-    ),
-    ...chatFiles
-  ]
+  // Only show newMessageFiles (files being prepared for the next message)
+  // Don't show chatFiles here since they're already displayed in the conversation
+  const combinedChatFiles = newMessageFiles
 
   const combinedMessageFiles = [...messageImages, ...combinedChatFiles]
 
@@ -72,7 +69,7 @@ export const ChatFilesDisplay: FC<ChatFilesDisplayProps> = ({}) => {
     window.open(link, "_blank")
   }
 
-  return showFilesDisplay && combinedMessageFiles.length > 0 ? (
+  return combinedMessageFiles.length > 0 ? (
     <>
       {showPreview && selectedImage && (
         <FilePreview
@@ -99,21 +96,6 @@ export const ChatFilesDisplay: FC<ChatFilesDisplayProps> = ({}) => {
       )}
 
       <div className="space-y-2">
-        <div className="flex w-full items-center justify-center">
-          <Button
-            className="flex h-[32px] w-[140px] space-x-2"
-            onClick={() => setShowFilesDisplay(false)}
-          >
-            <RetrievalToggle />
-
-            <div>Hide files</div>
-
-            <div onClick={e => e.stopPropagation()}>
-              <ChatRetrievalSettings />
-            </div>
-          </Button>
-        </div>
-
         <div className="overflow-auto">
           <div className="flex gap-2 overflow-auto pt-2">
             {messageImages.map((image, index) => (
@@ -224,28 +206,7 @@ export const ChatFilesDisplay: FC<ChatFilesDisplayProps> = ({}) => {
         </div>
       </div>
     </>
-  ) : (
-    combinedMessageFiles.length > 0 && (
-      <div className="flex w-full items-center justify-center space-x-2">
-        <Button
-          className="flex h-[32px] w-[140px] space-x-2"
-          onClick={() => setShowFilesDisplay(true)}
-        >
-          <RetrievalToggle />
-
-          <div>
-            {" "}
-            View {combinedMessageFiles.length} file
-            {combinedMessageFiles.length > 1 ? "s" : ""}
-          </div>
-
-          <div onClick={e => e.stopPropagation()}>
-            <ChatRetrievalSettings />
-          </div>
-        </Button>
-      </div>
-    )
-  )
+  ) : null
 }
 
 const RetrievalToggle = ({}) => {

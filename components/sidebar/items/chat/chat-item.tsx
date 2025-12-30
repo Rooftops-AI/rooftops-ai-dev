@@ -5,10 +5,10 @@ import { LLM_LIST } from "@/lib/models/llm/llm-list"
 import { cn } from "@/lib/utils"
 import { Tables } from "@/supabase/types"
 import { LLM } from "@/types"
-import { IconRobotFace } from "@tabler/icons-react"
+import { IconRobotFace, IconLoader2 } from "@tabler/icons-react"
 import Image from "next/image"
 import { useParams, useRouter } from "next/navigation"
-import { FC, useContext, useRef } from "react"
+import { FC, useContext, useRef, useState } from "react"
 import { DeleteChat } from "./delete-chat"
 import { UpdateChat } from "./update-chat"
 
@@ -28,11 +28,13 @@ export const ChatItem: FC<ChatItemProps> = ({ chat }) => {
   const router = useRouter()
   const params = useParams()
   const isActive = params.chatid === chat.id || selectedChat?.id === chat.id
+  const [isNavigating, setIsNavigating] = useState(false)
 
   const itemRef = useRef<HTMLDivElement>(null)
 
   const handleClick = () => {
     if (!selectedWorkspace) return
+    setIsNavigating(true)
     router.push(`/${selectedWorkspace.id}/chat/${chat.id}`)
   }
 
@@ -58,13 +60,16 @@ export const ChatItem: FC<ChatItemProps> = ({ chat }) => {
       ref={itemRef}
       className={cn(
         "hover:bg-accent focus:bg-accent group flex w-full cursor-pointer items-center rounded p-2 hover:opacity-50 focus:outline-none",
-        isActive && "bg-accent"
+        isActive && "bg-accent",
+        isNavigating && "opacity-50"
       )}
       tabIndex={0}
       onKeyDown={handleKeyDown}
       onClick={handleClick}
     >
-      {chat.assistant_id ? (
+      {isNavigating ? (
+        <IconLoader2 className="animate-spin" size={30} />
+      ) : chat.assistant_id ? (
         assistantImage ? (
           <Image
             style={{ width: "30px", height: "30px" }}
@@ -85,7 +90,7 @@ export const ChatItem: FC<ChatItemProps> = ({ chat }) => {
       <div
         className={cn(
           "flex-1 truncate text-sm font-semibold",
-          chat.assistant_id ? "ml-3" : ""
+          chat.assistant_id || isNavigating ? "ml-3" : ""
         )}
       >
         {chat.name}

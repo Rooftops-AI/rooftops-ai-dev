@@ -95,9 +95,36 @@ export default function CreatorStudioPage() {
 
   return (
     <div className="mx-auto max-w-7xl p-8">
-      <h1 className="text-foreground mb-8 text-3xl font-medium">
-        Creator Studio
-      </h1>
+      {/* Hero Section with gradient background */}
+      <div className="relative mb-12 overflow-hidden rounded-2xl bg-gradient-to-br from-cyan-500/10 via-blue-500/10 to-purple-500/10 p-8 dark:from-cyan-500/20 dark:via-blue-500/20 dark:to-purple-500/20">
+        {/* Decorative elements */}
+        <div className="absolute right-0 top-0 size-64 -translate-y-32 translate-x-32 rounded-full bg-gradient-to-br from-cyan-400/20 to-blue-400/20 blur-3xl" />
+        <div className="absolute bottom-0 left-0 size-64 -translate-x-32 translate-y-32 rounded-full bg-gradient-to-br from-purple-400/20 to-pink-400/20 blur-3xl" />
+
+        {/* Content */}
+        <div className="relative z-10">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-cyan-500/20 to-blue-500/20 px-4 py-1.5 text-sm font-medium text-cyan-700 dark:text-cyan-300">
+            <svg className="size-4" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M13 7H7v6h6V7z" />
+              <path
+                fillRule="evenodd"
+                d="M7 2a1 1 0 012 0v1h2V2a1 1 0 112 0v1h2a2 2 0 012 2v2h1a1 1 0 110 2h-1v2h1a1 1 0 110 2h-1v2a2 2 0 01-2 2h-2v1a1 1 0 11-2 0v-1H9v1a1 1 0 11-2 0v-1H5a2 2 0 01-2-2v-2H2a1 1 0 110-2h1V9H2a1 1 0 010-2h1V5a2 2 0 012-2h2V2zM5 5h10v10H5V5z"
+                clipRule="evenodd"
+              />
+            </svg>
+            Powered by AI
+          </div>
+
+          <h1 className="mb-3 bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600 bg-clip-text text-4xl font-bold text-transparent dark:from-cyan-400 dark:via-blue-400 dark:to-purple-400">
+            AI Agent Library
+          </h1>
+
+          <p className="text-muted-foreground max-w-2xl text-lg">
+            Choose from our collection of specialized AI agents to streamline
+            your workflow and boost productivity.
+          </p>
+        </div>
+      </div>
 
       {/* Search bar */}
       <div className="mb-8">

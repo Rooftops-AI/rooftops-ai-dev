@@ -10,7 +10,8 @@ import {
   IconClipboardCheck,
   IconMessageCircle,
   IconSettings,
-  IconBolt
+  IconBolt,
+  IconLoader2
 } from "@tabler/icons-react"
 
 interface PromptCategory {
@@ -108,6 +109,7 @@ export function QuickPrompts() {
   const workspaceId = params.workspaceid as string
   const { handleSendMessage } = useChatHandler()
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  const [isNavigating, setIsNavigating] = useState(false)
 
   const handleCategoryClick = (categoryId: string) => {
     setSelectedCategory(selectedCategory === categoryId ? null : categoryId)
@@ -119,19 +121,28 @@ export function QuickPrompts() {
   }
 
   const handleExploreClick = () => {
+    setIsNavigating(true)
     router.push(`/${workspaceId}/explore`)
   }
 
   return (
     <div className="mb-6 w-full">
       {/* Horizontal scrolling cards */}
-      <div className="scrollbar-hide flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-2">
+      <div className="scrollbar-hide flex snap-x snap-mandatory gap-3 overflow-x-auto py-4 pl-6 pr-4">
         {/* Featured Property Report Card with map background */}
         <button
           onClick={handleExploreClick}
           className="w-[180px] flex-none snap-start"
+          disabled={isNavigating}
         >
-          <div className="relative flex h-[100px] flex-col items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-white/60 p-4 text-left shadow-lg backdrop-blur-md transition-all hover:border-gray-300 hover:shadow-xl dark:border-gray-700 dark:bg-gray-800/80 dark:hover:border-gray-600">
+          <div
+            className={`relative flex h-[100px] flex-col items-center justify-center overflow-hidden rounded-xl p-4 text-left shadow-md backdrop-blur-md transition-all hover:shadow-lg ${isNavigating ? "opacity-60" : ""}`}
+            style={{
+              border: "2px solid transparent",
+              background:
+                "linear-gradient(white, white) padding-box, linear-gradient(135deg, #25BCEC, #51EBBC) border-box"
+            }}
+          >
             {/* Subtle map background */}
             <div
               className="absolute inset-0 bg-cover bg-center opacity-5 dark:opacity-10"
@@ -141,16 +152,23 @@ export function QuickPrompts() {
             />
 
             <div className="relative z-10 flex items-center gap-3">
-              <IconMap
-                size={24}
-                className="shrink-0 text-blue-500 dark:text-blue-400"
-              />
+              {isNavigating ? (
+                <IconLoader2
+                  size={24}
+                  className="shrink-0 animate-spin text-blue-500 dark:text-blue-400"
+                />
+              ) : (
+                <IconMap
+                  size={24}
+                  className="shrink-0 text-blue-500 dark:text-blue-400"
+                />
+              )}
               <div>
                 <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
-                  Property Reports
+                  AI Roof Agent
                 </h3>
                 <p className="text-xs text-gray-600 dark:text-gray-400">
-                  Instant analysis
+                  Instant Property Reports
                 </p>
               </div>
             </div>

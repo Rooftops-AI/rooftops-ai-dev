@@ -224,14 +224,6 @@ export const SidebarDataList: FC<SidebarDataListProps> = ({
         className="mt-2 flex flex-col overflow-auto"
         onDrop={handleDrop}
       >
-        {data.length === 0 && (
-          <div className="flex grow flex-col items-center justify-center">
-            <div className=" text-centertext-muted-foreground p-8 text-lg italic">
-              No {contentType}.
-            </div>
-          </div>
-        )}
-
         {(dataWithFolders.length > 0 || dataWithoutFolders.length > 0) && (
           <div
             className={`h-full ${
