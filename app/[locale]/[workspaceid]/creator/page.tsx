@@ -3,73 +3,48 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import {
-  IconMail,
-  IconFileText,
-  IconClipboardData,
-  IconUsers,
-  IconClipboard,
-  IconBulb,
-  IconFileInvoice
-} from "@tabler/icons-react"
 import { useParams } from "next/navigation"
 
-const tools = [
+const agents = [
   {
-    id: "marketing",
-    title: "Marketing Email",
-    icon: IconMail,
-    description: "Generate a sales or marketing email",
-    categories: ["Sales", "Outbound"]
+    id: "proposal",
+    name: "Dylan the Proposal Expert",
+    title: "Roofing Proposal Generator",
+    avatarUrl:
+      "https://api.dicebear.com/7.x/avataaars/svg?seed=Dylan&backgroundColor=3b82f6",
+    gradient: "from-blue-500 to-cyan-500",
+    description: "Creates professional roofing proposals for customers",
+    categories: ["Sales", "Documentation"]
   },
   {
-    id: "contract",
-    title: "Contract Draft",
-    icon: IconFileText,
-    description: "Create a service agreement template",
-    categories: ["Legal", "Agreements"]
+    id: "insurance",
+    name: "Claire the Claims Specialist",
+    title: "Insurance Claim Assistant",
+    avatarUrl:
+      "https://api.dicebear.com/7.x/avataaars/svg?seed=Claire&backgroundColor=a855f7",
+    gradient: "from-purple-500 to-pink-500",
+    description: "Generates insurance claim documentation",
+    categories: ["Claims", "Documentation"]
   },
   {
-    id: "invoice",
-    title: "Invoice Template",
-    icon: IconClipboardData,
-    description: "Build a simple invoice",
-    categories: ["Finance", "Billing"]
+    id: "followup",
+    name: "Finn the Follow-Up Pro",
+    title: "Lead Follow-Up Writer",
+    avatarUrl:
+      "https://api.dicebear.com/7.x/avataaars/svg?seed=Finn&backgroundColor=10b981",
+    gradient: "from-green-500 to-emerald-500",
+    description: "Writes personalized lead follow-up messages",
+    categories: ["Sales", "Communication"]
   },
   {
-    id: "hr",
-    title: "HR Policy",
-    icon: IconUsers,
-    description: "Generate an employee handbook snippet",
-    categories: ["HR", "Policies"]
-  },
-  {
-    id: "recruit",
-    title: "Job Posting",
-    icon: IconClipboard,
-    description: "Write a job ad to recruit staff",
-    categories: ["HR", "Hiring"]
-  },
-  {
-    id: "admin",
-    title: "Office Memo",
-    icon: IconBulb,
-    description: "Produce an internal memo or SOP",
-    categories: ["Operations", "Internal"]
-  },
-  {
-    id: "workorder",
-    title: "Work Order",
-    icon: IconFileInvoice,
-    description: "Generate a customizable work order form",
-    categories: ["Operations", "Field"]
-  },
-  {
-    id: "servicequote",
-    title: "Service Quote",
-    icon: IconFileInvoice,
-    description: "Create a detailed service quote template",
-    categories: ["Sales", "Quoting"]
+    id: "jobreport",
+    name: "Riley the Project Reporter",
+    title: "Job Completion Report",
+    avatarUrl:
+      "https://api.dicebear.com/7.x/avataaars/svg?seed=Riley&backgroundColor=f97316",
+    gradient: "from-orange-500 to-amber-500",
+    description: "Documents job completions professionally",
+    categories: ["Operations", "Documentation"]
   }
 ]
 
@@ -84,12 +59,13 @@ export default function CreatorStudioPage() {
   const [searchTerm, setSearchTerm] = useState("")
 
   // 3) derive a filtered list
-  const filtered = tools.filter(tool => {
+  const filtered = agents.filter(agent => {
     const term = searchTerm.toLowerCase()
     return (
-      tool.title.toLowerCase().includes(term) ||
-      tool.description.toLowerCase().includes(term) ||
-      tool.categories.some(cat => cat.toLowerCase().includes(term))
+      agent.name.toLowerCase().includes(term) ||
+      agent.title.toLowerCase().includes(term) ||
+      agent.description.toLowerCase().includes(term) ||
+      agent.categories.some(cat => cat.toLowerCase().includes(term))
     )
   })
 
@@ -131,7 +107,7 @@ export default function CreatorStudioPage() {
         <div className="relative">
           <input
             type="text"
-            placeholder="Search tools…"
+            placeholder="Search agents…"
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
             className="bg-background border-border text-foreground placeholder:text-muted-foreground focus:ring-primary/20 focus:border-primary w-full rounded-xl border py-3 pl-4 pr-12 transition-all duration-200 focus:outline-none focus:ring-2"
@@ -153,57 +129,66 @@ export default function CreatorStudioPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {filtered.map(tool => (
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-2">
+        {filtered.map(agent => (
           <Link
-            key={tool.id}
-            href={`/${locale}/${workspaceId}/creator/${tool.id}`}
+            key={agent.id}
+            href={`/${locale}/${workspaceId}/creator/${agent.id}`}
             className="group block"
           >
             <div className="bg-card border-border hover:border-primary/20 h-full overflow-hidden rounded-xl border shadow-sm transition-all duration-300 hover:shadow-md">
               <div className="p-6">
-                <div className="flex items-start justify-between">
-                  <div className="bg-primary/10 rounded-xl p-2.5">
-                    <tool.icon
-                      size={24}
-                      className="text-primary"
-                      strokeWidth={1.5}
+                <div className="flex items-start gap-4">
+                  {/* Avatar */}
+                  <div className="size-14 shrink-0 overflow-hidden rounded-full shadow-lg">
+                    <img
+                      src={agent.avatarUrl}
+                      alt={agent.name}
+                      className="size-full object-cover"
                     />
                   </div>
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 20 20"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="text-muted-foreground group-hover:text-primary transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-                  >
-                    <path
-                      d="M5.83331 14.1667L14.1666 5.83334M14.1666 5.83334H5.83331M14.1666 5.83334V14.1667"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </div>
 
-                <h2 className="text-foreground mb-1 mt-4 text-lg font-medium">
-                  {tool.title}
-                </h2>
-                <p className="text-muted-foreground mb-5 text-sm leading-relaxed">
-                  {tool.description}
-                </p>
+                  {/* Content */}
+                  <div className="flex-1">
+                    <div className="mb-1 flex items-center justify-between">
+                      <h2 className="text-foreground text-lg font-bold">
+                        {agent.name}
+                      </h2>
+                      <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 20 20"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="text-muted-foreground group-hover:text-primary transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                      >
+                        <path
+                          d="M5.83331 14.1667L14.1666 5.83334M14.1666 5.83334H5.83331M14.1666 5.83334V14.1667"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </div>
+                    <p className="text-primary mb-2 text-sm font-medium">
+                      {agent.title}
+                    </p>
+                    <p className="text-muted-foreground mb-3 text-sm leading-relaxed">
+                      {agent.description}
+                    </p>
 
-                <div className="flex flex-wrap gap-2">
-                  {tool.categories.map(cat => (
-                    <span
-                      key={cat}
-                      className="bg-secondary border-border text-secondary-foreground inline-block rounded-xl border px-2.5 py-1 text-xs font-medium"
-                    >
-                      {cat}
-                    </span>
-                  ))}
+                    <div className="flex flex-wrap gap-2">
+                      {agent.categories.map(cat => (
+                        <span
+                          key={cat}
+                          className="bg-secondary border-border text-secondary-foreground inline-block rounded-xl border px-2.5 py-1 text-xs font-medium"
+                        >
+                          {cat}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

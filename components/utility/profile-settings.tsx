@@ -356,7 +356,9 @@ export const ProfileSettings: FC<ProfileSettingsProps> = ({}) => {
               <div className="space-y-1">
                 <div className="flex items-center justify-between">
                   <Label>Profile Image</Label>
-                  <span className="text-muted-foreground text-xs">Max 5MB</span>
+                  <span className="text-muted-foreground text-xs">
+                    Auto-compressed
+                  </span>
                 </div>
 
                 <ImagePicker

@@ -27,11 +27,6 @@ const ImagePicker: FC<ImagePickerProps> = ({
     if (e.target.files) {
       const file = e.target.files[0]
 
-      if (file.size > 5000000) {
-        toast.error("Image must be less than 5MB!")
-        return
-      }
-
       const url = URL.createObjectURL(file)
 
       const img = new window.Image()
@@ -46,10 +41,17 @@ const ImagePicker: FC<ImagePickerProps> = ({
           return
         }
 
+        // Calculate square crop dimensions
         const size = Math.min(img.width, img.height)
-        canvas.width = size
-        canvas.height = size
 
+        // Resize to max 800x800 for profile pictures (more than enough quality)
+        const maxSize = 800
+        const targetSize = Math.min(size, maxSize)
+
+        canvas.width = targetSize
+        canvas.height = targetSize
+
+        // Draw and crop to square, resizing if needed
         ctx.drawImage(
           img,
           (img.width - size) / 2,
@@ -58,16 +60,36 @@ const ImagePicker: FC<ImagePickerProps> = ({
           size,
           0,
           0,
-          size,
-          size
+          targetSize,
+          targetSize
         )
 
-        const squareUrl = canvas.toDataURL()
+        // Compress to JPEG with 0.85 quality (good balance of quality/size)
+        const compressedDataUrl = canvas.toDataURL("image/jpeg", 0.85)
 
-        setPreviewSrc(squareUrl)
-        setPreviewImage(file)
-        onSrcChange(squareUrl)
-        onImageChange(file)
+        // Convert data URL to File object
+        canvas.toBlob(
+          blob => {
+            if (blob) {
+              const compressedFile = new File([blob], file.name, {
+                type: "image/jpeg",
+                lastModified: Date.now()
+              })
+
+              const finalSize = compressedFile.size / 1024 / 1024 // Size in MB
+              console.log(
+                `Image compressed from ${(file.size / 1024 / 1024).toFixed(2)}MB to ${finalSize.toFixed(2)}MB`
+              )
+
+              setPreviewSrc(compressedDataUrl)
+              setPreviewImage(compressedFile)
+              onSrcChange(compressedDataUrl)
+              onImageChange(compressedFile)
+            }
+          },
+          "image/jpeg",
+          0.85
+        )
       }
     }
   }
