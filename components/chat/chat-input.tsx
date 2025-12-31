@@ -409,28 +409,20 @@ export const ChatInput: FC<ChatInputProps> = ({ onVoiceModeClick }) => {
 
         {/* Main input container */}
         <div className="bg-background flex w-full flex-col rounded-2xl border shadow-lg">
-          {/* Web Search Indicator */}
+          {/* Web Search Pill Indicator */}
           {profile?.web_search_enabled && (
-            <div className="border-border flex items-center justify-between border-b px-3 py-2">
-              <div className="flex items-center gap-2">
-                <IconWorld
-                  size={16}
-                  className="text-blue-600 dark:text-blue-400"
-                />
-                <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
-                  Web Search
-                </span>
+            <div className="px-4 pt-3">
+              <div className="inline-flex items-center gap-2 rounded-full bg-blue-600 px-3 py-1.5 text-white dark:bg-blue-500">
+                <IconWorld size={16} />
+                <span className="text-sm font-medium">Web Search</span>
+                <button
+                  onClick={handleToggleWebSearch}
+                  className="ml-1 rounded-full p-0.5 hover:bg-blue-700 dark:hover:bg-blue-600"
+                  aria-label="Disable web search"
+                >
+                  <IconX size={14} className="text-white" />
+                </button>
               </div>
-              <button
-                onClick={handleToggleWebSearch}
-                className="rounded-full p-0.5 hover:bg-gray-100 dark:hover:bg-gray-800"
-                aria-label="Disable web search"
-              >
-                <IconX
-                  size={16}
-                  className="text-muted-foreground hover:text-foreground"
-                />
-              </button>
             </div>
           )}
 
