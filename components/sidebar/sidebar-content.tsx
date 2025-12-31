@@ -1,7 +1,7 @@
 // components > sidebar > sidebar-content.tsx
 import { Tables } from "@/supabase/types"
 import { ContentType, DataListType } from "@/types"
-import { FC, useState, useTransition } from "react"
+import { FC, useState, useTransition, useEffect } from "react"
 import { SidebarCreateButtons } from "./sidebar-create-buttons"
 import { SidebarDataList } from "./sidebar-data-list"
 import { SidebarSearch } from "./sidebar-search"
@@ -42,6 +42,11 @@ export const SidebarContent: FC<SidebarContentProps> = ({
   const filteredData: any = data.filter(item =>
     item.name.toLowerCase().includes(searchTerm.toLowerCase())
   )
+
+  // Reset navigation state when pathname changes
+  useEffect(() => {
+    setIsNavigating(null)
+  }, [pathname])
 
   const handleNavigation = (path: string, key: string) => {
     setIsNavigating(key)
