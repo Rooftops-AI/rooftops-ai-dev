@@ -147,9 +147,17 @@ export const ProfileSettings: FC<ProfileSettingsProps> = ({}) => {
     let profileImagePath = ""
 
     if (profileImageFile) {
-      const { path, url } = await uploadProfileImage(profile, profileImageFile)
-      profileImageUrl = url ?? profileImageUrl
-      profileImagePath = path
+      try {
+        const { path, url } = await uploadProfileImage(
+          profile,
+          profileImageFile
+        )
+        profileImageUrl = url ?? profileImageUrl
+        profileImagePath = path
+      } catch (error: any) {
+        toast.error(error.message || "Failed to upload profile image")
+        return
+      }
     }
 
     const updatedProfile = await updateProfile(profile.id, {
@@ -246,9 +254,9 @@ export const ProfileSettings: FC<ProfileSettingsProps> = ({}) => {
             alt={"Image"}
           />
         ) : (
-          <Button size="icon" variant="ghost">
-            <IconUser size={SIDEBAR_ICON_SIZE} />
-          </Button>
+          <div className="mt-2 flex size-[34px] cursor-pointer items-center justify-center rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 transition-opacity hover:opacity-80">
+            <IconUser size={20} className="text-white" stroke={2} />
+          </div>
         )}
       </SheetTrigger>
 
@@ -346,7 +354,10 @@ export const ProfileSettings: FC<ProfileSettingsProps> = ({}) => {
               </div>
 
               <div className="space-y-1">
-                <Label>Profile Image</Label>
+                <div className="flex items-center justify-between">
+                  <Label>Profile Image</Label>
+                  <span className="text-muted-foreground text-xs">Max 5MB</span>
+                </div>
 
                 <ImagePicker
                   src={profileImageSrc}

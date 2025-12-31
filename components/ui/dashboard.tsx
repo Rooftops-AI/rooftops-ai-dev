@@ -99,6 +99,15 @@ export const Dashboard: FC<DashboardProps> = ({ children }) => {
       }
     }
 
+    // On mobile with collapsed sidebar, use full width
+    if (isMobile && !showSidebar) {
+      return {
+        width: "100%",
+        marginRight: "0",
+        display: "flex"
+      }
+    }
+
     // Default state - account for sidebar width when open
     return {
       width: showSidebar
@@ -113,76 +122,80 @@ export const Dashboard: FC<DashboardProps> = ({ children }) => {
     <div className="relative flex size-full overflow-hidden">
       <CommandK />
 
-      {/* Sidebar */}
-      <div
-        className={cn(
-          "z-20 shrink-0 transition-all duration-300",
-          showSidebar
-            ? "border-r border-blue-500/10 bg-white dark:border-blue-400/15 dark:bg-gray-900"
-            : ""
-        )}
-        style={{
-          minWidth: showSidebar
-            ? `${SIDEBAR_WIDTH}px`
-            : `${SIDEBAR_ICON_WIDTH}px`,
-          maxWidth: showSidebar
-            ? `${SIDEBAR_WIDTH}px`
-            : `${SIDEBAR_ICON_WIDTH}px`,
-          width: showSidebar ? `${SIDEBAR_WIDTH}px` : `${SIDEBAR_ICON_WIDTH}px`
-        }}
-      >
-        <Tabs
-          className="flex h-full"
-          value={contentType}
-          onValueChange={val => {
-            setContentType(val as ContentType)
-            router.replace(`${pathname}?tab=${val}`)
+      {/* Sidebar - hidden on mobile when collapsed */}
+      {(!isMobile || showSidebar) && (
+        <div
+          className={cn(
+            "z-20 shrink-0 transition-all duration-300",
+            showSidebar
+              ? "border-r border-blue-500/10 bg-white dark:border-blue-400/15 dark:bg-gray-900"
+              : ""
+          )}
+          style={{
+            minWidth: showSidebar
+              ? `${SIDEBAR_WIDTH}px`
+              : `${SIDEBAR_ICON_WIDTH}px`,
+            maxWidth: showSidebar
+              ? `${SIDEBAR_WIDTH}px`
+              : `${SIDEBAR_ICON_WIDTH}px`,
+            width: showSidebar
+              ? `${SIDEBAR_WIDTH}px`
+              : `${SIDEBAR_ICON_WIDTH}px`
           }}
         >
-          {!showSidebar ? (
-            <div className="flex h-full flex-col bg-black">
-              {/* Rooftops AI logo with expand button */}
-              <div className="flex flex-col items-center border-b border-gray-800/50 px-2 py-3">
-                <div
-                  className="mb-2 cursor-pointer"
-                  onClick={handleToggleSidebar}
-                >
-                  <RooftopsSVG width="40" height="40" />
+          <Tabs
+            className="flex h-full"
+            value={contentType}
+            onValueChange={val => {
+              setContentType(val as ContentType)
+              router.replace(`${pathname}?tab=${val}`)
+            }}
+          >
+            {!showSidebar ? (
+              <div className="flex h-full flex-col bg-black">
+                {/* Rooftops AI logo with expand button */}
+                <div className="flex flex-col items-center border-b border-gray-800/50 px-2 py-3">
+                  <div
+                    className="mb-2 cursor-pointer"
+                    onClick={handleToggleSidebar}
+                  >
+                    <RooftopsSVG width="40" height="40" />
+                  </div>
+                  <Button
+                    className="size-8 bg-transparent hover:bg-gray-800/50"
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleToggleSidebar}
+                    aria-label="Expand sidebar"
+                  >
+                    <IconMenu2 size={20} className="text-gray-200" />
+                  </Button>
                 </div>
-                <Button
-                  className="size-8 bg-transparent hover:bg-gray-800/50"
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleToggleSidebar}
-                  aria-label="Expand sidebar"
-                >
-                  <IconMenu2 size={20} className="text-gray-200" />
-                </Button>
-              </div>
 
-              {/* Icon-only switcher - clicking expands sidebar */}
-              <div className="flex-1 overflow-hidden">
-                <SidebarSwitcher
-                  onContentTypeChange={type => {
-                    setContentType(type)
-                    handleToggleSidebar()
-                  }}
-                />
+                {/* Icon-only switcher - clicking expands sidebar */}
+                <div className="flex-1 overflow-hidden">
+                  <SidebarSwitcher
+                    onContentTypeChange={type => {
+                      setContentType(type)
+                      handleToggleSidebar()
+                    }}
+                  />
+                </div>
               </div>
-            </div>
-          ) : (
-            <>
-              <SidebarSwitcher onContentTypeChange={setContentType} />
-              <Sidebar
-                contentType={contentType}
-                showSidebar={showSidebar}
-                toggleSidebar={handleToggleSidebar}
-                isMobile={isMobile}
-              />
-            </>
-          )}
-        </Tabs>
-      </div>
+            ) : (
+              <>
+                <SidebarSwitcher onContentTypeChange={setContentType} />
+                <Sidebar
+                  contentType={contentType}
+                  showSidebar={showSidebar}
+                  toggleSidebar={handleToggleSidebar}
+                  isMobile={isMobile}
+                />
+              </>
+            )}
+          </Tabs>
+        </div>
+      )}
 
       {/* Main Content */}
       <div

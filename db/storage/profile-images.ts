@@ -7,7 +7,7 @@ export const uploadProfileImage = async (
 ) => {
   const bucket = "profile_images"
 
-  const imageSizeLimit = 2000000 // 2MB
+  const imageSizeLimit = 5000000 // 5MB
 
   if (image.size > imageSizeLimit) {
     throw new Error(`Image must be less than ${imageSizeLimit / 1000000}MB`)

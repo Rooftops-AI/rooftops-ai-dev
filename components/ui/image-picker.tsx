@@ -27,8 +27,8 @@ const ImagePicker: FC<ImagePickerProps> = ({
     if (e.target.files) {
       const file = e.target.files[0]
 
-      if (file.size > 6000000) {
-        toast.error("Image must be less than 6MB!")
+      if (file.size > 5000000) {
+        toast.error("Image must be less than 5MB!")
         return
       }
 
