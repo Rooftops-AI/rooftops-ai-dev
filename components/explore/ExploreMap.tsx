@@ -197,33 +197,9 @@ const ExploreMap: React.FC<ExploreMapProps> = ({
   const handleReportModeChange = useCallback(
     (newMode: "instant" | "agent") => {
       if (newMode === "agent" && !canUseAgentMode()) {
-        toast.error(
-          <div className="flex flex-col gap-2">
-            <div className="font-semibold">Agent Mode is Premium Only</div>
-            <div className="text-xs">
-              Agent Mode requires Premium or Business subscription for advanced
-              AI-powered analysis. Upgrade to unlock:
-            </div>
-            <ul className="ml-4 list-disc text-xs">
-              <li>4 AI specialist agents</li>
-              <li>Condition assessment</li>
-              <li>Material identification</li>
-              <li>Accurate cost estimates</li>
-              <li>Quality validation</li>
-            </ul>
-            <button
-              onClick={() => {
-                window.location.href = "/upgrade"
-              }}
-              className="mt-2 rounded-md bg-gradient-to-r from-cyan-500 to-green-500 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:from-cyan-600 hover:to-green-600"
-            >
-              Upgrade Now
-            </button>
-          </div>,
-          {
-            duration: 8000
-          }
-        )
+        // Redirect free users to pricing page
+        logDebug("User attempted to access Agent Mode without subscription")
+        window.location.href = "/pricing"
         return
       }
 
