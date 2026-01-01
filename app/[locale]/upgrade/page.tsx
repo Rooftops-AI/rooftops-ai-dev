@@ -57,36 +57,36 @@ export default function UpgradePage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">
+    <div className="flex min-h-screen items-center justify-center bg-white p-4">
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="mb-8 text-center">
-          <h1 className="mb-3 text-3xl font-bold text-white">
+          <h1 className="mb-3 text-3xl font-bold text-gray-900">
             Unlock Premium Features
           </h1>
-          <p className="text-gray-300">
+          <p className="text-gray-600">
             Get access to exclusive agents and advanced features
           </p>
         </div>
 
         {/* Tabs */}
-        <div className="mb-6 flex rounded-lg bg-slate-800/50 p-1">
+        <div className="mb-6 flex gap-2 rounded-lg border border-gray-200 bg-gray-50 p-1">
           <button
             onClick={() => setActiveTab("premium")}
-            className={`flex-1 rounded-md px-4 py-2.5 text-sm font-semibold transition-all ${
+            className={`flex-1 rounded-md px-4 py-3 text-sm font-semibold transition-all ${
               activeTab === "premium"
-                ? "bg-white text-gray-900 shadow-lg"
-                : "text-gray-400 hover:text-white"
+                ? "bg-white text-gray-900 shadow-sm"
+                : "text-gray-600 hover:text-gray-900"
             }`}
           >
             Premium
           </button>
           <button
             onClick={() => setActiveTab("business")}
-            className={`flex-1 rounded-md px-4 py-2.5 text-sm font-semibold transition-all ${
+            className={`flex-1 rounded-md px-4 py-3 text-sm font-semibold transition-all ${
               activeTab === "business"
-                ? "bg-white text-gray-900 shadow-lg"
-                : "text-gray-400 hover:text-white"
+                ? "bg-white text-gray-900 shadow-sm"
+                : "text-gray-600 hover:text-gray-900"
             }`}
           >
             Business
@@ -94,7 +94,7 @@ export default function UpgradePage() {
         </div>
 
         {/* Pricing Card */}
-        <div className="rounded-xl bg-white p-6 shadow-2xl">
+        <div className="rounded-xl border border-gray-200 bg-white p-8 shadow-sm">
           {activeTab === "premium" ? (
             <>
               {/* Premium Plan */}
@@ -153,7 +153,7 @@ export default function UpgradePage() {
 
               {/* Pricing Options */}
               <div className="mb-6 space-y-3">
-                <Button
+                <button
                   onClick={() =>
                     handleCheckout(
                       STRIPE_PRICE_IDS.premium_monthly,
@@ -161,14 +161,12 @@ export default function UpgradePage() {
                     )
                   }
                   disabled={loading}
-                  className="w-full bg-gray-900 py-6 text-base font-semibold hover:bg-gray-800"
+                  className="flex w-full items-center justify-between rounded-lg border-2 border-gray-300 bg-white px-6 py-4 text-base font-semibold text-gray-900 transition-all hover:border-gray-400 hover:bg-gray-50 disabled:opacity-50"
                 >
-                  <div className="flex w-full items-center justify-between">
-                    <span>Monthly</span>
-                    <span>$29/month</span>
-                  </div>
-                </Button>
-                <Button
+                  <span>Monthly</span>
+                  <span>$29/month</span>
+                </button>
+                <button
                   onClick={() =>
                     handleCheckout(
                       STRIPE_PRICE_IDS.premium_annual,
@@ -176,17 +174,14 @@ export default function UpgradePage() {
                     )
                   }
                   disabled={loading}
-                  variant="outline"
-                  className="group relative w-full border-2 border-green-600 py-6 text-base font-semibold hover:bg-green-50"
+                  className="relative flex w-full items-center justify-between rounded-lg border-2 border-blue-600 bg-blue-600 px-6 py-4 text-base font-semibold text-white transition-all hover:bg-blue-700 disabled:opacity-50"
                 >
-                  <div className="absolute -top-2 right-4 rounded-full bg-green-600 px-2 py-0.5 text-xs font-bold text-white">
+                  <div className="absolute -top-2.5 right-4 rounded-full bg-green-600 px-3 py-1 text-xs font-bold text-white">
                     Save $48
                   </div>
-                  <div className="flex w-full items-center justify-between text-green-700">
-                    <span>Annual</span>
-                    <span>$25/month</span>
-                  </div>
-                </Button>
+                  <span>Annual</span>
+                  <span>$25/month</span>
+                </button>
               </div>
             </>
           ) : (
@@ -260,7 +255,7 @@ export default function UpgradePage() {
 
               {/* Pricing Options */}
               <div className="mb-6 space-y-3">
-                <Button
+                <button
                   onClick={() =>
                     handleCheckout(
                       STRIPE_PRICE_IDS.business_monthly,
@@ -268,14 +263,12 @@ export default function UpgradePage() {
                     )
                   }
                   disabled={loading}
-                  className="w-full bg-gray-900 py-6 text-base font-semibold hover:bg-gray-800"
+                  className="flex w-full items-center justify-between rounded-lg border-2 border-gray-300 bg-white px-6 py-4 text-base font-semibold text-gray-900 transition-all hover:border-gray-400 hover:bg-gray-50 disabled:opacity-50"
                 >
-                  <div className="flex w-full items-center justify-between">
-                    <span>Monthly</span>
-                    <span>$99/month</span>
-                  </div>
-                </Button>
-                <Button
+                  <span>Monthly</span>
+                  <span>$99/month</span>
+                </button>
+                <button
                   onClick={() =>
                     handleCheckout(
                       STRIPE_PRICE_IDS.business_annual,
@@ -283,17 +276,14 @@ export default function UpgradePage() {
                     )
                   }
                   disabled={loading}
-                  variant="outline"
-                  className="group relative w-full border-2 border-green-600 py-6 text-base font-semibold hover:bg-green-50"
+                  className="relative flex w-full items-center justify-between rounded-lg border-2 border-blue-600 bg-blue-600 px-6 py-4 text-base font-semibold text-white transition-all hover:bg-blue-700 disabled:opacity-50"
                 >
-                  <div className="absolute -top-2 right-4 rounded-full bg-green-600 px-2 py-0.5 text-xs font-bold text-white">
+                  <div className="absolute -top-2.5 right-4 rounded-full bg-green-600 px-3 py-1 text-xs font-bold text-white">
                     Save $180
                   </div>
-                  <div className="flex w-full items-center justify-between text-green-700">
-                    <span>Annual</span>
-                    <span>$84/month</span>
-                  </div>
-                </Button>
+                  <span>Annual</span>
+                  <span>$84/month</span>
+                </button>
               </div>
             </>
           )}
@@ -309,7 +299,7 @@ export default function UpgradePage() {
         </div>
 
         {/* Footer */}
-        <p className="mt-6 text-center text-xs text-gray-400">
+        <p className="mt-6 text-center text-xs text-gray-600">
           You can upgrade or downgrade at any time
         </p>
       </div>
