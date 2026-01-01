@@ -159,7 +159,8 @@ export default function SetupPage() {
     setSelectedWorkspace(homeWorkspace!)
     setWorkspaces(workspaces)
 
-    return router.push(`/${homeWorkspace?.id}/chat`)
+    // Redirect to upgrade page after onboarding
+    return router.push("/upgrade")
   }
 
   const renderStep = (stepNum: number) => {

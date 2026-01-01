@@ -3,8 +3,13 @@
 
 // Stripe price IDs for your subscription plans (TEST MODE)
 export const STRIPE_PRICE_IDS = {
-  premium: "price_1SWUd2La49gFMOt6XzOeOePh", // Rooftops AI Premium - $29/month
-  business: "price_1SWUdKLa49gFMOt6ij7fwsyl" // Rooftops AI Business - $99/month
+  premium_monthly: "price_1SWUd2La49gFMOt6XzOeOePh", // Rooftops AI Premium - $29/month
+  premium_annual: "price_PLACEHOLDER_PREMIUM_ANNUAL", // Rooftops AI Premium - $25/month billed annually ($300/year)
+  business_monthly: "price_1SWUdKLa49gFMOt6ij7fwsyl", // Rooftops AI Business - $99/month
+  business_annual: "price_PLACEHOLDER_BUSINESS_ANNUAL", // Rooftops AI Business - $84/month billed annually ($1008/year)
+  // Backwards compatibility
+  premium: "price_1SWUd2La49gFMOt6XzOeOePh",
+  business: "price_1SWUdKLa49gFMOt6ij7fwsyl"
 }
 
 // Plan configurations
