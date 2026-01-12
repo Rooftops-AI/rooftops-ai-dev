@@ -112,10 +112,22 @@ export const OnboardingModal: FC<OnboardingModalProps> = ({
 
         <div className="space-y-6 py-4">
           {/* Progress indicators */}
-          <div className="flex justify-center gap-2">
+          <div
+            className="flex justify-center gap-2"
+            role="group"
+            aria-label={`Onboarding progress: Step ${currentStep + 1} of ${steps.length}`}
+          >
             {steps.map((_, index) => (
               <div
                 key={index}
+                role="presentation"
+                aria-label={
+                  index === currentStep
+                    ? "Current step"
+                    : index < currentStep
+                      ? "Completed step"
+                      : "Upcoming step"
+                }
                 className={`h-2 w-12 rounded-full transition-colors ${
                   index === currentStep
                     ? "bg-blue-600"
@@ -132,7 +144,7 @@ export const OnboardingModal: FC<OnboardingModalProps> = ({
             <div
               className={`mb-4 flex size-20 items-center justify-center rounded-full bg-gradient-to-br ${currentStepData.color}`}
             >
-              <StepIcon className="size-10 text-white" />
+              <StepIcon className="size-10 text-white" aria-hidden="true" />
             </div>
 
             <h3 className="mb-2 text-xl font-bold">{currentStepData.title}</h3>

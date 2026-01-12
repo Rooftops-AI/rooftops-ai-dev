@@ -86,6 +86,7 @@ export function UpgradeModal({
                 <IconCheck
                   size={20}
                   className="mt-0.5 text-green-600 dark:text-green-400"
+                  aria-hidden="true"
                 />
                 <span className="text-sm">1 report</span>
               </div>
@@ -93,6 +94,7 @@ export function UpgradeModal({
                 <IconCheck
                   size={20}
                   className="mt-0.5 text-green-600 dark:text-green-400"
+                  aria-hidden="true"
                 />
                 <span className="text-sm">5 chat messages/day (GPT-4o)</span>
               </div>
@@ -100,6 +102,7 @@ export function UpgradeModal({
                 <IconX
                   size={20}
                   className="mt-0.5 text-gray-400 dark:text-gray-600"
+                  aria-hidden="true"
                 />
                 <span className="text-sm text-gray-500 dark:text-gray-400">
                   No web searches
@@ -109,6 +112,7 @@ export function UpgradeModal({
                 <IconX
                   size={20}
                   className="mt-0.5 text-gray-400 dark:text-gray-600"
+                  aria-hidden="true"
                 />
                 <span className="text-sm text-gray-500 dark:text-gray-400">
                   View agents only
@@ -146,6 +150,7 @@ export function UpgradeModal({
                 <IconCheck
                   size={20}
                   className="mt-0.5 text-green-600 dark:text-green-400"
+                  aria-hidden="true"
                 />
                 <span className="text-sm">20 reports/month</span>
               </div>
@@ -153,6 +158,7 @@ export function UpgradeModal({
                 <IconCheck
                   size={20}
                   className="mt-0.5 text-green-600 dark:text-green-400"
+                  aria-hidden="true"
                 />
                 <span className="text-sm">
                   1000 GPT-4.5-mini messages + unlimited GPT-4o
@@ -162,6 +168,7 @@ export function UpgradeModal({
                 <IconCheck
                   size={20}
                   className="mt-0.5 text-green-600 dark:text-green-400"
+                  aria-hidden="true"
                 />
                 <span className="text-sm">50 web searches/month</span>
               </div>
@@ -169,6 +176,7 @@ export function UpgradeModal({
                 <IconCheck
                   size={20}
                   className="mt-0.5 text-green-600 dark:text-green-400"
+                  aria-hidden="true"
                 />
                 <span className="text-sm">Full agent library access</span>
               </div>
@@ -198,6 +206,7 @@ export function UpgradeModal({
                 <IconCheck
                   size={20}
                   className="mt-0.5 text-green-600 dark:text-green-400"
+                  aria-hidden="true"
                 />
                 <span className="text-sm">100 reports/month</span>
               </div>
@@ -205,6 +214,7 @@ export function UpgradeModal({
                 <IconCheck
                   size={20}
                   className="mt-0.5 text-green-600 dark:text-green-400"
+                  aria-hidden="true"
                 />
                 <span className="text-sm">
                   5000 GPT-4.5-mini messages + unlimited GPT-4o
@@ -214,6 +224,7 @@ export function UpgradeModal({
                 <IconCheck
                   size={20}
                   className="mt-0.5 text-green-600 dark:text-green-400"
+                  aria-hidden="true"
                 />
                 <span className="text-sm">250 web searches/month</span>
               </div>
@@ -221,6 +232,7 @@ export function UpgradeModal({
                 <IconCheck
                   size={20}
                   className="mt-0.5 text-green-600 dark:text-green-400"
+                  aria-hidden="true"
                 />
                 <span className="text-sm">Full agent library access</span>
               </div>

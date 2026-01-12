@@ -137,20 +137,27 @@ export const UsageStats: FC<UsageStatsProps> = ({ className }) => {
             <div key={label} className="space-y-1.5">
               <div className="flex items-center justify-between text-xs">
                 <div className="flex items-center gap-1.5">
-                  <Icon size={14} className="opacity-70" />
+                  <Icon size={14} className="opacity-70" aria-hidden="true" />
                   <span className="font-medium">{label}</span>
                 </div>
                 <span
                   className={cn(
                     "font-semibold",
-                    isAtLimit && "text-red-500",
-                    isNearLimit && !isAtLimit && "text-amber-500"
+                    isAtLimit && "text-red-600",
+                    isNearLimit && !isAtLimit && "text-amber-700"
                   )}
                 >
                   {used}/{limit}
                 </span>
               </div>
-              <div className="h-1.5 w-full overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-800">
+              <div
+                role="progressbar"
+                aria-valuenow={used}
+                aria-valuemin={0}
+                aria-valuemax={limit}
+                aria-label={`${label}: ${used} of ${limit} used`}
+                className="h-1.5 w-full overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-800"
+              >
                 <div
                   className={cn(
                     "h-full transition-all duration-300",
@@ -160,7 +167,7 @@ export const UsageStats: FC<UsageStatsProps> = ({ className }) => {
                 />
               </div>
               {isAtLimit && (
-                <div className="text-sm font-medium text-red-500">
+                <div className="text-sm font-medium text-red-600">
                   Limit reached
                 </div>
               )}
@@ -176,7 +183,7 @@ export const UsageStats: FC<UsageStatsProps> = ({ className }) => {
           size="sm"
           variant="default"
         >
-          <IconArrowUp size={16} className="mr-1.5" />
+          <IconArrowUp size={16} className="mr-1.5" aria-hidden="true" />
           Upgrade Plan
         </Button>
       )}
