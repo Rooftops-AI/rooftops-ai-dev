@@ -127,6 +127,8 @@ const MapView: React.FC<MapViewProps> = ({
   const [mapInitialized, setMapInitialized] = useState(false)
   const [mapLoaded, setMapLoaded] = useState(false)
   const [scriptLoaded, setScriptLoaded] = useState(false)
+  const [scriptError, setScriptError] = useState<string | null>(null)
+  const [loadTimeout, setLoadTimeout] = useState(false)
   const [center, setCenter] = useState({ lat: 39.8283, lng: -98.5795 }) // Default to US center
   const [zoom, setZoom] = useState(4)
   const [isSearching, setIsSearching] = useState(false)
@@ -172,12 +174,45 @@ const MapView: React.FC<MapViewProps> = ({
   // Mark when we're on the client
   useEffect(() => {
     setIsClient(true)
+
+    // Set a timeout for script loading - if it takes more than 15 seconds, show error
+    const timeout = setTimeout(() => {
+      if (!scriptLoaded) {
+        console.error("Google Maps script failed to load within 15 seconds")
+        setLoadTimeout(true)
+        setScriptError(
+          "Map is taking longer than expected to load. Please refresh the page."
+        )
+      }
+    }, 15000)
+
+    return () => clearTimeout(timeout)
   }, [])
 
   // Handle script loading success
   const handleScriptLoad = useCallback(() => {
     console.log("Google Maps script loaded")
     setScriptLoaded(true)
+    setScriptError(null)
+    setLoadTimeout(false)
+  }, [])
+
+  // Handle script loading error
+  const handleScriptError = useCallback(() => {
+    console.error("Failed to load Google Maps script")
+    setScriptError(
+      "Failed to load map. Please check your internet connection and refresh the page."
+    )
+    setLoadTimeout(true)
+  }, [])
+
+  // Retry loading the map
+  const handleRetry = useCallback(() => {
+    setScriptError(null)
+    setLoadTimeout(false)
+    setScriptLoaded(false)
+    // Reload the page to retry script loading
+    window.location.reload()
   }, [])
 
   // Get direction name based on angle
@@ -1010,11 +1045,39 @@ const MapView: React.FC<MapViewProps> = ({
     height: "100%"
   }
 
+  // Show error state if script failed to load or timed out
+  if (scriptError || loadTimeout) {
+    return (
+      <div className="explore-map-container h-full">
+        <div className="flex h-full items-center justify-center bg-gray-100 dark:bg-gray-900">
+          <div className="flex max-w-md flex-col items-center text-center">
+            <div className="mb-4 rounded-full bg-red-100 p-4 dark:bg-red-900/30">
+              <IconInfoCircle
+                size={48}
+                className="text-red-600 dark:text-red-400"
+              />
+            </div>
+            <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-white">
+              Map Failed to Load
+            </h3>
+            <p className="mb-4 text-gray-600 dark:text-gray-400">
+              {scriptError || "The map is taking longer than expected to load."}
+            </p>
+            <Button onClick={handleRetry} className="gap-2">
+              <IconLoader2 size={16} />
+              Retry Loading Map
+            </Button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   if (!isClient) {
     return (
       <div className="explore-map-container h-full">
-        <div className="flex h-full items-center justify-center bg-gray-100">
-          <div className="flex flex-col items-center text-gray-500">
+        <div className="flex h-full items-center justify-center bg-gray-100 dark:bg-gray-900">
+          <div className="flex flex-col items-center text-gray-500 dark:text-gray-400">
             <IconLoader2 size={48} className="text-primary mb-2 animate-spin" />
             <div>Initializing map explorer...</div>
           </div>
@@ -1261,6 +1324,7 @@ const MapView: React.FC<MapViewProps> = ({
       <Script
         src={`https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places,drawing,visualization,geometry`}
         onLoad={handleScriptLoad}
+        onError={handleScriptError}
         strategy="afterInteractive"
       />
 

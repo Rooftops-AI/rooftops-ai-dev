@@ -9,6 +9,7 @@ import { useChatbotUI } from "@/context/context"
 import { Button } from "@/components/ui/button"
 import { IconMenu2, IconSparkles, IconCrown } from "@tabler/icons-react"
 import Link from "next/link"
+import ErrorBoundary from "@/components/utility/error-boundary"
 
 export default function ExplorePage() {
   const params = useParams()
@@ -28,47 +29,49 @@ export default function ExplorePage() {
   const isPremium = userSubscription?.status === "active"
 
   return (
-    <div className="flex size-full flex-col">
-      {/* Mobile Header - only show on mobile and when no report is active */}
-      {!hasActiveExploreReport && (
-        <div className="flex items-center justify-between px-4 py-3 md:hidden">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setShowSidebar(!showSidebar)}
-            className="size-9"
-          >
-            <IconMenu2 size={20} />
-          </Button>
+    <ErrorBoundary>
+      <div className="flex size-full flex-col">
+        {/* Mobile Header - only show on mobile and when no report is active */}
+        {!hasActiveExploreReport && (
+          <div className="flex items-center justify-between px-4 py-3 md:hidden">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowSidebar(!showSidebar)}
+              className="size-9"
+            >
+              <IconMenu2 size={20} />
+            </Button>
 
-          <img
-            src="https://uploads-ssl.webflow.com/64e9150f53771ac56ef528b7/64ee16bb300d3e08d25a03ac_rooftops-logo-gr-black.png"
-            alt="Rooftops AI"
-            className="h-7 w-auto dark:invert"
+            <img
+              src="https://uploads-ssl.webflow.com/64e9150f53771ac56ef528b7/64ee16bb300d3e08d25a03ac_rooftops-logo-gr-black.png"
+              alt="Rooftops AI"
+              className="h-7 w-auto dark:invert"
+            />
+
+            {isPremium ? (
+              <div className="flex size-9 items-center justify-center rounded-lg bg-gradient-to-br from-yellow-400 to-orange-500">
+                <IconCrown size={18} className="text-white" />
+              </div>
+            ) : (
+              <Link href={`/${params.locale}/${workspaceId}/upgrade`}>
+                <Button variant="default" size="sm" className="h-9">
+                  <IconSparkles size={16} className="mr-1" />
+                  Upgrade
+                </Button>
+              </Link>
+            )}
+          </div>
+        )}
+
+        {/* Main Content */}
+        <div className="flex-1 overflow-auto">
+          <ExploreMap
+            onPropertySelect={handlePropertySelect}
+            workspaceId={workspaceId}
           />
-
-          {isPremium ? (
-            <div className="flex size-9 items-center justify-center rounded-lg bg-gradient-to-br from-yellow-400 to-orange-500">
-              <IconCrown size={18} className="text-white" />
-            </div>
-          ) : (
-            <Link href={`/${params.locale}/${workspaceId}/upgrade`}>
-              <Button variant="default" size="sm" className="h-9">
-                <IconSparkles size={16} className="mr-1" />
-                Upgrade
-              </Button>
-            </Link>
-          )}
         </div>
-      )}
-
-      {/* Main Content */}
-      <div className="flex-1 overflow-auto">
-        <ExploreMap
-          onPropertySelect={handlePropertySelect}
-          workspaceId={workspaceId}
-        />
       </div>
-    </div>
+    </ErrorBoundary>
   )
 }
