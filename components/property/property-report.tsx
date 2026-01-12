@@ -654,73 +654,211 @@ export const PropertyReportMessage: FC<PropertyReportMessageProps> = ({
             </div>
           </div>
 
-          {facetDetails && facetDetails.length > 0 && (
-            <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
-              <h3 className="border-b border-gray-200 bg-gray-50 p-4 text-lg font-medium text-gray-800">
-                Roof Facet Details
-              </h3>
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Facet
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Area (sq ft)
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Pitch
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Orientation
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Sunlight (hrs/day)
-                      </th>
-                      {facetDetails[0]?.percentageOfRoof !== undefined && (
-                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                          % of Roof
-                        </th>
+          {/* AI-Generated Roof Analysis Summary */}
+          {(() => {
+            // Extract AI-generated summary from various possible locations
+            const executiveSummary =
+              safeExtract(data, "executiveSummary", null) ||
+              safeExtract(data, "finalReport.executiveSummary", null)
+
+            const keyFindings =
+              safeExtract(data, "finalReport.keyFindings", []) ||
+              safeExtract(
+                data,
+                "agents.quality.data.finalReport.keyFindings",
+                []
+              )
+
+            const propertyOverview =
+              safeExtract(data, "finalReport.propertyOverview", null) ||
+              safeExtract(
+                data,
+                "agents.quality.data.finalReport.propertyOverview",
+                null
+              )
+
+            const conditionData = safeExtract(
+              data,
+              "agents.condition.data.condition",
+              null
+            )
+
+            const userSummary = safeExtract(data, "userSummary", null)
+
+            // Determine what content to show
+            const hasAISummary =
+              executiveSummary ||
+              keyFindings.length > 0 ||
+              conditionData ||
+              userSummary
+
+            if (!hasAISummary) return null
+
+            return (
+              <div className="space-y-4">
+                {/* Executive Summary */}
+                {(executiveSummary || userSummary) && (
+                  <div className="rounded-lg bg-blue-50 p-4">
+                    <h3 className="mb-2 text-lg font-medium text-gray-800">
+                      AI Analysis Summary
+                    </h3>
+                    <p className="text-gray-700">
+                      {executiveSummary || userSummary}
+                    </p>
+                  </div>
+                )}
+
+                {/* Key Findings */}
+                {keyFindings.length > 0 && (
+                  <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
+                    <h3 className="border-b border-gray-200 bg-gray-50 p-4 text-lg font-medium text-gray-800">
+                      Key Findings
+                    </h3>
+                    <div className="p-4">
+                      <ul className="space-y-2">
+                        {keyFindings.map((finding, idx) => (
+                          <li key={idx} className="flex items-start gap-2">
+                            <svg
+                              className="size-5 shrink-0 text-blue-500"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                              />
+                            </svg>
+                            <span className="text-gray-700">{finding}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                )}
+
+                {/* Condition Assessment */}
+                {conditionData && (
+                  <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
+                    <h3 className="border-b border-gray-200 bg-gray-50 p-4 text-lg font-medium text-gray-800">
+                      Condition Assessment
+                    </h3>
+                    <div className="space-y-3 p-4">
+                      {conditionData.overallCondition && (
+                        <div className="flex justify-between border-b border-gray-100 pb-2">
+                          <span className="text-gray-600">
+                            Overall Condition:
+                          </span>
+                          <span className="font-medium">
+                            {conditionData.overallCondition}
+                          </span>
+                        </div>
                       )}
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200 bg-white">
-                    {facetDetails.map((facet, index) => (
-                      <tr key={index}>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
-                          Facet {index + 1}
-                        </td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                          {facet && facet.area
-                            ? formatNumber(facet.area, 2)
-                            : "Unknown"}
-                        </td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                          {facet && facet.pitch ? facet.pitch : "Unknown"}
-                        </td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                          {facet && facet.orientation
-                            ? facet.orientation
-                            : "Unknown"}
-                        </td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                          {facet && facet.sunlightHours
-                            ? formatNumber(facet.sunlightHours, 1)
-                            : "Unknown"}
-                        </td>
-                        {facet && facet.percentageOfRoof !== undefined && (
-                          <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                            {formatNumber(facet.percentageOfRoof, 1)}%
-                          </td>
-                        )}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                      {conditionData.material?.type && (
+                        <div className="flex justify-between border-b border-gray-100 pb-2">
+                          <span className="text-gray-600">Material:</span>
+                          <span className="font-medium">
+                            {conditionData.material.type}
+                          </span>
+                        </div>
+                      )}
+                      {conditionData.estimatedAge && (
+                        <div className="flex justify-between border-b border-gray-100 pb-2">
+                          <span className="text-gray-600">Estimated Age:</span>
+                          <span className="font-medium">
+                            {conditionData.estimatedAge} years
+                          </span>
+                        </div>
+                      )}
+                      {conditionData.lifeRemaining && (
+                        <div className="flex justify-between border-b border-gray-100 pb-2">
+                          <span className="text-gray-600">Remaining Life:</span>
+                          <span className="font-medium">
+                            {conditionData.lifeRemaining} years
+                          </span>
+                        </div>
+                      )}
+                      {conditionData.findings && (
+                        <div className="pt-2">
+                          <p className="mb-1 text-sm font-medium text-gray-700">
+                            Findings:
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            {conditionData.findings}
+                          </p>
+                        </div>
+                      )}
+                      {conditionData.recommendations && (
+                        <div className="rounded bg-yellow-50 p-3">
+                          <p className="mb-1 text-sm font-medium text-yellow-800">
+                            Recommendations:
+                          </p>
+                          <p className="text-sm text-yellow-700">
+                            {conditionData.recommendations}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Property Overview Details */}
+                {propertyOverview && (
+                  <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
+                    <h3 className="border-b border-gray-200 bg-gray-50 p-4 text-lg font-medium text-gray-800">
+                      Validated Measurements
+                    </h3>
+                    <div className="grid grid-cols-1 gap-3 p-4 md:grid-cols-2">
+                      {propertyOverview.roofArea && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Roof Area:</span>
+                          <span className="font-medium">
+                            {formatNumber(propertyOverview.roofArea)} sq ft
+                          </span>
+                        </div>
+                      )}
+                      {propertyOverview.roofingSquares && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">
+                            Roofing Squares:
+                          </span>
+                          <span className="font-medium">
+                            {propertyOverview.roofingSquares}
+                          </span>
+                        </div>
+                      )}
+                      {propertyOverview.facetCount && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Facet Count:</span>
+                          <span className="font-medium">
+                            {propertyOverview.facetCount}
+                          </span>
+                        </div>
+                      )}
+                      {propertyOverview.pitch && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Pitch:</span>
+                          <span className="font-medium">
+                            {propertyOverview.pitch}
+                          </span>
+                        </div>
+                      )}
+                      {propertyOverview.complexity && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Complexity:</span>
+                          <span className="font-medium">
+                            {propertyOverview.complexity}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
-          )}
+            )
+          })()}
         </div>
 
         <div
