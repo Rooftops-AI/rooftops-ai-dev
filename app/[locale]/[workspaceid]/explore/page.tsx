@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { IconMenu2, IconSparkles, IconCrown } from "@tabler/icons-react"
 import Link from "next/link"
 import ErrorBoundary from "@/components/utility/error-boundary"
+import { EmptyStateExplore } from "@/components/empty-states/empty-state-explore"
 
 export default function ExplorePage() {
   const params = useParams()
@@ -65,11 +66,20 @@ export default function ExplorePage() {
         )}
 
         {/* Main Content */}
-        <div className="flex-1 overflow-auto">
+        <div className="relative flex-1 overflow-auto">
           <ExploreMap
             onPropertySelect={handlePropertySelect}
             workspaceId={workspaceId}
           />
+
+          {/* Show empty state overlay when no active report */}
+          {!hasActiveExploreReport && (
+            <div className="bg-background/80 pointer-events-none absolute inset-0 flex items-center justify-center backdrop-blur-sm">
+              <div className="pointer-events-auto">
+                <EmptyStateExplore />
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </ErrorBoundary>

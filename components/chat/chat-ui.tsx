@@ -22,6 +22,7 @@ import { ChatSecondaryButtons } from "./chat-secondary-buttons"
 import { useDocumentStore } from "@/lib/stores/document-store"
 import { VoiceMode } from "@/components/voice-mode/VoiceMode"
 import { CanvasDrawer } from "../canvas/canvas-drawer"
+import { EmptyStateChat } from "../empty-states/empty-state-chat"
 
 interface ChatUIProps {}
 
@@ -32,6 +33,7 @@ export const ChatUI: FC<ChatUIProps> = ({}) => {
   const { isDocMode } = useDocumentStore()
 
   const {
+    chatMessages,
     setChatMessages,
     selectedChat,
     setSelectedChat,
@@ -46,7 +48,8 @@ export const ChatUI: FC<ChatUIProps> = ({}) => {
     setSelectedTools
   } = useChatbotUI()
 
-  const { handleNewChat, handleFocusChatInput } = useChatHandler()
+  const { handleNewChat, handleFocusChatInput, handleSendMessage } =
+    useChatHandler()
 
   const {
     messagesStartRef,
@@ -264,7 +267,13 @@ export const ChatUI: FC<ChatUIProps> = ({}) => {
       >
         <div ref={messagesStartRef} />
 
-        <ChatMessages />
+        {chatMessages.length === 0 ? (
+          <EmptyStateChat
+            onPromptClick={prompt => handleSendMessage(prompt, [], false)}
+          />
+        ) : (
+          <ChatMessages />
+        )}
 
         <div ref={messagesEndRef} />
       </div>

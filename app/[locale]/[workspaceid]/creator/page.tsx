@@ -6,6 +6,7 @@ import Link from "next/link"
 import { useParams } from "next/navigation"
 import { useChatbotUI } from "@/context/context"
 import { UpgradeModal } from "@/components/modals/upgrade-modal"
+import { EmptyStateAgentsLocked } from "@/components/empty-states/empty-state-agents-locked"
 
 const agents = [
   {
@@ -111,148 +112,155 @@ export default function CreatorStudioPage() {
         </div>
       </div>
 
-      {/* Search bar */}
-      <div className="mb-8">
-        <div className="relative">
-          <input
-            type="text"
-            placeholder="Search agents…"
-            value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
-            className="bg-background border-border text-foreground placeholder:text-muted-foreground focus:ring-primary/20 focus:border-primary w-full rounded-xl border py-3 pl-4 pr-12 transition-all duration-200 focus:outline-none focus:ring-2"
-          />
-          <svg
-            className="text-muted-foreground absolute right-4 top-3.5 size-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={1.5}
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
-          </svg>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-2">
-        {filtered.map(agent => {
-          const handleClick = (e: React.MouseEvent) => {
-            if (!hasAgentAccess) {
-              e.preventDefault()
-              setShowUpgradeModal(true)
-            }
-          }
-
-          return (
-            <Link
-              key={agent.id}
-              href={`/${locale}/${workspaceId}/creator/${agent.id}`}
-              onClick={handleClick}
-              className="group block cursor-pointer"
-            >
-              <div
-                className={`bg-card border-border hover:border-primary/20 relative h-full overflow-hidden rounded-xl border shadow-sm transition-all duration-300 hover:shadow-md ${
-                  !hasAgentAccess ? "opacity-60" : ""
-                }`}
+      {/* Show empty state for free users */}
+      {!hasAgentAccess ? (
+        <EmptyStateAgentsLocked />
+      ) : (
+        <>
+          {/* Search bar */}
+          <div className="mb-8">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search agents…"
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+                className="bg-background border-border text-foreground placeholder:text-muted-foreground focus:ring-primary/20 focus:border-primary w-full rounded-xl border py-3 pl-4 pr-12 transition-all duration-200 focus:outline-none focus:ring-2"
+              />
+              <svg
+                className="text-muted-foreground absolute right-4 top-3.5 size-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
               >
-                {/* Premium Badge */}
-                <div className="absolute right-3 top-3 z-10">
-                  <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-2.5 py-1 text-xs font-semibold text-white shadow-md">
-                    <svg
-                      className="size-3"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                    Premium
-                  </span>
-                </div>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+            </div>
+          </div>
 
-                {/* Lock icon overlay for free users */}
-                {!hasAgentAccess && (
-                  <div className="absolute inset-0 z-10 flex items-center justify-center">
-                    <div className="rounded-full bg-gray-900/80 p-4">
-                      <svg
-                        className="size-8 text-white"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                        />
-                      </svg>
-                    </div>
-                  </div>
-                )}
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-2">
+            {filtered.map(agent => {
+              const handleClick = (e: React.MouseEvent) => {
+                if (!hasAgentAccess) {
+                  e.preventDefault()
+                  setShowUpgradeModal(true)
+                }
+              }
 
-                <div className="p-6">
-                  <div className="flex items-start gap-4">
-                    {/* Avatar */}
-                    <div className="size-14 shrink-0 overflow-hidden rounded-full shadow-lg">
-                      <img
-                        src={agent.avatarUrl}
-                        alt={agent.name}
-                        className="size-full object-cover"
-                      />
-                    </div>
-
-                    {/* Content */}
-                    <div className="flex-1">
-                      <div className="mb-1 flex items-center justify-between">
-                        <h2 className="text-foreground text-lg font-bold">
-                          {agent.name}
-                        </h2>
+              return (
+                <Link
+                  key={agent.id}
+                  href={`/${locale}/${workspaceId}/creator/${agent.id}`}
+                  onClick={handleClick}
+                  className="group block cursor-pointer"
+                >
+                  <div
+                    className={`bg-card border-border hover:border-primary/20 relative h-full overflow-hidden rounded-xl border shadow-sm transition-all duration-300 hover:shadow-md ${
+                      !hasAgentAccess ? "opacity-60" : ""
+                    }`}
+                  >
+                    {/* Premium Badge */}
+                    <div className="absolute right-3 top-3 z-10">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-2.5 py-1 text-xs font-semibold text-white shadow-md">
                         <svg
-                          width="20"
-                          height="20"
+                          className="size-3"
+                          fill="currentColor"
                           viewBox="0 0 20 20"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="text-muted-foreground group-hover:text-primary transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
                         >
-                          <path
-                            d="M5.83331 14.1667L14.1666 5.83334M14.1666 5.83334H5.83331M14.1666 5.83334V14.1667"
-                            stroke="currentColor"
-                            strokeWidth="1.5"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                         </svg>
-                      </div>
-                      <p className="text-primary mb-2 text-sm font-medium">
-                        {agent.title}
-                      </p>
-                      <p className="text-muted-foreground mb-3 text-sm leading-relaxed">
-                        {agent.description}
-                      </p>
+                        Premium
+                      </span>
+                    </div>
 
-                      <div className="flex flex-wrap gap-2">
-                        {agent.categories.map(cat => (
-                          <span
-                            key={cat}
-                            className="bg-secondary border-border text-secondary-foreground inline-block rounded-xl border px-2.5 py-1 text-xs font-medium"
+                    {/* Lock icon overlay for free users */}
+                    {!hasAgentAccess && (
+                      <div className="absolute inset-0 z-10 flex items-center justify-center">
+                        <div className="rounded-full bg-gray-900/80 p-4">
+                          <svg
+                            className="size-8 text-white"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
                           >
-                            {cat}
-                          </span>
-                        ))}
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="p-6">
+                      <div className="flex items-start gap-4">
+                        {/* Avatar */}
+                        <div className="size-14 shrink-0 overflow-hidden rounded-full shadow-lg">
+                          <img
+                            src={agent.avatarUrl}
+                            alt={agent.name}
+                            className="size-full object-cover"
+                          />
+                        </div>
+
+                        {/* Content */}
+                        <div className="flex-1">
+                          <div className="mb-1 flex items-center justify-between">
+                            <h2 className="text-foreground text-lg font-bold">
+                              {agent.name}
+                            </h2>
+                            <svg
+                              width="20"
+                              height="20"
+                              viewBox="0 0 20 20"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="text-muted-foreground group-hover:text-primary transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                            >
+                              <path
+                                d="M5.83331 14.1667L14.1666 5.83334M14.1666 5.83334H5.83331M14.1666 5.83334V14.1667"
+                                stroke="currentColor"
+                                strokeWidth="1.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          </div>
+                          <p className="text-primary mb-2 text-sm font-medium">
+                            {agent.title}
+                          </p>
+                          <p className="text-muted-foreground mb-3 text-sm leading-relaxed">
+                            {agent.description}
+                          </p>
+
+                          <div className="flex flex-wrap gap-2">
+                            {agent.categories.map(cat => (
+                              <span
+                                key={cat}
+                                className="bg-secondary border-border text-secondary-foreground inline-block rounded-xl border px-2.5 py-1 text-xs font-medium"
+                              >
+                                {cat}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </div>
-            </Link>
-          )
-        })}
-      </div>
+                </Link>
+              )
+            })}
+          </div>
+        </>
+      )}
 
       {/* Upgrade Modal */}
       <UpgradeModal
