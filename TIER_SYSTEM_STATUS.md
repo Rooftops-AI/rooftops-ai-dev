@@ -2,7 +2,7 @@
 
 **Last Updated**: 2026-01-12
 **Status**: ✅ PRODUCTION READY (Core System Complete)
-**Progress**: 23/36 User Stories (64%)
+**Progress**: 24/36 User Stories (67%)
 
 ---
 
@@ -64,12 +64,17 @@
 - ✅ Report generation loading (pre-existing)
 - ✅ Agent generation loading (pre-existing)
 
+### Edge Cases - Payment Failures (US-24)
+- ✅ Payment failure banner with countdown
+- ✅ 7-day grace period for past_due status
+- ✅ Auto-downgrade to free after grace period
+- ✅ "Update Payment Method" → Stripe portal
+
 ---
 
-## 🔧 REMAINING WORK (US-24 to US-36)
+## 🔧 REMAINING WORK (US-25 to US-36)
 
-### Edge Cases (US-24 to US-26)
-- ⏳ Payment failure grace period (7 days)
+### Edge Cases (US-25 to US-26)
 - ⏳ Subscription cancellation (keep active until period end)
 - ⏳ Tier upgrade/downgrade proration
 
@@ -92,9 +97,10 @@
 ## 📁 KEY FILES
 
 ### Backend
-- `lib/entitlements.ts` - Core tier checking and usage tracking
+- `lib/entitlements.ts` - Core tier checking, usage tracking, and grace period logic
 - `db/subscriptions.ts` - Subscription CRUD operations
 - `app/api/usage/stats/route.ts` - Usage statistics endpoint
+- `app/api/subscription/grace-period/route.ts` - Grace period status
 - `app/api/stripe/checkout/route.ts` - Stripe checkout
 - `app/api/stripe/webhook/route.ts` - Stripe webhooks
 - `app/api/stripe/portal/route.ts` - Customer portal
@@ -113,6 +119,7 @@
 - `components/empty-states/empty-state-agents-locked.tsx` - Locked agents state
 - `components/modals/onboarding-modal.tsx` - Welcome onboarding modal
 - `components/chat/chat-typing-indicator.tsx` - Typing indicator
+- `components/billing/payment-failure-banner.tsx` - Payment failure alert
 - `components/sidebar/usage-stats.tsx` - Usage counters
 - `components/modals/upgrade-modal.tsx` - Upgrade prompts
 - `components/usage/usage-warning-provider.tsx` - Warning toasts
@@ -258,11 +265,11 @@ SUPABASE_SERVICE_ROLE_KEY=...
 
 ## 📊 SUCCESS METRICS
 
-- ✅ 64% of user stories complete (23/36)
-- ✅ 28 commits across implementation
-- ✅ ~50+ files modified
-- ✅ 10 new components created
-- ✅ 3 new API endpoints
+- ✅ 67% of user stories complete (24/36)
+- ✅ 30 commits across implementation
+- ✅ ~52+ files modified
+- ✅ 11 new components created
+- ✅ 4 new API endpoints
 - ✅ 2 new database tables
 - ✅ All builds compile successfully
 - ✅ Zero blocking issues for production

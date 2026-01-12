@@ -819,3 +819,52 @@ Started: Mon Jan 12 00:17:36 CST 2026
 
 ---
 
+
+### US-24: Payment Failure Grace Period ✅
+**Status**: COMPLETE
+**Commit**: a81e55b
+
+**What was implemented**:
+- Created `/components/billing/payment-failure-banner.tsx`
+  - Red alert banner for past_due subscriptions
+  - Shows "Payment Failed" with days remaining message
+  - Dynamic messaging: "Update within X days" vs "Downgraded to free"
+  - "Update Payment Method" button opens Stripe portal
+  - Can be dismissed (hides until page reload)
+
+- Updated `/lib/entitlements.ts`
+  - Modified `getUserTier()` to handle grace period logic
+  - Checks if subscription is 'past_due'
+  - Calculates days since last update
+  - Allows tier access for 7 days (GRACE_PERIOD_DAYS constant)
+  - Auto-downgrades to free after 7 days
+  - Added `isGracePeriodExpired()` helper function
+  - Added `getGracePeriodInfo()` to return grace period status
+
+- Created `/app/api/subscription/grace-period/route.ts`
+  - GET endpoint returns grace period info for authenticated user
+  - Returns null if not in grace period
+  - Returns { inGracePeriod: boolean, daysRemaining: number }
+
+- Integrated into `/app/[locale]/[workspaceid]/layout.tsx`
+  - Fetches grace period info when subscription is 'past_due'
+  - Shows PaymentFailureBanner above Dashboard
+  - Added `handleUpdatePayment()` to open Stripe portal
+  - Banner only shows when gracePeriodInfo exists
+
+**Grace Period Logic**:
+- When payment fails, Stripe sets status to 'past_due'
+- User retains tier access for 7 days from updated_at
+- Banner shows countdown: "Update within X days to keep subscription"
+- After 7 days, getUserTier() returns 'free' (automatic downgrade)
+- User can update payment anytime via Stripe portal
+
+**User Experience**:
+- Non-intrusive banner at top of workspace
+- Clear messaging about urgency
+- One-click access to payment update
+- Can temporarily dismiss if needed
+- Countdown creates urgency without panic
+
+---
+
