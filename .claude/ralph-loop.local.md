@@ -1,9 +1,9 @@
 ---
 active: true
-iteration: 2
-max_iterations: 50
-completion_promise: "TIER_SYSTEM_COMPLETE"
-started_at: "2026-01-12T06:40:50Z"
+iteration: 1
+max_iterations: 0
+completion_promise: null
+started_at: "2026-01-12T07:17:52Z"
 ---
 
-scripts/ralph/prompt.md
+start from US-10 in scripts/ralph/prompt.md

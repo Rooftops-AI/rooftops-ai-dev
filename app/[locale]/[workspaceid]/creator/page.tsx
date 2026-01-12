@@ -4,6 +4,8 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
+import { useChatbotUI } from "@/context/context"
+import { UpgradeModal } from "@/components/modals/upgrade-modal"
 
 const agents = [
   {
@@ -57,6 +59,13 @@ export default function CreatorStudioPage() {
 
   // 2) track the search term
   const [searchTerm, setSearchTerm] = useState("")
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+
+  // Get user subscription to check tier
+  const { userSubscription } = useChatbotUI()
+  const userTier =
+    userSubscription?.tier || userSubscription?.plan_type || "free"
+  const hasAgentAccess = userTier === "premium" || userTier === "business"
 
   // 3) derive a filtered list
   const filtered = agents.filter(agent => {
@@ -130,71 +139,127 @@ export default function CreatorStudioPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-2">
-        {filtered.map(agent => (
-          <Link
-            key={agent.id}
-            href={`/${locale}/${workspaceId}/creator/${agent.id}`}
-            className="group block"
-          >
-            <div className="bg-card border-border hover:border-primary/20 h-full overflow-hidden rounded-xl border shadow-sm transition-all duration-300 hover:shadow-md">
-              <div className="p-6">
-                <div className="flex items-start gap-4">
-                  {/* Avatar */}
-                  <div className="size-14 shrink-0 overflow-hidden rounded-full shadow-lg">
-                    <img
-                      src={agent.avatarUrl}
-                      alt={agent.name}
-                      className="size-full object-cover"
-                    />
-                  </div>
+        {filtered.map(agent => {
+          const handleClick = (e: React.MouseEvent) => {
+            if (!hasAgentAccess) {
+              e.preventDefault()
+              setShowUpgradeModal(true)
+            }
+          }
 
-                  {/* Content */}
-                  <div className="flex-1">
-                    <div className="mb-1 flex items-center justify-between">
-                      <h2 className="text-foreground text-lg font-bold">
-                        {agent.name}
-                      </h2>
+          return (
+            <Link
+              key={agent.id}
+              href={`/${locale}/${workspaceId}/creator/${agent.id}`}
+              onClick={handleClick}
+              className="group block cursor-pointer"
+            >
+              <div
+                className={`bg-card border-border hover:border-primary/20 relative h-full overflow-hidden rounded-xl border shadow-sm transition-all duration-300 hover:shadow-md ${
+                  !hasAgentAccess ? "opacity-60" : ""
+                }`}
+              >
+                {/* Premium Badge */}
+                <div className="absolute right-3 top-3 z-10">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-2.5 py-1 text-xs font-semibold text-white shadow-md">
+                    <svg
+                      className="size-3"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                    Premium
+                  </span>
+                </div>
+
+                {/* Lock icon overlay for free users */}
+                {!hasAgentAccess && (
+                  <div className="absolute inset-0 z-10 flex items-center justify-center">
+                    <div className="rounded-full bg-gray-900/80 p-4">
                       <svg
-                        width="20"
-                        height="20"
-                        viewBox="0 0 20 20"
+                        className="size-8 text-white"
                         fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="text-muted-foreground group-hover:text-primary transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
                       >
                         <path
-                          d="M5.83331 14.1667L14.1666 5.83334M14.1666 5.83334H5.83331M14.1666 5.83334V14.1667"
-                          stroke="currentColor"
-                          strokeWidth="1.5"
                           strokeLinecap="round"
                           strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
                         />
                       </svg>
                     </div>
-                    <p className="text-primary mb-2 text-sm font-medium">
-                      {agent.title}
-                    </p>
-                    <p className="text-muted-foreground mb-3 text-sm leading-relaxed">
-                      {agent.description}
-                    </p>
+                  </div>
+                )}
 
-                    <div className="flex flex-wrap gap-2">
-                      {agent.categories.map(cat => (
-                        <span
-                          key={cat}
-                          className="bg-secondary border-border text-secondary-foreground inline-block rounded-xl border px-2.5 py-1 text-xs font-medium"
+                <div className="p-6">
+                  <div className="flex items-start gap-4">
+                    {/* Avatar */}
+                    <div className="size-14 shrink-0 overflow-hidden rounded-full shadow-lg">
+                      <img
+                        src={agent.avatarUrl}
+                        alt={agent.name}
+                        className="size-full object-cover"
+                      />
+                    </div>
+
+                    {/* Content */}
+                    <div className="flex-1">
+                      <div className="mb-1 flex items-center justify-between">
+                        <h2 className="text-foreground text-lg font-bold">
+                          {agent.name}
+                        </h2>
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 20 20"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="text-muted-foreground group-hover:text-primary transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
                         >
-                          {cat}
-                        </span>
-                      ))}
+                          <path
+                            d="M5.83331 14.1667L14.1666 5.83334M14.1666 5.83334H5.83331M14.1666 5.83334V14.1667"
+                            stroke="currentColor"
+                            strokeWidth="1.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </div>
+                      <p className="text-primary mb-2 text-sm font-medium">
+                        {agent.title}
+                      </p>
+                      <p className="text-muted-foreground mb-3 text-sm leading-relaxed">
+                        {agent.description}
+                      </p>
+
+                      <div className="flex flex-wrap gap-2">
+                        {agent.categories.map(cat => (
+                          <span
+                            key={cat}
+                            className="bg-secondary border-border text-secondary-foreground inline-block rounded-xl border px-2.5 py-1 text-xs font-medium"
+                          >
+                            {cat}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </Link>
-        ))}
+            </Link>
+          )
+        })}
       </div>
+
+      {/* Upgrade Modal */}
+      <UpgradeModal
+        open={showUpgradeModal}
+        onOpenChange={setShowUpgradeModal}
+        reason="agent_access"
+      />
     </div>
   )
 }
