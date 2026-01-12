@@ -464,10 +464,58 @@ Started: Mon Jan 12 00:17:36 CST 2026
 
 ---
 
-## Iteration 4 Progress Summary
+### US-18: Account Settings/Billing Page ✅
+**Status**: COMPLETE
+**Commit**: 5252814
 
-**Stories Completed**: 17 out of 36 (47%)
-**Recent Batch**: US-10 through US-17 (8 stories)
+**What was implemented**:
+- Updated `/app/[locale]/[workspaceid]/settings/billing/page.tsx` (already existed)
+- Changed to use `/api/usage/stats` endpoint
+- Updated data interfaces to match tier-based system
+- Added three action buttons:
+  - "Update Payment Method" → Stripe portal
+  - "View Billing History" → Stripe portal
+  - "Cancel Subscription" → Stripe portal (red styling)
+- Updated plan badges: free/premium/business
+- Updated usage displays for all features:
+  - Property Reports with progress bar
+  - Chat Messages (daily for free, monthly for paid)
+  - Web Searches with progress bar
+  - Agent Library Access (Enabled/Locked badge)
+- Progress bars turn yellow at 75%, red at 90%
+- "Limit reached" warnings at 100%
+- Shows current tier, billing cycle, next billing date
+
+**Pattern**: All portal actions go through `/api/stripe/portal`
+
+---
+
+### US-19: Stripe Customer Portal ✅
+**Status**: COMPLETE (Already implemented)
+**Verification**: Confirmed existing
+
+**What exists**:
+- `/app/api/stripe/portal/route.ts` endpoint
+- POST endpoint that creates Stripe billing portal session
+- Gets user subscription to find Stripe customer ID
+- Creates portal session with return URL
+- Returns portal URL for redirect
+
+**Stripe Portal Capabilities**:
+- Update payment methods
+- View billing history and invoices
+- Cancel subscriptions
+- Download receipts
+- Manage payment information
+
+**Security**: Requires authenticated user, validates subscription exists
+
+---
+
+## Iteration 4-5 Progress Summary
+
+**Stories Completed**: 19 out of 36 (53%)
+**Recent Batch**: US-10 through US-19 (10 stories)
 **Major Milestones**:
 - ✅ Agent library paywall UI complete
 - ✅ Agent backend enforcement complete
@@ -475,6 +523,8 @@ Started: Mon Jan 12 00:17:36 CST 2026
 - ✅ Full Stripe integration verified and enhanced
 - ✅ Checkout success page created
 - ✅ Usage counter component updated and functional
+- ✅ Account settings/billing page complete
+- ✅ Stripe Customer Portal verified
 
-**Next Focus**: US-18+ (Account settings, Stripe portal, UX enhancements)
+**Next Focus**: US-20+ (UX enhancements, toasts, empty states, onboarding)
 
