@@ -917,3 +917,79 @@ Started: Mon Jan 12 00:17:36 CST 2026
 
 ---
 
+
+
+## Iteration 13
+
+### US-26: Upgrade/Downgrade Logic ✅
+**Status**: COMPLETE
+**Commit**: f9b3339
+
+**What was implemented**:
+- Created `/supabase/migrations/add_scheduled_plan_type.sql`
+  - Added scheduled_plan_type field to subscriptions table
+  - Tracks scheduled tier changes (e.g., downgrade from business to premium)
+  - NULL when no scheduled changes
+
+- Updated `/app/api/stripe/webhook/route.ts`
+  - Added `getPlanTypeFromPriceId()` helper to map Stripe price IDs to plan types
+  - Added `isUpgrade()` helper to detect if plan change is an upgrade
+  - Enhanced customer.subscription.updated handler:
+    * Extracts current plan from subscription.items[0].price.id
+    * Compares with existing plan_type in database
+    * UPGRADES: Updates plan_type immediately (Stripe handles proration)
+    * DOWNGRADES: Sets scheduled_plan_type, keeps current plan_type
+    * At period renewal: Applies scheduled_plan_type if present
+
+- Updated `/lib/entitlements.ts`
+  - Added `getScheduledDowngradeInfo()` helper function
+  - Returns downgrade info: currentTier, scheduledTier, effectiveDate
+  - Returns null if no downgrade scheduled or period has ended
+
+- Created `/app/api/subscription/downgrade/route.ts`
+  - GET endpoint returns scheduled downgrade info for authenticated user
+  - Returns null if no downgrade scheduled
+  - Returns { hasScheduledDowngrade, currentTier, scheduledTier, effectiveDate }
+
+- Created `/components/billing/downgrade-notice-banner.tsx`
+  - Orange info banner for scheduled downgrades
+  - Shows message: "Your plan will change from X to Y on [date]"
+  - Formatted date display (e.g., "January 15, 2026")
+  - "Cancel Downgrade" button opens Stripe Customer Portal
+  - Can be dismissed (hides until page reload)
+
+- Integrated into `/app/[locale]/[workspaceid]/layout.tsx`
+  - Fetches downgrade info on workspace load
+  - Shows DowngradeNoticeBanner above Dashboard
+  - Added `handleCancelDowngrade()` to open Stripe portal
+  - Banner only shows when downgradeInfo.hasScheduledDowngrade is true
+
+**Upgrade Logic** (Premium → Business):
+- User upgrades through Stripe Customer Portal
+- Webhook detects new price ID is higher tier
+- Updates plan_type immediately in database
+- Stripe handles proration automatically (credits remaining time)
+- Usage limits update immediately via getUserTier()
+- User sees increased limits right away
+
+**Downgrade Logic** (Business → Premium):
+- User downgrades through Stripe Customer Portal
+- Webhook detects new price ID is lower tier
+- Sets scheduled_plan_type = 'premium', keeps plan_type = 'business'
+- Orange banner shows: "Your plan will change from Business to Premium on [date]"
+- User retains Business tier access until current_period_end
+- User can cancel downgrade anytime (via portal, clears scheduled change)
+- At period renewal, webhook applies scheduled_plan_type to plan_type
+- Usage limits update to new tier after period ends
+
+**User Experience**:
+- Upgrades are immediate (no disruption, more features right away)
+- Downgrades are scheduled (no surprise loss of features)
+- Clear notifications for both scenarios
+- Easy cancellation of scheduled downgrades
+- Proration handled seamlessly by Stripe
+
+**Build Status**: ✅ Successful
+**Progress**: 26/36 user stories (72%)
+
+---

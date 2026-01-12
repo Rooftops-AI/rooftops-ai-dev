@@ -2,7 +2,7 @@
 
 **Last Updated**: 2026-01-12
 **Status**: ✅ PRODUCTION READY (Core System Complete)
-**Progress**: 25/36 User Stories (69%)
+**Progress**: 26/36 User Stories (72%)
 
 ---
 
@@ -76,12 +76,17 @@
 - ✅ "Reactivate Subscription" → Stripe portal
 - ✅ Auto-downgrade to free after period ends
 
+### Edge Cases - Tier Changes (US-26)
+- ✅ Upgrade detection (Premium → Business)
+- ✅ Immediate tier upgrade with Stripe proration
+- ✅ Downgrade detection (Business → Premium)
+- ✅ Scheduled downgrade at period end
+- ✅ Downgrade notice banner with "Cancel Downgrade"
+- ✅ Webhook applies scheduled changes at renewal
+
 ---
 
-## 🔧 REMAINING WORK (US-26 to US-36)
-
-### Edge Cases (US-26)
-- ⏳ Tier upgrade/downgrade proration
+## 🔧 REMAINING WORK (US-27 to US-36)
 
 ### Bug Fixes (US-27 to US-30)
 - ⏳ Property report image loading (pre-existing)
@@ -102,13 +107,14 @@
 ## 📁 KEY FILES
 
 ### Backend
-- `lib/entitlements.ts` - Core tier checking, usage tracking, grace period, and cancellation logic
+- `lib/entitlements.ts` - Core tier checking, usage tracking, grace period, cancellation, and downgrade logic
 - `db/subscriptions.ts` - Subscription CRUD operations
 - `app/api/usage/stats/route.ts` - Usage statistics endpoint
 - `app/api/subscription/grace-period/route.ts` - Grace period status
 - `app/api/subscription/cancellation/route.ts` - Cancellation status
+- `app/api/subscription/downgrade/route.ts` - Scheduled downgrade status
 - `app/api/stripe/checkout/route.ts` - Stripe checkout
-- `app/api/stripe/webhook/route.ts` - Stripe webhooks
+- `app/api/stripe/webhook/route.ts` - Stripe webhooks with upgrade/downgrade detection
 - `app/api/stripe/portal/route.ts` - Customer portal
 - `app/api/agents/generate/route.ts` - Agent access control
 
@@ -126,6 +132,8 @@
 - `components/modals/onboarding-modal.tsx` - Welcome onboarding modal
 - `components/chat/chat-typing-indicator.tsx` - Typing indicator
 - `components/billing/payment-failure-banner.tsx` - Payment failure alert
+- `components/billing/cancellation-notice-banner.tsx` - Cancellation notice
+- `components/billing/downgrade-notice-banner.tsx` - Scheduled downgrade notice
 - `components/sidebar/usage-stats.tsx` - Usage counters
 - `components/modals/upgrade-modal.tsx` - Upgrade prompts
 - `components/usage/usage-warning-provider.tsx` - Warning toasts
@@ -271,12 +279,12 @@ SUPABASE_SERVICE_ROLE_KEY=...
 
 ## 📊 SUCCESS METRICS
 
-- ✅ 67% of user stories complete (24/36)
-- ✅ 30 commits across implementation
-- ✅ ~52+ files modified
-- ✅ 11 new components created
-- ✅ 4 new API endpoints
-- ✅ 2 new database tables
+- ✅ 72% of user stories complete (26/36)
+- ✅ 33 commits across implementation
+- ✅ ~55+ files modified
+- ✅ 12 new components created
+- ✅ 5 new API endpoints
+- ✅ 2 new database tables (+ 1 field migration)
 - ✅ All builds compile successfully
 - ✅ Zero blocking issues for production
 
