@@ -303,7 +303,7 @@ const ExploreMap: React.FC<ExploreMapProps> = ({
         selectedLocation.lat,
         viewportWidth,
         viewportHeight,
-        0.7 // Property fills 70% of frame
+        0.95 // Property fills 95% of frame - MUCH tighter crop on roof
       )
 
       logDebug(
@@ -364,7 +364,7 @@ const ExploreMap: React.FC<ExploreMapProps> = ({
         selectedLocation.lat,
         viewportWidth,
         viewportHeight,
-        0.85 // 85% coverage
+        0.95 // 95% coverage - tight crop on roof only
       )
 
       // Generate 2 meaningfully different zoom levels with significant difference
@@ -474,9 +474,9 @@ const ExploreMap: React.FC<ExploreMapProps> = ({
           selectedLocation.lat,
           viewportWidth,
           viewportHeight,
-          0.85 // 85% coverage for tight shots
+          0.95 // 95% coverage - tight crop on roof only, eliminate neighboring context
         )
-        const angleZoom = Math.min(22, calculatedZoom + 1) // Add +1 to get closer
+        const angleZoom = Math.min(22, calculatedZoom + 2) // Add +2 to zoom in even closer
 
         logDebug(
           `Capturing view at ${angle}° heading with optimized zoom ${angleZoom} (tilt: ${tiltAngle}°)`
