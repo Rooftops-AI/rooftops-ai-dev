@@ -22,13 +22,19 @@ export async function withSubscriptionCheck() {
   )
 
   if (!accessCheck.allowed) {
+    const errorResponse = accessCheck as {
+      allowed: false
+      error: string
+      limit: number | "unlimited"
+      currentUsage: number
+    }
     return {
       allowed: false,
       response: NextResponse.json(
         {
-          error: accessCheck.error,
-          limit: accessCheck.limit,
-          currentUsage: accessCheck.currentUsage,
+          error: errorResponse.error,
+          limit: errorResponse.limit,
+          currentUsage: errorResponse.currentUsage,
           upgradeRequired: true
         },
         { status: 402 }

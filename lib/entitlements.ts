@@ -68,14 +68,14 @@ export const TIER_LIMITS = {
   premium: {
     reports: 20,
     chatMessagesDaily: -1, // Not applicable for premium tier
-    chatMessagesMonthly: 1000, // 1000 per month on GPT-4.5-mini
+    chatMessagesMonthly: 1000, // 1000 per month on GPT-5-mini
     webSearches: 50,
     agents: true
   },
   business: {
     reports: 100,
     chatMessagesDaily: -1, // Not applicable for business tier
-    chatMessagesMonthly: 5000, // 5000 per month on GPT-4.5-mini
+    chatMessagesMonthly: 5000, // 5000 per month on GPT-5-mini
     webSearches: 250,
     agents: true
   }
@@ -88,7 +88,7 @@ export interface LimitCheckResult {
 }
 
 export interface ChatLimitCheckResult extends LimitCheckResult {
-  model: "gpt-4o" | "gpt-4.5-mini"
+  model: "gpt-4o" | "gpt-5-mini"
   switchedToFreeModel?: boolean
 }
 
@@ -316,7 +316,7 @@ export async function checkChatLimit(
     }
   }
 
-  // Premium tier: 1000 messages on GPT-4.5-mini, then unlimited GPT-4o
+  // Premium tier: 1000 messages on GPT-5-mini, then unlimited GPT-4o
   if (tier === "premium") {
     const used = usage.chat_messages_premium
     const limit = limits.chatMessagesMonthly
@@ -327,7 +327,7 @@ export async function checkChatLimit(
         allowed: true,
         remaining: limit - used,
         limit,
-        model: "gpt-4.5-mini"
+        model: "gpt-5-mini"
       }
     }
 
@@ -341,7 +341,7 @@ export async function checkChatLimit(
     }
   }
 
-  // Business tier: 5000 messages on GPT-4.5-mini, then unlimited GPT-4o
+  // Business tier: 5000 messages on GPT-5-mini, then unlimited GPT-4o
   if (tier === "business") {
     const used = usage.chat_messages_premium
     const limit = limits.chatMessagesMonthly
@@ -352,7 +352,7 @@ export async function checkChatLimit(
         allowed: true,
         remaining: limit - used,
         limit,
-        model: "gpt-4.5-mini"
+        model: "gpt-5-mini"
       }
     }
 

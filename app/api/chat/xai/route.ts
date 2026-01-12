@@ -58,11 +58,17 @@ export async function POST(request: Request) {
       "chat_messages"
     )
     if (!accessCheck.allowed) {
+      const errorResponse = accessCheck as {
+        allowed: false
+        error: string
+        limit: number | "unlimited"
+        currentUsage: number
+      }
       return new Response(
         JSON.stringify({
-          error: accessCheck.error,
-          limit: accessCheck.limit,
-          currentUsage: accessCheck.currentUsage,
+          error: errorResponse.error,
+          limit: errorResponse.limit,
+          currentUsage: errorResponse.currentUsage,
           upgradeRequired: true
         }),
         { status: 402 }

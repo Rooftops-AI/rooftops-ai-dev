@@ -1,10 +1,11 @@
 import { createClient } from "@/lib/supabase/server"
 import { getGracePeriodInfo } from "@/lib/entitlements"
 import { NextResponse } from "next/server"
+import { cookies } from "next/headers"
 
 export async function GET() {
   try {
-    const supabase = createClient()
+    const supabase = createClient(cookies())
     const {
       data: { user }
     } = await supabase.auth.getUser()
