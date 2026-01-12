@@ -918,7 +918,7 @@ Answer questions about this property clearly and concisely. Use specific numbers
       {/* Image Gallery */}
       {roofData.images.length > 0 && (
         <div className="relative bg-gray-900">
-          <div className="relative">
+          <div className="relative flex min-h-[400px] items-center justify-center bg-gray-900">
             <img
               src={
                 imageLoadErrors.has(activeImageIndex)
@@ -932,21 +932,74 @@ Answer questions about this property clearly and concisely. Use specific numbers
                 roofData.images[activeImageIndex].label ||
                 `Image ${activeImageIndex + 1}`
               }
-              className="block h-[220px] w-full cursor-pointer object-cover"
+              className="max-h-[400px] w-full cursor-pointer object-contain"
               onClick={() => setShowFullscreenImage(true)}
               onError={(e: any) => {
                 setImageLoadErrors(prev => new Set(prev).add(activeImageIndex))
                 e.target.src = PLACEHOLDER_IMAGE
               }}
             />
-            <div className="absolute inset-x-3 bottom-[60px] flex items-center justify-between">
+
+            {/* Navigation Arrows */}
+            {roofData.images.length > 1 && (
+              <>
+                <button
+                  onClick={e => {
+                    e.stopPropagation()
+                    setActiveImageIndex(prev =>
+                      prev > 0 ? prev - 1 : roofData.images.length - 1
+                    )
+                  }}
+                  className="absolute left-2 top-1/2 flex size-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/70 text-white transition-all hover:bg-black/90"
+                  aria-label="Previous image"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                  </svg>
+                </button>
+                <button
+                  onClick={e => {
+                    e.stopPropagation()
+                    setActiveImageIndex(prev =>
+                      prev < roofData.images.length - 1 ? prev + 1 : 0
+                    )
+                  }}
+                  className="absolute right-2 top-1/2 flex size-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/70 text-white transition-all hover:bg-black/90"
+                  aria-label="Next image"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                </button>
+              </>
+            )}
+
+            {/* Image Labels */}
+            <div className="absolute inset-x-3 bottom-3 flex items-center justify-between">
               <div
                 className="rounded-md px-3 py-1.5 text-xs font-semibold text-white"
                 style={{ background: "rgba(0,0,0,0.7)" }}
               >
-                {roofData.images[activeImageIndex].type === "street"
-                  ? "🏘️"
-                  : "📷"}{" "}
                 {roofData.images[activeImageIndex].label}
               </div>
               <div
