@@ -131,7 +131,14 @@ const PropertyReportViewer: React.FC<PropertyReportViewerProps> = ({
       ? reportData?.agents?.cost || reportData?.finalReport?.costEstimate || {}
       : reportData?.costEstimate || {}
 
-    const solar = solarData?.solarPotential || reportData?.solarPotential || {}
+    // Extract solar data from multiple possible structures
+    const solar =
+      solarData?.solarPotential || // Direct solarPotential
+      solarData || // Solar data might be the solarPotential itself
+      reportData?.solarPotential || // From reportData
+      reportData?.solarData?.solarPotential || // Nested in solarData
+      reportData?.solar?.potential || // From combined report structure
+      {}
 
     return {
       property: {
@@ -213,18 +220,45 @@ const PropertyReportViewer: React.FC<PropertyReportViewerProps> = ({
         perSquare: estimate.costPerSquare || 650
       },
       solar: {
-        maxPanels: solar.maxArrayPanelsCount || solar.maxPanels || 0,
-        systemKw: (solar.maxArrayPanelsCount || 0) * 0.4,
-        annualProduction: solar.maxArrayPanelsCount
-          ? solar.maxArrayPanelsCount * 400 * 1.6
-          : 0,
-        monthlyAverage: solar.maxArrayPanelsCount
-          ? Math.round((solar.maxArrayPanelsCount * 400 * 1.6) / 12)
-          : 0,
+        maxPanels:
+          solar.maxArrayPanelsCount ||
+          solar.maxPanels ||
+          solar.maxArrayPanels ||
+          0,
+        systemKw:
+          (solar.maxArrayPanelsCount ||
+            solar.maxPanels ||
+            solar.maxArrayPanels ||
+            0) * 0.4,
+        annualProduction:
+          solar.maxArrayPanelsCount || solar.maxPanels || solar.maxArrayPanels
+            ? (solar.maxArrayPanelsCount ||
+                solar.maxPanels ||
+                solar.maxArrayPanels) *
+              400 *
+              1.6
+            : 0,
+        monthlyAverage:
+          solar.maxArrayPanelsCount || solar.maxPanels || solar.maxArrayPanels
+            ? Math.round(
+                ((solar.maxArrayPanelsCount ||
+                  solar.maxPanels ||
+                  solar.maxArrayPanels) *
+                  400 *
+                  1.6) /
+                  12
+              )
+            : 0,
         paybackYears: 7.4,
-        co2Offset: solar.maxArrayPanelsCount
-          ? solar.maxArrayPanelsCount * 400 * 1.6 * 0.7
-          : 0
+        co2Offset:
+          solar.maxArrayPanelsCount || solar.maxPanels || solar.maxArrayPanels
+            ? (solar.maxArrayPanelsCount ||
+                solar.maxPanels ||
+                solar.maxArrayPanels) *
+              400 *
+              1.6 *
+              0.7
+            : 0
       },
       materials: {
         shingles: {
@@ -542,59 +576,68 @@ Answer questions about this property clearly and concisely. Use specific numbers
         })
       })
 
-      if (!response.ok) throw new Error("Failed to get response")
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        console.error("Chat API error:", errorData)
+        throw new Error(
+          errorData.error || errorData.message || "Failed to get response"
+        )
+      }
 
       const reader = response.body?.getReader()
       const decoder = new TextDecoder()
       let aiResponse = ""
+
+      // Add initial assistant message
+      setChatMessages(prev => [...prev, { role: "assistant", content: "" }])
 
       if (reader) {
         while (true) {
           const { done, value } = await reader.read()
           if (done) break
 
+          // Decode the chunk - OpenAIStream returns raw text, not SSE format
           const chunk = decoder.decode(value)
-          const lines = chunk.split("\n")
+          aiResponse += chunk
 
-          for (const line of lines) {
-            if (line.startsWith("data: ")) {
-              try {
-                const data = JSON.parse(line.slice(6))
-                if (data.choices?.[0]?.delta?.content) {
-                  aiResponse += data.choices[0].delta.content
-                  setChatMessages(prev => {
-                    const newMessages = [...prev]
-                    if (
-                      newMessages[newMessages.length - 1].role === "assistant"
-                    ) {
-                      newMessages[newMessages.length - 1].content = aiResponse
-                    } else {
-                      newMessages.push({
-                        role: "assistant",
-                        content: aiResponse
-                      })
-                    }
-                    return newMessages
-                  })
-                }
-              } catch (e) {
-                // Ignore JSON parse errors
-              }
-            }
-          }
+          // Update the last message (which is the assistant's response)
+          setChatMessages(prev => {
+            const newMessages = [...prev]
+            newMessages[newMessages.length - 1].content = aiResponse
+            return newMessages
+          })
         }
       }
 
       if (!aiResponse) {
-        throw new Error("No response received")
+        throw new Error("No response received from AI")
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Chat error:", error)
+
+      // Provide more helpful error messages
+      let errorMessage = "Sorry, I encountered an error"
+      if (
+        error.message?.includes("api key") ||
+        error.message?.includes("API key")
+      ) {
+        errorMessage = "AI chat is not configured. Please contact support."
+      } else if (
+        error.message?.includes("auth") ||
+        error.message?.includes("profile")
+      ) {
+        errorMessage = "Please log in to use the AI chat feature."
+      } else if (error.message) {
+        errorMessage = `Error: ${error.message}`
+      }
+
       setChatMessages(prev => [
         ...prev,
         {
           role: "assistant",
-          content: "Sorry, I encountered an error. Please try again."
+          content:
+            errorMessage +
+            " You can still view all the report data in the other tabs."
         }
       ])
     } finally {
@@ -855,8 +898,15 @@ Answer questions about this property clearly and concisely. Use specific numbers
         <div className="relative bg-gray-900">
           <div className="relative">
             <img
-              src={roofData.images[activeImageIndex].url}
-              alt={roofData.images[activeImageIndex].label}
+              src={
+                roofData.images[activeImageIndex].imageData ||
+                roofData.images[activeImageIndex].url ||
+                roofData.images[activeImageIndex]
+              }
+              alt={
+                roofData.images[activeImageIndex].label ||
+                `Image ${activeImageIndex + 1}`
+              }
               className="block h-[220px] w-full cursor-pointer object-cover"
               onClick={() => setShowFullscreenImage(true)}
               onError={(e: any) => {
@@ -888,9 +938,9 @@ Answer questions about this property clearly and concisely. Use specific numbers
           >
             {roofData.images.map((img: any, idx: number) => (
               <img
-                key={img.id}
-                src={img.url}
-                alt={img.label}
+                key={img.id || idx}
+                src={img.imageData || img.url || img}
+                alt={img.label || `Thumbnail ${idx + 1}`}
                 className="size-14 shrink-0 cursor-pointer rounded-lg object-cover transition-all"
                 style={{
                   border:
@@ -924,13 +974,21 @@ Answer questions about this property clearly and concisely. Use specific numbers
             ×
           </button>
           <img
-            src={roofData.images[activeImageIndex].url}
-            alt={roofData.images[activeImageIndex].label}
+            src={
+              roofData.images[activeImageIndex].imageData ||
+              roofData.images[activeImageIndex].url ||
+              roofData.images[activeImageIndex]
+            }
+            alt={
+              roofData.images[activeImageIndex].label ||
+              `Image ${activeImageIndex + 1}`
+            }
             className="max-h-[80vh] max-w-full object-contain"
             onClick={e => e.stopPropagation()}
           />
           <div className="mt-3 text-sm font-semibold text-white">
-            {roofData.images[activeImageIndex].label}
+            {roofData.images[activeImageIndex].label ||
+              `Image ${activeImageIndex + 1}`}
           </div>
           <div className="mt-4 flex gap-4">
             <button
@@ -1274,63 +1332,47 @@ Answer questions about this property clearly and concisely. Use specific numbers
               </div>
             </div>
 
-            {/* Segment List */}
+            {/* AI-Generated Roof Analysis Summary */}
             <div
               className="mb-4 rounded-2xl border bg-white p-5 shadow-sm"
               style={{ borderColor: theme.gray100 }}
             >
               <div className="mb-4 flex items-center gap-2 text-base font-bold text-gray-900">
-                <span>📋</span> Segment Details
+                <span>🤖</span> AI Roof Analysis
               </div>
-              <div className="flex flex-col gap-2.5">
-                {roofData.segments.map((seg: any) => (
-                  <button
-                    key={seg.id}
-                    onClick={() => {
-                      setSelectedSegment(seg.id)
-                      setShowSegmentModal(true)
-                    }}
-                    className="flex cursor-pointer items-center gap-3 rounded-xl p-3 text-left"
-                    style={{
-                      border: `1px solid ${theme.gray200}`,
-                      background: theme.white
-                    }}
-                  >
-                    <div
-                      className="flex size-10 items-center justify-center rounded-lg text-sm font-bold text-white"
-                      style={{ background: seg.color }}
-                    >
-                      {seg.id}
-                    </div>
-                    <div className="flex-1">
-                      <div className="text-sm font-semibold text-gray-900">
-                        {seg.name}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        {seg.area.toLocaleString()} sq ft • {seg.pitch} pitch
-                      </div>
-                    </div>
-                    <span
-                      className="rounded-full px-2.5 py-1 text-[10px] font-semibold"
-                      style={{
-                        background:
-                          seg.solarQuality === "Excellent"
-                            ? "#DCFCE7"
-                            : seg.solarQuality === "Good"
-                              ? theme.primaryBg
-                              : "#FEF3C7",
-                        color:
-                          seg.solarQuality === "Excellent"
-                            ? "#166534"
-                            : seg.solarQuality === "Good"
-                              ? theme.primaryDark
-                              : "#92400E"
-                      }}
-                    >
-                      {seg.direction}
-                    </span>
-                  </button>
-                ))}
+              <div className="prose prose-sm max-w-none text-gray-700">
+                {reportData?.rawAnalysis ||
+                reportData?.detailedAnalysis ||
+                reportData?.agents?.measurement?.analysis ||
+                reportData?.finalReport?.analysis ? (
+                  <div className="space-y-3 text-sm leading-relaxed">
+                    {(
+                      reportData?.rawAnalysis ||
+                      reportData?.detailedAnalysis ||
+                      reportData?.agents?.measurement?.analysis ||
+                      reportData?.finalReport?.analysis ||
+                      ""
+                    )
+                      .split("\n\n")
+                      .filter((para: string) => para.trim())
+                      .slice(0, 5)
+                      .map((para: string, idx: number) => (
+                        <p key={idx} className="m-0">
+                          {para.trim()}
+                        </p>
+                      ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-500">
+                    This roof has {roofData.measurements.segmentCount} distinct
+                    segments with a predominant pitch of{" "}
+                    {roofData.measurements.predominantPitch}. The total roof
+                    area is approximately{" "}
+                    {roofData.measurements.totalArea.sqft.toLocaleString()} sq
+                    ft, with an estimated complexity of{" "}
+                    {roofData.measurements.complexity}.
+                  </p>
+                )}
               </div>
             </div>
 
