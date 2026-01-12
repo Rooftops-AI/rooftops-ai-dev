@@ -4,7 +4,6 @@ import { Tables } from "@/supabase/types"
 import { FC, useContext, useState } from "react"
 import { Message } from "../messages/message"
 import { loadDocument, setDocumentMode } from "@/lib/stores/document-store"
-import { ChatTypingIndicator } from "./chat-typing-indicator"
 
 interface ChatMessagesProps {}
 
@@ -105,11 +104,5 @@ export const ChatMessages: FC<ChatMessagesProps> = ({}) => {
       )
     })
 
-  return (
-    <>
-      {sortedMessages}
-      {/* Show typing indicator when generating but before first token */}
-      {isGenerating && !firstTokenReceived && <ChatTypingIndicator />}
-    </>
-  )
+  return <>{sortedMessages}</>
 }
