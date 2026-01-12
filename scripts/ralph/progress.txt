@@ -71,3 +71,49 @@ Started: Mon Jan 12 00:17:36 CST 2026
 - UNIQUE constraint on (user_id, month) prevents duplicate records
 
 ---
+
+### US-2: Tier Management Service ✅
+**Status**: COMPLETE
+**Commit**: 7e05808
+
+**What was implemented**:
+- Created `/lib/entitlements.ts` with all required tier management functions
+- `getUserTier(userId)`: Returns user's tier or 'free' as default
+- `checkReportLimit(userId)`: Checks report generation limits
+- `checkChatLimit(userId)`: Checks chat limits and returns appropriate model
+- `checkWebSearchLimit(userId)`: Checks web search limits
+- `checkAgentAccess(userId)`: Checks agent library access
+- `getUserUsageStats(userId)`: Helper to get complete usage overview
+- Defined `TIER_LIMITS` constant with all tier limits from PRD
+
+**Tier Limits Implemented**:
+- Free: 1 report, 5 chat/day (GPT-4o), 0 web searches, no agents
+- Premium: 20 reports, 1000 messages/month (GPT-4.5-mini) + unlimited GPT-4o, 50 web searches, agents enabled
+- Business: 100 reports, 5000 messages/month (GPT-4.5-mini) + unlimited GPT-4o, 250 web searches, agents enabled
+
+**Patterns Used**:
+- Put service in `/lib` directory following existing patterns
+- Used `getSubscriptionByUserId` from existing `/db/subscriptions.ts`
+- Used functions from `/db/user-usage.ts` created in US-1
+- Handles month rollover automatically (creates new record if needed)
+- Handles daily rollover for free tier (checks last_chat_date)
+
+**Adaptations Made**:
+- Check both `tier` and `plan_type` fields for backward compatibility
+- Default to 'free' tier on errors for safety
+- Chat limit returns which model to use (GPT-4.5-mini or GPT-4o)
+- Includes `switchedToFreeModel` flag when premium messages exhausted
+
+---
+
+### US-3: Usage Tracking Utilities ✅
+**Status**: COMPLETE (Already implemented in US-1)
+**Reference**: db/user-usage.ts from US-1
+
+**Note**: All required usage tracking functions were already created in US-1:
+- `incrementReportUsage(userId)`: Increments report count atomically
+- `incrementChatUsage(userId, model)`: Increments chat count by model type, handles daily reset
+- `incrementWebSearchUsage(userId)`: Increments web search count
+- All functions update atomically, create month record if needed, return updated counts
+
+---
