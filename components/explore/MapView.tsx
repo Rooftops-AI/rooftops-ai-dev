@@ -1474,6 +1474,17 @@ const MapView: React.FC<MapViewProps> = ({
                     <IconCurrentLocation size={20} />
                   )}
                 </Button>
+
+                {/* Measure Button - Icon Only, Desktop Only */}
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={toggleDrawingTools}
+                  className={`hidden size-12 shrink-0 rounded-xl border-gray-300 hover:border-blue-500 hover:bg-blue-50 md:flex dark:border-gray-600 dark:hover:bg-blue-900/20 ${showDrawingTools ? "ring-2 ring-blue-500" : ""}`}
+                  title="Measure tools"
+                >
+                  <IconRuler size={20} />
+                </Button>
               </div>
 
               {/* Analyze Button - Full Width */}
@@ -1495,12 +1506,12 @@ const MapView: React.FC<MapViewProps> = ({
                 )}
               </Button>
 
-              {/* Bottom Row - AI Model Badge, Debug, and Tools (Smaller) */}
-              <div className="flex items-center gap-2 overflow-x-auto">
-                {/* Multi-Agent AI Badge (Read-only - shows hardcoded model) */}
+              {/* Bottom Row - AI Model Badge, Debug, and Tools (Smaller) - Desktop Only */}
+              <div className="hidden items-center gap-2 overflow-x-auto md:flex">
+                {/* Rooftops Agent Badge (Read-only) */}
                 <div className="flex h-8 items-center gap-1.5 rounded-full border border-blue-300 bg-blue-50 px-3 text-xs font-medium text-blue-700 dark:border-blue-600 dark:bg-blue-900/30 dark:text-blue-300">
                   <IconSparkles size={14} />
-                  <span>Multi-Agent AI (GPT-5.1)</span>
+                  <span>Rooftops Agent: On</span>
                 </div>
 
                 {/* Debug Button as Pill */}
@@ -1514,16 +1525,6 @@ const MapView: React.FC<MapViewProps> = ({
                     Debug
                   </Button>
                 )}
-
-                {/* Measure Tools Button as Pill */}
-                <Button
-                  variant="outline"
-                  onClick={toggleDrawingTools}
-                  className={`h-8 rounded-full border border-gray-300 bg-gray-50 px-3 text-xs dark:border-gray-600 dark:bg-gray-700 ${showDrawingTools ? "ring-2 ring-blue-500" : ""}`}
-                >
-                  <IconRuler size={14} className="mr-1" />
-                  {showDrawingTools ? "Hide" : "Measure"}
-                </Button>
 
                 {measuredArea && (
                   <span className="whitespace-nowrap text-xs text-gray-600 dark:text-gray-400">
