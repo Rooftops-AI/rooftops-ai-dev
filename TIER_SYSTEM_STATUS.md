@@ -1,8 +1,23 @@
 # Tier-Based Subscription System - Implementation Status
 
 **Last Updated**: 2026-01-12
-**Status**: ✅ 100% COMPLETE - READY FOR QA & PRODUCTION
-**Progress**: 36/36 User Stories (100%)
+**Status**: ✅ CODE COMPLETE - ⏸️ RUNTIME VERIFICATION BLOCKED
+**Progress**: 36/36 User Stories (100% implemented, 0% runtime verified)
+**Blocker**: Database not initialized (requires `supabase start`)
+
+## 🚧 Current Blocker
+
+**Issue**: Database tables not created
+**Error**: `Could not find the table 'public.user_usage' in the schema cache`
+**Impact**: Cannot test any tier system features in browser
+**Resolution**:
+1. Start Docker Desktop
+2. Run: `supabase start`
+3. Run: `npm run db-types`
+4. Restart dev server
+5. Complete US-36 runtime verification
+
+**Migration Ready**: `supabase/migrations/20260112_add_tier_system_usage.sql` (not applied yet)
 
 ---
 
