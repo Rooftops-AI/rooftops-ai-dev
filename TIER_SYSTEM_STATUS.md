@@ -2,7 +2,7 @@
 
 **Last Updated**: 2026-01-12
 **Status**: ✅ PRODUCTION READY (Core System Complete)
-**Progress**: 26/36 User Stories (72%)
+**Progress**: 27/36 User Stories (75%)
 
 ---
 
@@ -86,10 +86,16 @@
 
 ---
 
-## 🔧 REMAINING WORK (US-27 to US-36)
+### Bug Fixes (US-27)
+- ✅ Property report image loading with graceful fallbacks
+- ✅ SVG placeholder for failed images
+- ✅ Error state tracking to prevent retry loops
 
-### Bug Fixes (US-27 to US-30)
-- ⏳ Property report image loading (pre-existing)
+---
+
+## 🔧 REMAINING WORK (US-28 to US-36)
+
+### Bug Fixes (US-28 to US-30)
 - ⏳ Roof tab AI summary display (pre-existing)
 - ⏳ AI chat error handling (pre-existing)
 - ⏳ Solar tab data parsing (pre-existing)
@@ -268,7 +274,7 @@ SUPABASE_SERVICE_ROLE_KEY=...
 
 ## 🐛 KNOWN ISSUES (Pre-existing, not tier-related)
 
-1. Property report images may not load (needs investigation)
+1. ✅ ~~Property report images may not load~~ - FIXED in US-27 with fallback placeholders
 2. AI chat returns generic errors (needs better error handling)
 3. Roof tab shows segments instead of AI summary (needs data mapping)
 4. Solar tab doesn't parse API response (needs data extraction)
@@ -279,14 +285,15 @@ SUPABASE_SERVICE_ROLE_KEY=...
 
 ## 📊 SUCCESS METRICS
 
-- ✅ 72% of user stories complete (26/36)
-- ✅ 33 commits across implementation
-- ✅ ~55+ files modified
+- ✅ 75% of user stories complete (27/36)
+- ✅ 35 commits across implementation
+- ✅ ~57+ files modified
 - ✅ 12 new components created
 - ✅ 5 new API endpoints
 - ✅ 2 new database tables (+ 1 field migration)
 - ✅ All builds compile successfully
 - ✅ Zero blocking issues for production
+- ✅ 1 pre-existing bug fixed (image loading)
 
 ---
 

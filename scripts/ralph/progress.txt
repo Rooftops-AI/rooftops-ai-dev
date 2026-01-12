@@ -993,3 +993,59 @@ Started: Mon Jan 12 00:17:36 CST 2026
 **Progress**: 26/36 user stories (72%)
 
 ---
+
+
+## Iteration 14
+
+### US-27: Fix Property Report Image Loading ✅
+**Status**: COMPLETE
+**Commit**: 14c5b28
+
+**Root Cause**:
+- Images stored as Base64 data URLs in JSONB database fields (`captured_images`, `satellite_views`)
+- No fallback placeholder when images fail to load
+- `onError` handlers only changed background color, didn't provide fallback image
+- Large Base64 strings could cause rendering or decoding issues
+- Image objects have flexible structure: `img.imageData || img.url || img`
+
+**What was implemented**:
+- Created `/components/property/property-report-viewer.tsx` (Updated)
+  - Added `PLACEHOLDER_IMAGE` constant: inline SVG data URL with "Image Not Available" text
+  - Added `imageLoadErrors` state to track failed images: `Set<number>`
+  - Updated main image display to use placeholder on error
+  - Updated image gallery thumbnails with error handling
+  - Updated fullscreen modal image with error handling
+  - All `onError` handlers now: (1) Update error state, (2) Set src to placeholder
+
+- Updated `/components/property/property-report.tsx` (Updated)
+  - Added same `PLACEHOLDER_IMAGE` SVG constant
+  - Added `imageLoadErrors` Set state for tracking failures
+  - Fixed Overview tab image preview grid (4 thumbnails)
+  - Fixed Images tab gallery thumbnails (all images)
+  - Fixed Images tab selected image viewer (large preview)
+  - All image elements now have proper error handling
+
+**Error Handling Logic**:
+1. Try to load image from: `imageData || url || img || PLACEHOLDER_IMAGE`
+2. If already failed (in `imageLoadErrors` Set), immediately use placeholder
+3. On load error: Add index to `imageLoadErrors`, set src to placeholder
+4. Prevents infinite retry loops by checking error state first
+5. Graceful degradation maintains UI usability
+
+**Image Sources Supported**:
+- Base64 data URLs stored in `imageData` field
+- HTTP/HTTPS URLs in `url` field  
+- Raw string values in image object
+- Fallback to SVG placeholder for all failures
+
+**User Experience**:
+- No broken image icons or blank spaces
+- Clear "Image Not Available" message in gray box
+- UI layout remains stable even with failed images
+- Thumbnails and full views both have graceful fallbacks
+- Error state persists across image selection changes
+
+**Build Status**: ✅ Successful
+**Progress**: 27/36 user stories (75%)
+
+---
