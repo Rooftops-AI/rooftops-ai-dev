@@ -13,48 +13,6 @@ interface MessageMarkdownProps {
   metadata?: string // JSON string containing source metadata
 }
 
-// Loading status messages that rotate
-const loadingMessages = [
-  "thinking",
-  "searching the Rooftops",
-  "analyzing",
-  "gathering information",
-  "consulting the docs",
-  "finding the best answer",
-  "processing",
-  "crunching the numbers"
-]
-
-const LoadingIndicator: FC = () => {
-  const [messageIndex, setMessageIndex] = useState(0)
-  const [isTransitioning, setIsTransitioning] = useState(false)
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIsTransitioning(true)
-
-      setTimeout(() => {
-        setMessageIndex(prev => (prev + 1) % loadingMessages.length)
-        setIsTransitioning(false)
-      }, 300) // Wait for fade out before changing text
-    }, 2000) // Change message every 2 seconds
-
-    return () => clearInterval(interval)
-  }, [])
-
-  return (
-    <span className="inline-flex items-center gap-2">
-      <span className="animate-pulse cursor-default">▍</span>
-      <span
-        className="text-muted-foreground text-sm transition-opacity duration-300"
-        style={{ opacity: isTransitioning ? 0 : 1 }}
-      >
-        {loadingMessages[messageIndex]}
-      </span>
-    </span>
-  )
-}
-
 export const MessageMarkdown: FC<MessageMarkdownProps> = ({
   content,
   metadata
@@ -189,11 +147,7 @@ export const MessageMarkdown: FC<MessageMarkdownProps> = ({
             : firstChild
 
           if (firstChildAsString === "▍") {
-            return (
-              <span className="mt-1">
-                <LoadingIndicator />
-              </span>
-            )
+            return <span className="mt-1 animate-pulse cursor-default">▍</span>
           }
 
           if (typeof firstChildAsString === "string") {
