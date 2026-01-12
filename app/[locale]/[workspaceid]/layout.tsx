@@ -17,6 +17,7 @@ import { getFileWorkspacesByWorkspaceId } from "@/db/files"
 
 import { Dashboard } from "@/components/ui/dashboard"
 import { UsageWarningProvider } from "@/components/usage/usage-warning-provider"
+import { OnboardingModal } from "@/components/modals/onboarding-modal"
 
 interface WorkspaceLayoutProps {
   children: ReactNode
@@ -33,6 +34,7 @@ function InnerWorkspaceLoader({ children }: { children: ReactNode }) {
   const workspaceId = params.workspaceid as string
 
   const {
+    profile,
     setSelectedWorkspace,
     setChats,
     setFolders,
@@ -56,6 +58,7 @@ function InnerWorkspaceLoader({ children }: { children: ReactNode }) {
   } = useChatbotUI()
 
   const [loading, setLoading] = useState(true)
+  const [showOnboarding, setShowOnboarding] = useState(false)
 
   useEffect(() => {
     ;(async () => {
@@ -165,6 +168,11 @@ function InnerWorkspaceLoader({ children }: { children: ReactNode }) {
     setShowFilesDisplay(false)
 
     setLoading(false)
+
+    // Show onboarding modal if user hasn't completed it yet
+    if (profile && !profile.has_onboarded) {
+      setShowOnboarding(true)
+    }
   }
 
   if (loading) {
@@ -179,6 +187,7 @@ function InnerWorkspaceLoader({ children }: { children: ReactNode }) {
     <Dashboard>
       <UsageWarningProvider />
       {children}
+      <OnboardingModal open={showOnboarding} onOpenChange={setShowOnboarding} />
     </Dashboard>
   )
 }
