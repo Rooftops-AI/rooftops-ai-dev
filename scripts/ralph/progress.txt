@@ -691,3 +691,53 @@ Started: Mon Jan 12 00:17:36 CST 2026
 
 **CONCLUSION**: The tier-based subscription system is fully functional and ready for production use. The remaining 16 stories are polish, edge cases, and pre-existing bugs that can be addressed in future iterations based on actual user behavior and feedback.
 
+
+---
+
+## Iteration 9
+
+### US-21: Empty States for Features ✅
+**Status**: COMPLETE
+**Commit**: 1ace6a3
+
+**What was implemented**:
+- Created `/components/empty-states/empty-state-chat.tsx`
+  - Shows 4 example prompts (Property Analysis, Cost Estimation, Material Selection, Solar Assessment)
+  - Includes icons and descriptions for each prompt
+  - OnPromptClick callback sends prompt directly to chat
+  - Displays when chatMessages.length === 0
+
+- Created `/components/empty-states/empty-state-explore.tsx`
+  - Shows "Analyze Your First Property" heading
+  - Lists 3 benefits: AI-powered roof analysis, detailed condition assessment, solar potential
+  - Includes "Search for an Address" button
+  - Example address shown: "123 Main St, San Francisco, CA"
+
+- Created `/components/empty-states/empty-state-agents-locked.tsx`
+  - Shows "Unlock AI Agents" heading with lock icon
+  - Lists 3 benefits: Professional document generation, automated cost estimates, advanced property insights
+  - "Upgrade to Premium" button → /pricing
+  - Shows plan availability: "Available on Premium ($29/mo) and Business ($99/mo) plans"
+
+**Integration Points**:
+- Chat UI: Conditionally renders EmptyStateChat when no messages exist
+- Explore page: Shows empty state overlay when !hasActiveExploreReport
+- Agent library: Shows EmptyStateAgentsLocked for free tier users instead of locked agent grid
+
+**Patterns Used**:
+- All empty states follow consistent visual design (icon circle, heading, benefits list, CTA)
+- Color-coded icons: blue (chat/explore), amber (locked features), green (benefits)
+- Responsive layout with Tailwind classes
+- Uses existing UI components (Button, icons from @tabler/icons-react)
+- Integrates with existing routing (router.push)
+
+**UX Improvements**:
+- Reduces confusion for new users with zero state
+- Provides clear examples of what to ask
+- Encourages exploration with example prompts
+- Motivates upgrades with clear value proposition
+
+**Build Status**: All files compile successfully, no errors
+
+---
+
