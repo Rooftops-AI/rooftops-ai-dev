@@ -2,7 +2,7 @@
 
 **Last Updated**: 2026-01-12
 **Status**: ✅ PRODUCTION READY (Core System Complete)
-**Progress**: 21/36 User Stories (58%)
+**Progress**: 22/36 User Stories (61%)
 
 ---
 
@@ -52,12 +52,17 @@
 - ✅ Explore empty state with "Analyze First Property" CTA
 - ✅ Agent library locked state for free tier
 
+### Onboarding (US-22)
+- ✅ Welcome modal with 3-step tour
+- ✅ Navigate to Explore, Chat, and Pricing
+- ✅ Skip/dismiss functionality
+- ✅ Tracks has_onboarded in profile
+
 ---
 
-## 🔧 REMAINING WORK (US-22 to US-36)
+## 🔧 REMAINING WORK (US-23 to US-36)
 
-### UX Polish (US-22 to US-23)
-- ⏳ Onboarding flow for new users
+### UX Polish (US-23)
 - ⏳ Loading state improvements
 
 ### Edge Cases (US-24 to US-26)
@@ -103,6 +108,7 @@
 - `components/empty-states/empty-state-chat.tsx` - Chat empty state
 - `components/empty-states/empty-state-explore.tsx` - Explore empty state
 - `components/empty-states/empty-state-agents-locked.tsx` - Locked agents state
+- `components/modals/onboarding-modal.tsx` - Welcome onboarding modal
 - `components/sidebar/usage-stats.tsx` - Usage counters
 - `components/modals/upgrade-modal.tsx` - Upgrade prompts
 - `components/usage/usage-warning-provider.tsx` - Warning toasts
@@ -248,10 +254,10 @@ SUPABASE_SERVICE_ROLE_KEY=...
 
 ## 📊 SUCCESS METRICS
 
-- ✅ 58% of user stories complete (21/36)
-- ✅ 24 commits across implementation
-- ✅ ~45+ files modified
-- ✅ 8 new components created
+- ✅ 61% of user stories complete (22/36)
+- ✅ 26 commits across implementation
+- ✅ ~48+ files modified
+- ✅ 9 new components created
 - ✅ 3 new API endpoints
 - ✅ 2 new database tables
 - ✅ All builds compile successfully

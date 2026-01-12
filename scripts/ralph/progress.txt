@@ -741,3 +741,42 @@ Started: Mon Jan 12 00:17:36 CST 2026
 
 ---
 
+
+### US-22: Onboarding Flow for New Users ✅
+**Status**: COMPLETE  
+**Commit**: 77ef817
+
+**What was implemented**:
+- Created `/components/modals/onboarding-modal.tsx`
+  - 3-step welcome tour for new users
+  - Step 1: "Analyze your first property" with IconMap → /explore
+  - Step 2: "Try the AI chat" with IconMessageCircle → /chat  
+  - Step 3: "Explore pricing" with IconCrown → /pricing
+  - Progress indicators showing current step (1/3, 2/3, 3/3)
+  - Gradient-colored icons matching step theme
+  - "Skip Tour" button available on all steps
+  - Each step button navigates directly to feature
+
+- Integrated into workspace layout (`app/[locale]/[workspaceid]/layout.tsx`)
+  - Checks profile.has_onboarded field
+  - Shows modal automatically when has_onboarded === false
+  - Updates profile to set has_onboarded=true when dismissed
+
+**Patterns Used**:
+- Uses existing Radix Dialog component pattern
+- Follows existing modal styling (DialogContent, DialogHeader, DialogTitle)
+- Leverages existing profile.has_onboarded field (no migration needed)
+- Uses updateProfile() from `/db/profile.ts`
+- Integrates with useChatbotUI() context
+
+**User Experience**:
+- Non-intrusive - can skip at any time
+- Each step navigates directly to the feature
+- Marks onboarding complete automatically on any action
+- Only shows once per user (tracked in database)
+- Beautiful gradient design matching brand colors
+
+**Database**: Reuses existing `has_onboarded` boolean field in profiles table
+
+---
+
