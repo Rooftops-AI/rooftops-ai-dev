@@ -512,19 +512,55 @@ Started: Mon Jan 12 00:17:36 CST 2026
 
 ---
 
-## Iteration 4-5 Progress Summary
+### US-20: Usage Limit Warning Toasts ✅
+**Status**: COMPLETE
+**Commit**: 33cce5b
 
-**Stories Completed**: 19 out of 36 (53%)
-**Recent Batch**: US-10 through US-19 (10 stories)
-**Major Milestones**:
-- ✅ Agent library paywall UI complete
-- ✅ Agent backend enforcement complete
-- ✅ Pricing page updated with accurate tiers
-- ✅ Full Stripe integration verified and enhanced
-- ✅ Checkout success page created
-- ✅ Usage counter component updated and functional
-- ✅ Account settings/billing page complete
-- ✅ Stripe Customer Portal verified
+**What was implemented**:
+- Created `/lib/hooks/use-usage-warnings.tsx` hook
+- Created `/components/usage/usage-warning-provider.tsx` component
+- Integrated into workspace layout (auto-loads on all pages)
 
-**Next Focus**: US-20+ (UX enhancements, toasts, empty states, onboarding)
+**Features**:
+- Shows warning toasts at configurable thresholds:
+  - Reports: 80% and 100%
+  - Chat messages: 90% for paid (80% for free), 100%
+  - Web searches: 80% and 100%
+- Each toast includes "Upgrade" button → /pricing
+- Uses sessionStorage to show once per session (prevents spam)
+- Refreshes usage data every 30 seconds
+- Uses existing sonner toast system
+
+**Example toasts**:
+- "You've used 16/20 reports. Upgrade for more!" [Upgrade button]
+- "You've used 900/1000 premium messages this month" [Upgrade button]
+- "You've reached your daily chat limit. Upgrade for unlimited messages!" [Upgrade button]
+
+**Pattern**: Warnings shown only once per session using sessionStorage keys
+
+---
+
+## Iteration 5 Progress Summary
+
+**Stories Completed**: 20 out of 36 (56%)
+**Recent Batch**: US-10 through US-20 (11 stories)
+
+**Core System Complete**:
+- ✅ Tier-based database schema and entitlements
+- ✅ Usage tracking for all features
+- ✅ Agent library paywall (frontend + backend)
+- ✅ Complete pricing page with FAQ
+- ✅ Full Stripe integration (checkout + webhooks + portal)
+- ✅ Account settings and billing dashboard
+- ✅ Real-time usage counters with progress bars
+- ✅ Smart warning toasts at usage thresholds
+
+**Remaining Work** (US-21 to US-36): 16 stories
+- UX: Empty states, onboarding, loading indicators
+- Edge cases: Payment failures, cancellations, tier changes
+- Bug fixes: Property reports, AI chat, solar/roof data
+- Testing: Demo accounts, E2E verification
+- Polish: Mobile responsive, accessibility, performance
+
+**Next Focus**: US-21+ (Empty states and UX polish)
 
