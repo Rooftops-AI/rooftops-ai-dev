@@ -3,10 +3,7 @@ import { OpenAIStream, StreamingTextResponse } from "ai"
 import { ServerRuntime } from "next"
 import OpenAI from "openai"
 import { GLOBAL_API_KEYS } from "@/lib/api-keys"
-import {
-  requireFeatureAccess,
-  trackAndCheckFeature
-} from "@/lib/subscription-helpers"
+import { checkAgentAccess } from "@/lib/entitlements"
 
 export const runtime: ServerRuntime = "edge"
 
@@ -22,25 +19,17 @@ export async function POST(request: Request) {
 
     const profile = await getServerProfile()
 
-    // Check subscription limits
-    const accessCheck = await requireFeatureAccess(
-      profile.user_id,
-      "chat_messages"
-    )
-    if (!accessCheck.allowed) {
-      const errorResponse =
-        "error" in accessCheck
-          ? {
-              error: accessCheck.error,
-              limit: accessCheck.limit,
-              currentUsage: accessCheck.currentUsage,
-              upgradeRequired: true
-            }
-          : {
-              error: "Access denied",
-              upgradeRequired: true
-            }
-      return new Response(JSON.stringify(errorResponse), { status: 402 })
+    // Check agent access (Premium and Business only)
+    const hasAccess = await checkAgentAccess(profile.user_id)
+    if (!hasAccess) {
+      return new Response(
+        JSON.stringify({
+          error: "PREMIUM_REQUIRED",
+          message: "Agents are available on Premium and Business plans",
+          upgradeRequired: true
+        }),
+        { status: 403 }
+      )
     }
 
     // Use global API key
@@ -80,10 +69,8 @@ export async function POST(request: Request) {
 
     const stream = OpenAIStream(response as any)
 
-    // Track usage (don't await to not block response)
-    trackAndCheckFeature(profile.user_id, "chat_messages", 1).catch(err =>
-      console.error("Failed to track usage:", err)
-    )
+    // Note: Agent access is tier-based, not usage-based.
+    // Access is checked above via checkAgentAccess()
 
     return new StreamingTextResponse(stream)
   } catch (error: any) {

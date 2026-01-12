@@ -273,8 +273,36 @@ Started: Mon Jan 12 00:17:36 CST 2026
 
 ---
 
+### US-10: Agent Library Paywall UI ✅
+**Status**: COMPLETE
+**Commit**: be76b4f
+
+**What was implemented**:
+- Updated `/app/[locale]/[workspaceid]/creator/page.tsx` to add premium indicators
+- Added "Premium" badge to all agent cards (gold/orange gradient with star icon)
+- Added lock icon overlay for free tier users (centered with dark background)
+- Applied opacity effect (60%) to locked agent cards
+- Integrated UpgradeModal component that shows when free users click agents
+- Used `useChatbotUI()` to get user subscription and check tier
+- Prevented navigation for free users using onClick preventDefault
+- Premium/Business users can access agents normally
+
+**Patterns Used**:
+- Used existing UpgradeModal component from US-6
+- Used existing context hook `useChatbotUI()` for subscription data
+- Followed existing styling patterns with Tailwind classes
+- Added conditional rendering based on `hasAgentAccess` boolean
+
+**UX Features**:
+- Visual distinction between locked/unlocked states
+- Clear premium badges on all agents
+- Lock icon provides clear affordance
+- Clicking locked agents shows tier comparison modal
+
+---
+
 ## Iteration 2 Progress
 
-**Stories Completed So Far**: 9 out of 36 (25%)
-**Current Focus**: Moving to US-10 and beyond for frontend integrations
+**Stories Completed So Far**: 10 out of 36 (28%)
+**Current Focus**: Moving to US-11 (Agent Usage Check backend enforcement)
 

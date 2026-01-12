@@ -13,6 +13,7 @@ import { IconLoader2 } from "@tabler/icons-react"
 import { toast } from "sonner"
 import { ArtifactViewer } from "@/components/agents/artifact-viewer"
 import { useChatbotUI } from "@/context/context"
+import { UpgradeModal } from "@/components/modals/upgrade-modal"
 
 export default function ToolPage() {
   // grab exactly the params Next gives us
@@ -39,6 +40,7 @@ export default function ToolPage() {
   const [isGenerating, setIsGenerating] = useState(false)
   const [generatedContent, setGeneratedContent] = useState<string>("")
   const [showArtifact, setShowArtifact] = useState(false)
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
 
   // localStorage key for "recent inputs"
   const storageKey = `recent-tool-inputs:${workspaceId}:${toolId}`
@@ -123,6 +125,14 @@ export default function ToolPage() {
 
       if (!response.ok) {
         const error = await response.json()
+
+        // Check for premium requirement error
+        if (error.error === "PREMIUM_REQUIRED") {
+          setShowArtifact(false)
+          setShowUpgradeModal(true)
+          return
+        }
+
         throw new Error(error.message || "Failed to generate content")
       }
 
@@ -299,6 +309,13 @@ export default function ToolPage() {
         onClose={() => setShowArtifact(false)}
         companyLogo={values.companyLogo}
         isGenerating={isGenerating}
+      />
+
+      {/* Upgrade Modal */}
+      <UpgradeModal
+        open={showUpgradeModal}
+        onOpenChange={setShowUpgradeModal}
+        reason="agent_access"
       />
     </div>
   )
