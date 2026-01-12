@@ -12,6 +12,7 @@ import { supabase } from "@/lib/supabase/browser-client"
 import { IconLoader2 } from "@tabler/icons-react"
 import { toast } from "sonner"
 import { ArtifactViewer } from "@/components/agents/artifact-viewer"
+import { useChatbotUI } from "@/context/context"
 
 export default function ToolPage() {
   // grab exactly the params Next gives us
@@ -42,6 +43,21 @@ export default function ToolPage() {
   // localStorage key for "recent inputs"
   const storageKey = `recent-tool-inputs:${workspaceId}:${toolId}`
   const router = useRouter()
+  const { userSubscription } = useChatbotUI()
+
+  // Check agent access based on tier (Premium and Business only)
+  useEffect(() => {
+    if (userSubscription) {
+      const userTier =
+        userSubscription.tier || userSubscription.plan_type || "free"
+      const hasAccess = userTier === "premium" || userTier === "business"
+
+      if (!hasAccess) {
+        toast.error("Agents are available on Premium and Business plans")
+        router.push(`/${locale}/${workspaceId}/creator`)
+      }
+    }
+  }, [userSubscription, router, locale, workspaceId])
 
   // hydrate from localStorage once
   useEffect(() => {
