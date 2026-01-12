@@ -58,6 +58,10 @@ export async function POST(request: Request) {
 
   try {
     const profile = await getServerProfile()
+    console.log("[OpenAI Route] Profile loaded successfully:", {
+      userId: profile.user_id,
+      hasApiKeys: !!profile.openai_api_key
+    })
 
     // Check chat limits and determine which model to use
     const limitCheck = await checkChatLimit(profile.user_id)
@@ -403,23 +407,66 @@ export async function POST(request: Request) {
     })
 
     let errorMessage = error.message || "An unexpected error occurred"
-    const errorCode = error.status || 500
+    let errorCode = error.status || 500
+    let errorCodeName = "CHAT_ERROR"
 
-    if (errorMessage.toLowerCase().includes("api key not found")) {
+    // Categorize and improve error messages
+    const msg = errorMessage.toLowerCase()
+
+    if (msg.includes("user not found") || msg.includes("profile not found")) {
+      errorMessage = "Authentication error. Please log in again."
+      errorCode = 401
+      errorCodeName = "AUTH_ERROR"
+    } else if (
+      msg.includes("api key not found") ||
+      msg.includes("api key is not configured")
+    ) {
+      errorMessage = "AI service is not configured. Please contact support."
+      errorCode = 500
+      errorCodeName = "API_KEY_MISSING"
+    } else if (
+      msg.includes("incorrect api key") ||
+      msg.includes("invalid api key")
+    ) {
+      errorMessage = "AI service configuration error. Please contact support."
+      errorCode = 500
+      errorCodeName = "API_KEY_INVALID"
+    } else if (msg.includes("rate limit") || msg.includes("quota exceeded")) {
       errorMessage =
-        "OpenAI API Key not found. Please set it in your profile settings."
-    } else if (errorMessage.toLowerCase().includes("incorrect api key")) {
+        "AI service is temporarily unavailable due to high demand. Please try again in a moment."
+      errorCode = 429
+      errorCodeName = "RATE_LIMIT"
+    } else if (msg.includes("timeout") || msg.includes("timed out")) {
+      errorMessage = "Request timed out. Please try a shorter question."
+      errorCode = 504
+      errorCodeName = "TIMEOUT"
+    } else if (msg.includes("content filter") || msg.includes("safety")) {
       errorMessage =
-        "OpenAI API Key is incorrect. Please fix it in your profile settings."
+        "Your message was filtered for safety reasons. Please rephrase and try again."
+      errorCode = 400
+      errorCodeName = "CONTENT_FILTERED"
+    } else if (errorCode === 500 && error.code === "ECONNREFUSED") {
+      errorMessage = "Unable to connect to AI service. Please try again later."
+      errorCodeName = "CONNECTION_ERROR"
     }
 
     console.error("[OpenAI Route] Returning error response:", {
       status: errorCode,
-      message: errorMessage
+      message: errorMessage,
+      code: errorCodeName
     })
 
-    return new Response(JSON.stringify({ message: errorMessage }), {
-      status: errorCode
-    })
+    return new Response(
+      JSON.stringify({
+        error: errorMessage,
+        message: errorMessage, // Include both for compatibility
+        code: errorCodeName,
+        status: errorCode
+      }),
+      {
+        status: errorCode,
+        headers: { "Content-Type": "application/json" }
+      }
+    )
   }
 }

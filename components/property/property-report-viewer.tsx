@@ -621,19 +621,36 @@ Answer questions about this property clearly and concisely. Use specific numbers
       console.error("Chat error:", error)
 
       // Provide more helpful error messages
-      let errorMessage = "Sorry, I encountered an error"
-      if (
-        error.message?.includes("api key") ||
-        error.message?.includes("API key")
-      ) {
-        errorMessage = "AI chat is not configured. Please contact support."
+      let errorMessage =
+        "Sorry, I encountered an error processing your request."
+
+      const errorMsg = error.message?.toLowerCase() || ""
+
+      if (errorMsg.includes("api key") || errorMsg.includes("not configured")) {
+        errorMessage =
+          "AI chat is currently unavailable. Please contact support to enable this feature."
       } else if (
-        error.message?.includes("auth") ||
-        error.message?.includes("profile")
+        errorMsg.includes("auth") ||
+        errorMsg.includes("unauthorized") ||
+        errorMsg.includes("profile")
       ) {
         errorMessage = "Please log in to use the AI chat feature."
-      } else if (error.message) {
-        errorMessage = `Error: ${error.message}`
+      } else if (errorMsg.includes("limit") || errorMsg.includes("quota")) {
+        errorMessage =
+          "You've reached your chat message limit. Please upgrade your plan or try again later."
+      } else if (
+        errorMsg.includes("network") ||
+        errorMsg.includes("fetch") ||
+        errorMsg.includes("connection")
+      ) {
+        errorMessage =
+          "Network error. Please check your internet connection and try again."
+      } else if (errorMsg.includes("timeout")) {
+        errorMessage =
+          "Request timed out. Please try again with a shorter question."
+      } else if (error.message && error.message !== "Failed to get response") {
+        // Show the actual error message if it's meaningful
+        errorMessage = error.message
       }
 
       setChatMessages(prev => [
