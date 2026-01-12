@@ -1655,7 +1655,7 @@ A human QA tester must:
 
 ### US-34: Accessibility Audit ✅
 **Status**: TESTING INFRASTRUCTURE COMPLETE
-**Commit**: (pending)
+**Commit**: 4093464
 
 **Requirements**:
 - Modals: keyboard accessible (ESC, TAB, ENTER)
