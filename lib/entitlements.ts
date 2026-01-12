@@ -378,3 +378,34 @@ export async function getUserUsageStats(userId: string) {
     }
   }
 }
+
+/**
+ * Get information about scheduled downgrade
+ */
+export async function getScheduledDowngradeInfo(userId: string): Promise<{
+  hasScheduledDowngrade: boolean
+  currentTier: string
+  scheduledTier: string
+  effectiveDate: string
+} | null> {
+  const subscription = await getSubscriptionByUserId(userId)
+
+  if (
+    !subscription ||
+    !subscription.scheduled_plan_type ||
+    !subscription.current_period_end
+  ) {
+    return null
+  }
+
+  const currentTier = (subscription.plan_type || "free") as Tier
+  const scheduledTier = subscription.scheduled_plan_type as Tier
+
+  return {
+    hasScheduledDowngrade: true,
+    currentTier: currentTier.charAt(0).toUpperCase() + currentTier.slice(1),
+    scheduledTier:
+      scheduledTier.charAt(0).toUpperCase() + scheduledTier.slice(1),
+    effectiveDate: subscription.current_period_end
+  }
+}

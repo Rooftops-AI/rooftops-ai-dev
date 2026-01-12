@@ -868,3 +868,52 @@ Started: Mon Jan 12 00:17:36 CST 2026
 
 ---
 
+
+## Iteration 12
+
+### US-25: Subscription Cancellation Flow ✅
+**Status**: COMPLETE
+**Commit**: 6253dd1
+
+**What was implemented**:
+- Created `/components/billing/cancellation-notice-banner.tsx`
+  - Blue info banner for cancelled subscriptions
+  - Shows message: "Your [tier] plan is active until [date]"
+  - Formatted date display (e.g., "January 15, 2026")
+  - "Reactivate Subscription" button opens Stripe portal
+  - Can be dismissed (hides until page reload)
+
+- Updated `/lib/entitlements.ts`
+  - Modified `getUserTier()` to handle cancel_at_period_end
+  - Checks if current_period_end has passed
+  - Allows full tier access until period ends
+  - Auto-downgrades to free after period end date
+  - Added `getCancellationInfo()` to return cancellation status
+
+- Created `/app/api/subscription/cancellation/route.ts`
+  - GET endpoint returns cancellation info for authenticated user
+  - Returns null if not cancelled or period has ended
+  - Returns { isCancelled: boolean, tier: string, endDate: string }
+
+- Integrated into `/app/[locale]/[workspaceid]/layout.tsx`
+  - Fetches cancellation info when cancel_at_period_end is true
+  - Shows CancellationNoticeBanner above Dashboard
+  - Added `handleReactivateSubscription()` to open Stripe portal
+  - Banner only shows when cancellationInfo exists
+
+**Cancellation Logic**:
+- When user cancels, Stripe sets cancel_at_period_end = true
+- User retains full tier access until current_period_end
+- Banner shows: "Your Premium plan is active until [date]"
+- User can reactivate anytime before period ends (via Stripe portal)
+- After period end, getUserTier() returns 'free' (automatic downgrade)
+
+**User Experience**:
+- Non-disruptive notice at top of workspace
+- Clear messaging about when access ends
+- Easy reactivation if user changes mind
+- No immediate loss of features
+- Graceful transition to free tier
+
+---
+

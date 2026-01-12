@@ -20,6 +20,7 @@ import { UsageWarningProvider } from "@/components/usage/usage-warning-provider"
 import { OnboardingModal } from "@/components/modals/onboarding-modal"
 import { PaymentFailureBanner } from "@/components/billing/payment-failure-banner"
 import { CancellationNoticeBanner } from "@/components/billing/cancellation-notice-banner"
+import { DowngradeNoticeBanner } from "@/components/billing/downgrade-notice-banner"
 import { toast } from "sonner"
 
 interface WorkspaceLayoutProps {
@@ -71,6 +72,12 @@ function InnerWorkspaceLoader({ children }: { children: ReactNode }) {
     tier: string
     endDate: string
   } | null>(null)
+  const [downgradeInfo, setDowngradeInfo] = useState<{
+    hasScheduledDowngrade: boolean
+    currentTier: string
+    scheduledTier: string
+    effectiveDate: string
+  } | null>(null)
 
   const handleUpdatePayment = async () => {
     try {
@@ -91,6 +98,24 @@ function InnerWorkspaceLoader({ children }: { children: ReactNode }) {
   }
 
   const handleReactivateSubscription = async () => {
+    try {
+      const response = await fetch("/api/stripe/portal", {
+        method: "POST"
+      })
+
+      if (response.ok) {
+        const { url } = await response.json()
+        window.location.href = url
+      } else {
+        toast.error("Failed to open billing portal")
+      }
+    } catch (error) {
+      console.error("Error opening billing portal:", error)
+      toast.error("An error occurred. Please try again.")
+    }
+  }
+
+  const handleCancelDowngrade = async () => {
     try {
       const response = await fetch("/api/stripe/portal", {
         method: "POST"
@@ -204,6 +229,19 @@ function InnerWorkspaceLoader({ children }: { children: ReactNode }) {
               console.error("Error loading cancellation info:", error)
             }
           }
+
+          // Check for scheduled downgrades
+          try {
+            const downgradeResponse = await fetch("/api/subscription/downgrade")
+            if (downgradeResponse.ok) {
+              const { downgradeInfo: dInfo } = await downgradeResponse.json()
+              if (dInfo && dInfo.hasScheduledDowngrade) {
+                setDowngradeInfo(dInfo)
+              }
+            }
+          } catch (error) {
+            console.error("Error loading downgrade info:", error)
+          }
         }
       }
     } catch (error) {
@@ -277,6 +315,16 @@ function InnerWorkspaceLoader({ children }: { children: ReactNode }) {
           tier={cancellationInfo.tier}
           endDate={cancellationInfo.endDate}
           onReactivate={handleReactivateSubscription}
+        />
+      )}
+
+      {/* Downgrade notice banner - show above Dashboard */}
+      {downgradeInfo && (
+        <DowngradeNoticeBanner
+          currentTier={downgradeInfo.currentTier}
+          scheduledTier={downgradeInfo.scheduledTier}
+          effectiveDate={downgradeInfo.effectiveDate}
+          onCancelDowngrade={handleCancelDowngrade}
         />
       )}
 

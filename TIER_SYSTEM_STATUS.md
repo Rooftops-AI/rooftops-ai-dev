@@ -2,7 +2,7 @@
 
 **Last Updated**: 2026-01-12
 **Status**: ✅ PRODUCTION READY (Core System Complete)
-**Progress**: 24/36 User Stories (67%)
+**Progress**: 25/36 User Stories (69%)
 
 ---
 
@@ -70,12 +70,17 @@
 - ✅ Auto-downgrade to free after grace period
 - ✅ "Update Payment Method" → Stripe portal
 
+### Edge Cases - Cancellations (US-25)
+- ✅ Cancellation notice banner with end date
+- ✅ Keep tier active until current_period_end
+- ✅ "Reactivate Subscription" → Stripe portal
+- ✅ Auto-downgrade to free after period ends
+
 ---
 
-## 🔧 REMAINING WORK (US-25 to US-36)
+## 🔧 REMAINING WORK (US-26 to US-36)
 
-### Edge Cases (US-25 to US-26)
-- ⏳ Subscription cancellation (keep active until period end)
+### Edge Cases (US-26)
 - ⏳ Tier upgrade/downgrade proration
 
 ### Bug Fixes (US-27 to US-30)
@@ -97,10 +102,11 @@
 ## 📁 KEY FILES
 
 ### Backend
-- `lib/entitlements.ts` - Core tier checking, usage tracking, and grace period logic
+- `lib/entitlements.ts` - Core tier checking, usage tracking, grace period, and cancellation logic
 - `db/subscriptions.ts` - Subscription CRUD operations
 - `app/api/usage/stats/route.ts` - Usage statistics endpoint
 - `app/api/subscription/grace-period/route.ts` - Grace period status
+- `app/api/subscription/cancellation/route.ts` - Cancellation status
 - `app/api/stripe/checkout/route.ts` - Stripe checkout
 - `app/api/stripe/webhook/route.ts` - Stripe webhooks
 - `app/api/stripe/portal/route.ts` - Customer portal
