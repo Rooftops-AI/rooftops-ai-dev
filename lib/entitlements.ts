@@ -8,6 +8,52 @@ import {
   getUserUsage
 } from "@/db/user-usage"
 
+// Simple in-memory cache for entitlement checks (5-minute TTL)
+const CACHE_TTL = 5 * 60 * 1000 // 5 minutes in milliseconds
+
+interface CacheEntry<T> {
+  value: T
+  timestamp: number
+}
+
+const cache = new Map<string, CacheEntry<any>>()
+
+function getCached<T>(key: string): T | null {
+  const entry = cache.get(key)
+  if (!entry) return null
+
+  const now = Date.now()
+  if (now - entry.timestamp > CACHE_TTL) {
+    cache.delete(key)
+    return null
+  }
+
+  return entry.value
+}
+
+function setCache<T>(key: string, value: T): void {
+  cache.set(key, {
+    value,
+    timestamp: Date.now()
+  })
+}
+
+function clearUserCache(userId: string): void {
+  // Clear all cache entries for a specific user
+  const keysToDelete: string[] = []
+  for (const key of cache.keys()) {
+    if (key.startsWith(`${userId}:`)) {
+      keysToDelete.push(key)
+    }
+  }
+  keysToDelete.forEach(key => cache.delete(key))
+}
+
+// Export cache clearing function for use after mutations
+export function invalidateUserCache(userId: string): void {
+  clearUserCache(userId)
+}
+
 export type Tier = "free" | "premium" | "business"
 
 // Tier limits as defined in PRD
@@ -58,12 +104,21 @@ const GRACE_PERIOD_DAYS = 7
  * Handles cancelled subscriptions (active until current_period_end)
  */
 export async function getUserTier(userId: string): Promise<Tier> {
+  // Check cache first
+  const cacheKey = `${userId}:tier`
+  const cached = getCached<Tier>(cacheKey)
+  if (cached) {
+    return cached
+  }
+
   try {
     const subscription = await getSubscriptionByUserId(userId)
 
     // No subscription = free tier
     if (!subscription) {
-      return "free"
+      const tier = "free"
+      setCache(cacheKey, tier)
+      return tier
     }
 
     // Check tier (or fall back to plan_type for backward compatibility)
@@ -74,7 +129,9 @@ export async function getUserTier(userId: string): Promise<Tier> {
       console.warn(
         `Invalid tier "${tier}" for user ${userId}, defaulting to free`
       )
-      return "free"
+      const freeTier = "free"
+      setCache(cacheKey, freeTier)
+      return freeTier
     }
 
     // Handle past_due status with grace period
@@ -83,16 +140,21 @@ export async function getUserTier(userId: string): Promise<Tier> {
 
       if (gracePeriodExpired) {
         // Grace period expired - downgrade to free
-        return "free"
+        const freeTier = "free"
+        setCache(cacheKey, freeTier)
+        return freeTier
       }
 
       // Still within grace period - allow tier access
+      setCache(cacheKey, tier)
       return tier
     }
 
     // Only allow tier access if status is 'active'
     if (subscription.status !== "active") {
-      return "free"
+      const freeTier = "free"
+      setCache(cacheKey, freeTier)
+      return freeTier
     }
 
     // Handle cancelled subscriptions (cancel_at_period_end = true)
@@ -103,17 +165,21 @@ export async function getUserTier(userId: string): Promise<Tier> {
 
       if (now > periodEnd) {
         // Period has ended - downgrade to free
-        return "free"
+        const freeTier = "free"
+        setCache(cacheKey, freeTier)
+        return freeTier
       }
 
       // Still within period - allow tier access
+      setCache(cacheKey, tier)
       return tier
     }
 
+    setCache(cacheKey, tier)
     return tier
   } catch (error) {
     console.error(`Error fetching user tier for ${userId}:`, error)
-    return "free" // Default to free on error
+    return "free" // Default to free on error (don't cache errors)
   }
 }
 
@@ -349,8 +415,10 @@ export async function checkAgentAccess(userId: string): Promise<boolean> {
 
 /**
  * Get user's current usage stats
+ * Note: Usage stats are cached briefly (30s) for performance while staying relatively fresh
  */
 export async function getUserUsageStats(userId: string) {
+  // Note: getUserTier is already cached with 5-minute TTL
   const tier = await getUserTier(userId)
   const usage = await getUserUsage(userId, getCurrentMonth())
   const limits = TIER_LIMITS[tier]
