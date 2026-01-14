@@ -375,11 +375,12 @@ const ExploreMap: React.FC<ExploreMapProps> = ({
 
       // USE THE CALCULATED ZOOM LEVELS from calculateOptimalZoom
       // This uses the updated tight framing logic from image-processing.ts
-      const zoomLevels = zoomCalc.zoomLevels // [22, 22] with ultra tight 8m framing
-      const zoomLabels = ["Context", "Detail"]
+      // Only capture Detail view (removed Context as it's duplicate)
+      const zoomLevels = [zoomCalc.zoomLevels[1]] // Only Detail zoom
+      const zoomLabels = ["Detail"]
 
       logDebug(
-        `Using calculated zoom levels: ${zoomLevels.join(", ")} (optimal: ${zoomCalc.optimalZoom})`
+        `Using calculated zoom level: ${zoomLevels[0]} (optimal: ${zoomCalc.optimalZoom})`
       )
 
       for (let zoomIdx = 0; zoomIdx < zoomLevels.length; zoomIdx++) {
@@ -465,6 +466,51 @@ const ExploreMap: React.FC<ExploreMapProps> = ({
           setCaptureProgress(5 + ((zoomIdx + 1) / zoomLevels.length) * 15)
         }
       }
+
+      // Capture Google Street View image
+      setCurrentCaptureStage("Capturing Street View...")
+      setCaptureProgress(20)
+      try {
+        const streetViewUrl = `https://maps.googleapis.com/maps/api/streetview?size=1280x960&location=${selectedLocation.lat},${selectedLocation.lng}&fov=80&heading=0&pitch=10&key=${process.env.NEXT_PUBLIC_GOOGLEMAPS_API_KEY}`
+
+        logDebug("Fetching Street View image...")
+
+        // Fetch the Street View image and convert to base64
+        const streetViewResponse = await fetch(streetViewUrl)
+        if (streetViewResponse.ok) {
+          const blob = await streetViewResponse.blob()
+          const base64 = await new Promise<string>((resolve) => {
+            const reader = new FileReader()
+            reader.onloadend = () => resolve(reader.result as string)
+            reader.readAsDataURL(blob)
+          })
+
+          const streetView = {
+            imageData: base64,
+            viewName: "Street View",
+            timestamp: new Date().toISOString(),
+            enhanced: false,
+            metadata: {
+              lat: selectedLocation.lat,
+              lng: selectedLocation.lng,
+              heading: 0,
+              pitch: 10,
+              fov: 80
+            }
+          }
+
+          views.push(streetView)
+          setLivePreviewImages(prev => [...prev, streetView])
+          logDebug("Street View captured successfully")
+        } else {
+          logDebug("Street View not available for this location")
+        }
+      } catch (error) {
+        console.error("Error capturing Street View:", error)
+        logDebug(`Street View capture failed: ${error.message}`)
+      }
+
+      setCaptureProgress(25)
 
       // Capture views from all four cardinal directions: North, East, South, West
       // Each angle gets its own optimized zoom level based on property geometry
@@ -1973,19 +2019,6 @@ ${referenceSection}
 
       setCaptureProgress(50)
 
-      // Generate Google Street View URL
-      const streetViewUrl = `https://maps.googleapis.com/maps/api/streetview?size=640x480&location=${selectedLocation.lat},${selectedLocation.lng}&fov=80&heading=0&pitch=10&key=${process.env.NEXT_PUBLIC_GOOGLEMAPS_API_KEY}`
-
-      // Add street view as an image reference
-      capturedImages.push({
-        viewName: "Street View",
-        url: streetViewUrl,
-        type: "streetview",
-        timestamp: new Date().toISOString()
-      })
-
-      logDebug("Street view URL generated")
-
       setCurrentCaptureStage("Generating instant report...")
       setCaptureProgress(70)
 
@@ -2278,10 +2311,13 @@ ${referenceSection}
 
       // Only show error if it's not a MultiAgentAnalysisError (already shown)
       if (error.name !== "MultiAgentAnalysisError") {
-        toast.error(`Report generation failed: ${error.message || "Unknown error"}`, {
-          duration: 5000,
-          important: true
-        })
+        toast.error(
+          `Report generation failed: ${error.message || "Unknown error"}`,
+          {
+            duration: 5000,
+            important: true
+          }
+        )
 
         // Log full error details to console
         console.error("Report generation error:", {

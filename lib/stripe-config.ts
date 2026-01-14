@@ -1,15 +1,15 @@
 // lib/stripe-config.ts
 // This file contains constants that can be safely imported in both client and server components
 
-// Stripe price IDs for your subscription plans (TEST MODE)
+// Stripe price IDs for your subscription plans (LIVE PRODUCTION MODE)
 export const STRIPE_PRICE_IDS = {
-  premium_monthly: "price_1SWUd2La49gFMOt6XzOeOePh", // Rooftops AI Premium - $29/month
+  premium_monthly: "price_1SWUJsLa49gFMOt641Bw8rZw", // Rooftops AI Premium - $29/month
   premium_annual: "price_PLACEHOLDER_PREMIUM_ANNUAL", // Rooftops AI Premium - $25/month billed annually ($300/year)
-  business_monthly: "price_1SWUdKLa49gFMOt6ij7fwsyl", // Rooftops AI Business - $99/month
+  business_monthly: "price_1SWUMvLa49gFMOt6AZ7XpwLO", // Rooftops AI Business - $99/month
   business_annual: "price_PLACEHOLDER_BUSINESS_ANNUAL", // Rooftops AI Business - $84/month billed annually ($1008/year)
   // Backwards compatibility
-  premium: "price_1SWUd2La49gFMOt6XzOeOePh",
-  business: "price_1SWUdKLa49gFMOt6ij7fwsyl"
+  premium: "price_1SWUJsLa49gFMOt641Bw8rZw",
+  business: "price_1SWUMvLa49gFMOt6AZ7XpwLO"
 }
 
 // Plan configurations
