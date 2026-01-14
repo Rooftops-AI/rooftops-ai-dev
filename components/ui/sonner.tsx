@@ -9,96 +9,192 @@ const Toaster = ({ ...props }: ToasterProps) => {
   const { theme = "system" } = useTheme()
 
   return (
-    <Sonner
-      theme="dark"
-      className="toaster group"
-      position="top-center"
-      icons={{
-        success: (
-          <div className="flex size-9 items-center justify-center rounded-full bg-green-400">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              className="size-5 text-gray-900"
-            >
-              <path
-                fillRule="evenodd"
-                d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </div>
-        ),
-        error: (
-          <div className="flex size-9 items-center justify-center rounded-full bg-red-400">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              className="size-5 text-gray-900"
-            >
-              <path
-                fillRule="evenodd"
-                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </div>
-        ),
-        warning: (
-          <div className="flex size-9 items-center justify-center rounded-full bg-yellow-400">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              className="size-5 text-gray-900"
-            >
-              <path
-                fillRule="evenodd"
-                d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </div>
-        ),
-        info: (
-          <div className="flex size-9 items-center justify-center rounded-full bg-blue-400">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              className="size-5 text-gray-900"
-            >
-              <path
-                fillRule="evenodd"
-                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </div>
-        )
-      }}
-      toastOptions={{
-        classNames: {
-          toast:
-            "group toast group-[.toaster]:bg-[#1F1F1F] group-[.toaster]:text-white group-[.toaster]:border-none group-[.toaster]:shadow-2xl group-[.toaster]:rounded-xl group-[.toaster]:px-6 group-[.toaster]:py-5 group-[.toaster]:min-h-[80px] group-[.toaster]:w-full group-[.toaster]:mx-0 group-[.toaster]:text-base group-[.toaster]:font-medium group-[.toaster]:flex group-[.toaster]:items-start group-[.toaster]:gap-4",
-          description:
-            "group-[.toast]:text-white/90 group-[.toast]:text-sm group-[.toast]:leading-relaxed group-[.toast]:mt-1",
-          actionButton:
-            "group-[.toast]:bg-red-600 group-[.toast]:text-white group-[.toast]:rounded-lg group-[.toast]:px-5 group-[.toast]:py-2.5 group-[.toast]:text-sm group-[.toast]:font-semibold group-[.toast]:hover:bg-red-700 group-[.toast]:transition-colors group-[.toast]:mt-3 group-[.toast]:w-full",
-          cancelButton:
-            "group-[.toast]:bg-white/10 group-[.toast]:text-white group-[.toast]:rounded-lg group-[.toast]:px-5 group-[.toast]:py-2.5 group-[.toast]:text-sm group-[.toast]:font-semibold group-[.toast]:hover:bg-white/20 group-[.toast]:transition-colors",
-          error: "group-[.toaster]:bg-[#1F1F1F] group-[.toaster]:text-white",
-          success: "group-[.toaster]:bg-[#1F1F1F] group-[.toaster]:text-white",
-          warning: "group-[.toaster]:bg-[#1F1F1F] group-[.toaster]:text-white",
-          info: "group-[.toaster]:bg-[#1F1F1F] group-[.toaster]:text-white",
-          closeButton:
-            "group-[.toast]:absolute group-[.toast]:right-4 group-[.toast]:top-4 group-[.toast]:bg-transparent group-[.toast]:text-white/50 group-[.toast]:border-none group-[.toast]:hover:text-white group-[.toast]:hover:bg-white/10 group-[.toast]:rounded-lg"
+    <>
+      <style jsx global>{`
+        @keyframes shimmer {
+          0% {
+            background-position: -200% center;
+          }
+          100% {
+            background-position: 200% center;
+          }
         }
-      }}
-      {...props}
-    />
+
+        /* Toaster container positioning */
+        [data-sonner-toaster] {
+          position: fixed !important;
+          top: 20px !important;
+          left: 50% !important;
+          transform: translateX(-50%) !important;
+          z-index: 9999 !important;
+          width: fit-content !important;
+          max-width: calc(100vw - 40px) !important;
+        }
+
+        @media (max-width: 640px) {
+          [data-sonner-toaster] {
+            top: 16px !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            max-width: calc(100vw - 32px) !important;
+          }
+        }
+
+        /* Custom toast styles - rebuild from scratch */
+        .sonner-toast-custom {
+          background: rgb(255, 255, 255) !important;
+          color: #000000 !important;
+          border-radius: 9999px !important;
+          padding: 12px 24px !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          gap: 10px !important;
+          width: fit-content !important;
+          min-width: 280px !important;
+          max-width: 600px !important;
+          margin: 0 auto 8px auto !important;
+          box-shadow:
+            0 10px 40px -10px rgba(0, 0, 0, 0.1),
+            0 0 20px -5px rgba(59, 130, 246, 0.15),
+            0 0 30px -10px rgba(16, 185, 129, 0.15) !important;
+          position: relative !important;
+        }
+
+        @media (max-width: 640px) {
+          .sonner-toast-custom {
+            max-width: calc(100vw - 48px) !important;
+            min-width: 240px !important;
+            padding: 10px 18px !important;
+          }
+        }
+
+        /* Shimmer border effect */
+        .sonner-toast-custom::before {
+          content: '';
+          position: absolute;
+          inset: -2px;
+          border-radius: 9999px;
+          padding: 2px;
+          background: linear-gradient(
+            90deg,
+            rgba(59, 130, 246, 0.3),
+            rgba(16, 185, 129, 0.3),
+            rgba(59, 130, 246, 0.3)
+          );
+          background-size: 200% 100%;
+          -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+          -webkit-mask-composite: xor;
+          mask-composite: exclude;
+          animation: shimmer 3s linear infinite;
+          pointer-events: none;
+          opacity: 0.5;
+        }
+
+        /* Title styling */
+        .sonner-title-custom {
+          font-size: 14px !important;
+          font-weight: 500 !important;
+          color: #000000 !important;
+          text-align: center !important;
+          user-select: none !important;
+          line-height: 1.4 !important;
+          margin: 0 !important;
+        }
+
+        @media (max-width: 640px) {
+          .sonner-title-custom {
+            font-size: 13px !important;
+          }
+        }
+
+        /* Description styling */
+        .sonner-description-custom {
+          font-size: 13px !important;
+          color: #000000 !important;
+          text-align: center !important;
+          user-select: none !important;
+          line-height: 1.4 !important;
+          margin: 0 !important;
+        }
+
+        @media (max-width: 640px) {
+          .sonner-description-custom {
+            font-size: 12px !important;
+          }
+        }
+
+        /* Icon styling */
+        .sonner-icon-custom {
+          flex-shrink: 0 !important;
+          width: 20px !important;
+          height: 20px !important;
+        }
+
+        @media (max-width: 640px) {
+          .sonner-icon-custom {
+            width: 18px !important;
+            height: 18px !important;
+          }
+        }
+
+        /* Icon colors by type - ONLY icons are colored, never the toast background */
+        [data-type="success"] .sonner-icon-custom {
+          color: rgb(34, 197, 94) !important;
+        }
+
+        [data-type="error"] .sonner-icon-custom {
+          color: rgb(239, 68, 68) !important;
+        }
+
+        [data-type="info"] .sonner-icon-custom {
+          color: rgb(59, 130, 246) !important;
+        }
+
+        [data-type="warning"] .sonner-icon-custom {
+          color: rgb(251, 146, 60) !important;
+        }
+
+        /* Ensure toast background is ALWAYS white, never colored */
+        [data-type="success"] .sonner-toast-custom,
+        [data-type="error"] .sonner-toast-custom,
+        [data-type="info"] .sonner-toast-custom,
+        [data-type="warning"] .sonner-toast-custom {
+          background: rgb(255, 255, 255) !important;
+          color: #000000 !important;
+        }
+
+        /* Hide all unnecessary Sonner elements */
+        [data-sonner-toast] [data-action],
+        [data-sonner-toast] [data-cancel],
+        [data-sonner-toast] [data-button],
+        [data-sonner-toast] [data-close-button],
+        .sonner-toast-custom [data-action],
+        .sonner-toast-custom [data-cancel],
+        .sonner-toast-custom [data-button],
+        .sonner-toast-custom button:not([data-content]) {
+          display: none !important;
+        }
+      `}</style>
+      <Sonner
+        position="top-center"
+        closeButton={false}
+        expand={false}
+        richColors={false}
+        visibleToasts={3}
+        toastOptions={{
+          unstyled: true,
+          style: {},
+          classNames: {
+            toast: 'sonner-toast-custom',
+            title: 'sonner-title-custom',
+            description: 'sonner-description-custom',
+            icon: 'sonner-icon-custom'
+          }
+        }}
+        {...props}
+      />
+    </>
   )
 }
 

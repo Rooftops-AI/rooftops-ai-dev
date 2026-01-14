@@ -81,7 +81,14 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json()
-    const { capturedImages, solarData, address, location, workspaceId } = body
+    const {
+      capturedImages,
+      solarData,
+      solarMetrics,
+      address,
+      location,
+      workspaceId
+    } = body
 
     if (!capturedImages || capturedImages.length === 0) {
       return NextResponse.json({ error: "No images provided" }, { status: 400 })
@@ -90,6 +97,10 @@ export async function POST(req: NextRequest) {
     console.log(`[Multi-Agent Orchestrator] Starting analysis for ${address}`)
     console.log(
       `[Multi-Agent Orchestrator] ${capturedImages.length} images received`
+    )
+    console.log(
+      `[Multi-Agent Orchestrator] Solar data received:`,
+      solarData?.solarPotential?.maxArrayPanelsCount || "No solar data"
     )
 
     // Get base URL for API calls - use the request's origin
@@ -148,7 +159,7 @@ export async function POST(req: NextRequest) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             overheadImages,
-            solarData,
+            solarData: solarMetrics, // Pass extracted metrics for measurements
             address
           })
         }
@@ -355,6 +366,10 @@ export async function POST(req: NextRequest) {
       multiAgent: true,
       model: "gpt-5.1-2025-11-13",
 
+      // Property info at top level for easy access
+      address: address,
+      location: location,
+
       // Executive summary from Quality Controller
       executiveSummary:
         agentResults.quality?.data?.finalReport?.executiveSummary,
@@ -375,7 +390,7 @@ export async function POST(req: NextRequest) {
       flaggedIssues: agentResults.quality?.data?.flaggedIssues,
       overallConfidence: agentResults.quality?.data?.overallConfidence,
 
-      // Solar data (if provided)
+      // Solar data - store the FULL Google Solar API response (with solarPotential, financials, etc.)
       solarData: solarData,
 
       // Captured images
@@ -405,12 +420,12 @@ export async function POST(req: NextRequest) {
         agentsUsed: 4,
         qualityScore: agentResults.quality?.data?.metadata?.qualityScore,
         readyForCustomer:
-          agentResults.quality?.data?.metadata?.readyForCustomer,
-        solarData: solarData
+          agentResults.quality?.data?.metadata?.readyForCustomer
       }
     }
 
     console.log("[Multi-Agent Orchestrator] Final report compiled successfully")
+    console.log("[Multi-Agent Orchestrator] Address in final report:", address)
 
     return NextResponse.json(finalReport)
   } catch (error) {

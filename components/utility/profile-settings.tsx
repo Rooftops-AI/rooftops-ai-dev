@@ -25,11 +25,10 @@ import {
 } from "@tabler/icons-react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { FC, useCallback, useContext, useEffect, useRef, useState } from "react"
+import { FC, useCallback, useContext, useEffect, useRef, useState, ChangeEvent } from "react"
 import { toast } from "sonner"
 import { SIDEBAR_ICON_SIZE } from "../sidebar/sidebar-switcher"
 import { Button } from "../ui/button"
-import ImagePicker from "../ui/image-picker"
 import { Input } from "../ui/input"
 import { Label } from "../ui/label"
 import { LimitDisplay } from "../ui/limit-display"
@@ -277,11 +276,11 @@ export const ProfileSettings: FC<ProfileSettingsProps> = ({}) => {
         <div className="grow overflow-auto">
           <SheetHeader>
             <SheetTitle className="flex items-center justify-between space-x-2">
-              <div>User Settings</div>
+              <div>My Account</div>
 
               <Button
                 tabIndex={-1}
-                className="text-xs"
+                className="rounded-lg border-gray-200 bg-white from-transparent to-transparent text-xs shadow-none hover:bg-gray-50 hover:from-transparent hover:to-transparent dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700"
                 size="sm"
                 onClick={handleSignOut}
               >
@@ -292,32 +291,19 @@ export const ProfileSettings: FC<ProfileSettingsProps> = ({}) => {
           </SheetHeader>
 
           <Tabs defaultValue="profile">
-            <TabsList className="mt-4 grid w-full grid-cols-1">
-              <TabsTrigger value="profile">Profile</TabsTrigger>
-            </TabsList>
-
             <TabsContent className="mt-4 space-y-4" value="profile">
               {userEmail && (
                 <div className="space-y-1">
                   <Label>Email</Label>
-                  <div className="border-input bg-muted rounded-md border px-3 py-2 text-sm">
+                  <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800/50">
                     {userEmail}
-                  </div>
-                </div>
-              )}
-
-              {profile?.user_id && (
-                <div className="space-y-1">
-                  <Label>User ID</Label>
-                  <div className="border-input bg-muted rounded-md border px-3 py-2 font-mono text-xs">
-                    {profile.user_id}
                   </div>
                 </div>
               )}
 
               <div className="space-y-1">
                 <div className="flex items-center space-x-2">
-                  <Label>Username</Label>
+                  <Label>Your Name</Label>
 
                   <div className="text-xs">
                     {username !== profile.username ? (
@@ -332,7 +318,7 @@ export const ProfileSettings: FC<ProfileSettingsProps> = ({}) => {
 
                 <div className="relative">
                   <Input
-                    className="pr-10"
+                    className="pr-10 rounded-lg border-gray-200 bg-white from-transparent to-transparent shadow-none focus-visible:border-gray-300 dark:border-gray-700 dark:bg-gray-800/50"
                     placeholder="Username..."
                     value={username}
                     onChange={e => {
@@ -365,25 +351,119 @@ export const ProfileSettings: FC<ProfileSettingsProps> = ({}) => {
               <div className="space-y-1">
                 <div className="flex items-center justify-between">
                   <Label>Profile Image</Label>
-                  <span className="text-muted-foreground text-xs">
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
                     Auto-compressed
                   </span>
                 </div>
 
-                <ImagePicker
-                  src={profileImageSrc}
-                  image={profileImageFile}
-                  height={50}
-                  width={50}
-                  onSrcChange={setProfileImageSrc}
-                  onImageChange={setProfileImageFile}
-                />
+                <div className="flex items-center gap-4 rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800/50">
+                  {/* Profile Image Preview */}
+                  <div className="flex-shrink-0">
+                    {profileImageSrc ? (
+                      <Image
+                        className="rounded-full border-2 border-gray-200 shadow-sm dark:border-gray-600"
+                        height={80}
+                        width={80}
+                        src={profileImageSrc}
+                        alt="Profile"
+                      />
+                    ) : (
+                      <div className="flex size-20 items-center justify-center rounded-full border-2 border-gray-200 bg-gradient-to-br from-cyan-500 to-blue-600 shadow-sm dark:border-gray-600">
+                        <IconUser size={32} className="text-white" stroke={2} />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Upload Controls */}
+                  <div className="flex flex-1 flex-col gap-2">
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Choose a profile picture. Recommended: Square image, at least 400x400px
+                    </p>
+                    <label className="inline-flex w-fit cursor-pointer items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-all hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600">
+                      <svg
+                        className="size-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        />
+                      </svg>
+                      Choose File
+                      <Input
+                        className="hidden"
+                        type="file"
+                        accept="image/png, image/jpeg, image/jpg"
+                        onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                          if (e.target.files) {
+                            const file = e.target.files[0]
+                            const url = URL.createObjectURL(file)
+                            const img = new window.Image()
+                            img.src = url
+
+                            img.onload = () => {
+                              const canvas = document.createElement("canvas")
+                              const ctx = canvas.getContext("2d")
+
+                              if (!ctx) {
+                                toast.error("Unable to create canvas context.")
+                                return
+                              }
+
+                              const size = Math.min(img.width, img.height)
+                              const maxSize = 800
+                              const targetSize = Math.min(size, maxSize)
+
+                              canvas.width = targetSize
+                              canvas.height = targetSize
+
+                              ctx.drawImage(
+                                img,
+                                (img.width - size) / 2,
+                                (img.height - size) / 2,
+                                size,
+                                size,
+                                0,
+                                0,
+                                targetSize,
+                                targetSize
+                              )
+
+                              const compressedDataUrl = canvas.toDataURL("image/jpeg", 0.85)
+
+                              canvas.toBlob(
+                                blob => {
+                                  if (blob) {
+                                    const compressedFile = new File([blob], file.name, {
+                                      type: "image/jpeg",
+                                      lastModified: Date.now()
+                                    })
+
+                                    setProfileImageSrc(compressedDataUrl)
+                                    setProfileImageFile(compressedFile)
+                                  }
+                                },
+                                "image/jpeg",
+                                0.85
+                              )
+                            }
+                          }
+                        }}
+                      />
+                    </label>
+                  </div>
+                </div>
               </div>
 
               <div className="space-y-1">
                 <Label>Chat Display Name</Label>
 
                 <Input
+                  className="rounded-lg border-gray-200 bg-white from-transparent to-transparent shadow-none focus-visible:border-gray-300 dark:border-gray-700 dark:bg-gray-800/50"
                   placeholder="Chat display name..."
                   value={displayName}
                   onChange={e => setDisplayName(e.target.value)}
@@ -398,6 +478,7 @@ export const ProfileSettings: FC<ProfileSettingsProps> = ({}) => {
                 </Label>
 
                 <TextareaAutosize
+                  className="rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800/50"
                   value={profileInstructions}
                   onValueChange={setProfileInstructions}
                   placeholder="Profile context... (optional)"
@@ -428,7 +509,7 @@ export const ProfileSettings: FC<ProfileSettingsProps> = ({}) => {
             {userSubscription?.status === "active" && (
               <Button
                 variant="outline"
-                className="w-full"
+                className="w-full rounded-lg border-gray-200 bg-white from-transparent to-transparent shadow-none hover:bg-gray-50 hover:from-transparent hover:to-transparent dark:border-gray-700 dark:bg-gray-800/50 dark:hover:bg-gray-700"
                 onClick={async () => {
                   try {
                     const response = await fetch("/api/stripe/portal", {
@@ -450,7 +531,7 @@ export const ProfileSettings: FC<ProfileSettingsProps> = ({}) => {
 
             <Button
               variant="outline"
-              className="w-full"
+              className="w-full rounded-lg border-gray-200 bg-white from-transparent to-transparent shadow-none hover:bg-gray-50 hover:from-transparent hover:to-transparent dark:border-gray-700 dark:bg-gray-800/50 dark:hover:bg-gray-700"
               onClick={() =>
                 window.open("https://resources.rooftops.ai", "_blank")
               }
@@ -482,11 +563,19 @@ export const ProfileSettings: FC<ProfileSettingsProps> = ({}) => {
             </div>
 
             <div className="ml-auto space-x-2">
-              <Button variant="ghost" onClick={() => setIsOpen(false)}>
+              <Button
+                variant="ghost"
+                className="rounded-lg"
+                onClick={() => setIsOpen(false)}
+              >
                 Cancel
               </Button>
 
-              <Button ref={buttonRef} onClick={handleSave}>
+              <Button
+                ref={buttonRef}
+                className="rounded-lg border-gray-200 bg-white from-transparent to-transparent shadow-none hover:bg-gray-50 hover:from-transparent hover:to-transparent dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700"
+                onClick={handleSave}
+              >
                 Save
               </Button>
             </div>

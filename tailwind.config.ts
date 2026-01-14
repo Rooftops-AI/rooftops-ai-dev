@@ -82,6 +82,29 @@ module.exports = {
         'float': {
           '0%, 100%': { transform: 'translateY(0px)' },
           '50%': { transform: 'translateY(-10px)' }
+        },
+        'diagonal-orbit': {
+          '0%': { transform: 'rotate(0deg) translateX(120px) rotate(0deg)' },
+          '100%': { transform: 'rotate(360deg) translateX(120px) rotate(-360deg)' }
+        },
+        'abrupt-pulse': {
+          '0%, 100%': { transform: 'scale(1)', opacity: '1' },
+          '50%': { transform: 'scale(1.3)', opacity: '0.8' }
+        },
+        'expand-contract': {
+          '0%, 100%': { transform: 'scale(1)' },
+          '50%': { transform: 'scale(1.1)' }
+        },
+        'color-pulse': {
+          '0%, 100%': { filter: 'hue-rotate(0deg) brightness(1)' },
+          '50%': { filter: 'hue-rotate(20deg) brightness(1.2)' }
+        },
+        'galaxy-drift': {
+          '0%': { transform: 'translate(0, 0)' },
+          '25%': { transform: 'translate(10px, -10px)' },
+          '50%': { transform: 'translate(-5px, 15px)' },
+          '75%': { transform: 'translate(15px, 5px)' },
+          '100%': { transform: 'translate(0, 0)' }
         }
       },
       animation: {
@@ -90,7 +113,13 @@ module.exports = {
         'pulse-slow': 'pulse-slow 3s ease-in-out infinite',
         'spin-slow': 'spin-slow 8s linear infinite',
         'wave': 'wave 2s ease-in-out infinite',
-        'float': 'float 4s ease-in-out infinite'
+        'float': 'float 4s ease-in-out infinite',
+        'diagonal-orbit': 'diagonal-orbit 8s linear infinite',
+        'diagonal-orbit-slow': 'diagonal-orbit 20s linear infinite',
+        'abrupt-pulse': 'abrupt-pulse 0.2s ease-in-out',
+        'expand-contract': 'expand-contract 2s ease-in-out infinite',
+        'color-pulse': 'color-pulse 3s ease-in-out infinite',
+        'galaxy-drift': 'galaxy-drift 45s ease-in-out infinite'
       }
     }
   },

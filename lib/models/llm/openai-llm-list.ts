@@ -22,7 +22,7 @@ const GPT5: LLM = {
 // GPT-5 Mini
 const GPT5Mini: LLM = {
   modelId: "gpt-5-mini",
-  modelName: "GPT-5 Mini",
+  modelName: "GPT-5 Mini (Best)",
   provider: "openai",
   hostedId: "gpt-5-mini-2025-08-07",
   platformLink: OPENAI_PLATORM_LINK,
@@ -37,7 +37,7 @@ const GPT5Mini: LLM = {
 
 const GPT4o: LLM = {
   modelId: "gpt-4o",
-  modelName: "GPT-4o",
+  modelName: "GPT-4o (Light)",
   provider: "openai",
   hostedId: "gpt-4o",
   platformLink: OPENAI_PLATORM_LINK,

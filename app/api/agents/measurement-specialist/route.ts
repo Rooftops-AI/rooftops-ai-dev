@@ -68,9 +68,9 @@ ${
 ═══════════════════════════════════════════════════════════════════
 
 Ground truth measurements from Google Solar API:
-• Roof Area: ${solarData.roofArea ? Math.round(solarData.roofArea) : "N/A"} sq ft
-• Solar Panels Fit: ${solarData.maxPanels || "N/A"} panels
-• Building Area: ${solarData.buildingArea ? Math.round(solarData.buildingArea) : "N/A"} sq ft
+• Roof Area: ${solarData.totalRoofAreaSqFt ? Math.round(solarData.totalRoofAreaSqFt) : "N/A"} sq ft
+• Roof Segment Count: ${solarData.roofSegmentCount || "N/A"} segments
+• Building Area: ${solarData.buildingAreaSqFt ? Math.round(solarData.buildingAreaSqFt) : "N/A"} sq ft
 
 Use these as REFERENCE ONLY - you must verify visually with the imagery.
 ═══════════════════════════════════════════════════════════════════
@@ -192,7 +192,7 @@ Using the BRIGHT YELLOW scale bar (20m / 65ft):
 ${
   solarData
     ? `
-🎯 CRITICAL: Cross-check your measurement against Solar API data (${Math.round(solarData.roofArea || 0)} sq ft)
+🎯 CRITICAL: Cross-check your measurement against Solar API data (${Math.round(solarData.totalRoofAreaSqFt || 0)} sq ft)
 - If your measurement differs by >15%, RE-CHECK your grid counting and pitch estimate
 - Solar API is highly accurate - use it to validate your visual assessment
 - Common issue: underestimating pitch multiplier leads to low total area
@@ -273,7 +273,7 @@ STEP 5: DETERMINE CONFIDENCE
   },
   "observations": "Key structural observations: ridge lines, valley lines, hip lines, dormers, attached structures",
   "uncertainties": "Any aspects you're unsure about or areas that need on-site verification",
-  "comparisonToSolarAPI": "${solarData ? `How does your ${Math.round(solarData.roofArea || 0)} sq ft Solar API reference compare to your measurement? If significantly different, explain why and which is more reliable.` : "N/A - no Solar API data available"}"
+  "comparisonToSolarAPI": "${solarData ? `How does your ${Math.round(solarData.totalRoofAreaSqFt || 0)} sq ft Solar API reference compare to your measurement? If significantly different, explain why and which is more reliable.` : "N/A - no Solar API data available"}"
 }
 
 NO MARKDOWN. NO CODE BLOCKS. JUST RAW JSON.`

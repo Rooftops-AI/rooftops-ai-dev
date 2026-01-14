@@ -10,7 +10,14 @@ export async function GET(request: NextRequest) {
 
     if (!process.env.LIVEKIT_API_KEY || !process.env.LIVEKIT_API_SECRET) {
       return NextResponse.json(
-        { error: "LiveKit credentials not configured" },
+        { error: "LiveKit credentials not configured. Please add LIVEKIT_API_KEY and LIVEKIT_API_SECRET to your environment variables." },
+        { status: 500 }
+      )
+    }
+
+    if (!process.env.LIVEKIT_URL) {
+      return NextResponse.json(
+        { error: "LIVEKIT_URL not configured. Please add LIVEKIT_URL to your environment variables." },
         { status: 500 }
       )
     }
@@ -28,7 +35,9 @@ export async function GET(request: NextRequest) {
       room: roomName,
       roomJoin: true,
       canPublish: true,
-      canSubscribe: true
+      canSubscribe: true,
+      canPublishData: true,
+      canUpdateOwnMetadata: true
     })
 
     const token = await at.toJwt()

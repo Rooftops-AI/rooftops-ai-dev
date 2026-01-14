@@ -1,139 +1,49 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import {
   LiveKitRoom,
   RoomAudioRenderer,
   useVoiceAssistant,
   useConnectionState,
-  useLocalParticipant
+  useLocalParticipant,
+  useRoomContext
 } from "@livekit/components-react"
-import { ConnectionState } from "livekit-client"
-import { IconX } from "@tabler/icons-react"
+import { ConnectionState, RoomEvent, TranscriptionSegment } from "livekit-client"
+import { IconX, IconMicrophone, IconMicrophoneOff } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
+import { GalaxyBackground } from "./GalaxyBackground"
+import { DotsCluster } from "./DotsCluster"
+import { VoiceTranscript } from "./VoiceTranscript"
+import { createMessage, getMessagesByChatId } from "@/db/messages"
+import { useChatbotUI } from "@/context/context"
+import { toast } from "sonner"
 import "@livekit/components-styles"
 
 interface VoiceModeProps {
   onClose?: () => void
+  chatId?: string
 }
 
-// Animated particle orb component
-function AnimatedOrb({ state }: { state: string }) {
-  const getParticleColor = () => {
-    switch (state) {
-      case "listening":
-        return "bg-cyan-400"
-      case "thinking":
-        return "bg-purple-400"
-      case "speaking":
-        return "bg-emerald-400"
-      default:
-        return "bg-blue-400"
-    }
-  }
-
-  const getParticleAnimation = () => {
-    switch (state) {
-      case "listening":
-        return "animate-pulse-slow"
-      case "thinking":
-        return "animate-spin-slow"
-      case "speaking":
-        return "animate-wave"
-      default:
-        return "animate-float"
-    }
-  }
-
-  // Generate particle positions in a 3D sphere formation
-  const particles = Array.from({ length: 350 }).map((_, i) => {
-    // Use spherical coordinates for proper 3D distribution
-    const theta = Math.random() * Math.PI * 2 // Horizontal angle
-    const phi = Math.acos(2 * Math.random() - 1) // Vertical angle for uniform distribution
-    const radius = 120 + Math.random() * 15 // Tighter radius range for cleaner sphere
-
-    // Convert spherical to 3D cartesian coordinates
-    const x = radius * Math.sin(phi) * Math.cos(theta)
-    const y = radius * Math.sin(phi) * Math.sin(theta)
-    const z = radius * Math.cos(phi)
-
-    // Project 3D to 2D (perspective projection)
-    const perspective = 600
-    const scale = perspective / (perspective + z)
-    const x2d = x * scale
-    const y2d = y * scale
-
-    // Consistent particle sizes for cleaner look
-    const baseSize = 4 + Math.random() * 4
-    const size = baseSize * scale
-
-    // Opacity based on depth
-    const opacity = 0.4 + scale * 0.6
-
-    const delay = Math.random() * 2
-    const duration = 2 + Math.random() * 3
-
-    return { x: x2d, y: y2d, z, size, opacity, delay, duration, id: i }
-  })
-
-  // Generate background scattered particles
-  const backgroundParticles = Array.from({ length: 50 }).map((_, i) => {
-    const x = (Math.random() - 0.5) * 800
-    const y = (Math.random() - 0.5) * 800
-    const size = 2 + Math.random() * 4
-    const delay = Math.random() * 5
-
-    return { x, y, size, delay, id: i }
-  })
-
-  return (
-    <div className="relative flex size-full items-center justify-center">
-      {/* Background scattered particles */}
-      {backgroundParticles.map(particle => (
-        <div
-          key={`bg-${particle.id}`}
-          className={`absolute rounded-full ${getParticleColor()} opacity-20`}
-          style={{
-            width: `${particle.size}px`,
-            height: `${particle.size}px`,
-            left: `calc(50% + ${particle.x}px)`,
-            top: `calc(50% + ${particle.y}px)`,
-            animation: `float 4s ease-in-out infinite`,
-            animationDelay: `${particle.delay}s`
-          }}
-        />
-      ))}
-
-      {/* Main particle orb */}
-      <div className={`relative ${getParticleAnimation()}`}>
-        {particles
-          .sort((a, b) => a.z - b.z) // Sort by z-depth (back to front)
-          .map(particle => (
-            <div
-              key={particle.id}
-              className={`absolute rounded-full ${getParticleColor()} transition-all duration-500`}
-              style={{
-                width: `${particle.size}px`,
-                height: `${particle.size}px`,
-                left: `${particle.x}px`,
-                top: `${particle.y}px`,
-                opacity: particle.opacity,
-                animation: `float ${particle.duration}s ease-in-out infinite`,
-                animationDelay: `${particle.delay}s`,
-                transform: "translate(-50%, -50%)"
-              }}
-            />
-          ))}
-      </div>
-    </div>
-  )
+interface Message {
+  role: "user" | "assistant"
+  content: string
+  timestamp: Date
 }
 
-function VoiceAssistantControls({ onClose }: VoiceModeProps) {
-  const { state, audioTrack } = useVoiceAssistant()
+function VoiceAssistantControls({ onClose, chatId }: VoiceModeProps) {
+  const { state, audioTrack, agentTranscriptions } = useVoiceAssistant()
   const connectionState = useConnectionState()
   const { localParticipant } = useLocalParticipant()
+  const room = useRoomContext()
+  const { profile } = useChatbotUI()
   const [isMuted, setIsMuted] = useState(false)
+  const [messages, setMessages] = useState<Message[]>([])
+  const [audioLevel, setAudioLevel] = useState(0)
+  const audioLevelInterval = useRef<NodeJS.Timeout>()
+  const [messageSequence, setMessageSequence] = useState(0)
+  const processedSegmentIds = useRef<Set<string>>(new Set())
+  const lastAgentTranscript = useRef<string>("")
 
   const toggleMute = useCallback(async () => {
     if (localParticipant) {
@@ -142,6 +52,28 @@ function VoiceAssistantControls({ onClose }: VoiceModeProps) {
       setIsMuted(micEnabled)
     }
   }, [localParticipant])
+
+  // Load existing messages on mount
+  useEffect(() => {
+    if (!chatId) return
+
+    const loadMessages = async () => {
+      try {
+        const existingMessages = await getMessagesByChatId(chatId)
+        const formattedMessages: Message[] = existingMessages.map(msg => ({
+          role: msg.role as "user" | "assistant",
+          content: msg.content,
+          timestamp: new Date(msg.created_at)
+        }))
+        setMessages(formattedMessages)
+        setMessageSequence(existingMessages.length)
+      } catch (error) {
+        console.error("Failed to load existing messages:", error)
+      }
+    }
+
+    loadMessages()
+  }, [chatId])
 
   // Enable microphone automatically when connected
   useEffect(() => {
@@ -152,85 +84,184 @@ function VoiceAssistantControls({ onClose }: VoiceModeProps) {
     }
   }, [connectionState, localParticipant])
 
-  const getStatusText = () => {
-    if (connectionState !== ConnectionState.Connected) {
-      return { title: "Connecting...", subtitle: "Please wait" }
+  // Monitor audio level for reactive animations
+  useEffect(() => {
+    if (audioTrack && state === "listening") {
+      audioLevelInterval.current = setInterval(() => {
+        const level = audioTrack.getAudioLevel?.() || 0
+        setAudioLevel(level)
+      }, 100)
+    } else {
+      if (audioLevelInterval.current) {
+        clearInterval(audioLevelInterval.current)
+      }
+      setAudioLevel(0)
     }
 
-    switch (state) {
-      case "listening":
-        return { title: "Listening", subtitle: "I'm listening to you..." }
-      case "thinking":
-        return { title: "Thinking", subtitle: "Processing your request..." }
-      case "speaking":
-        return { title: "Speaking", subtitle: "Responding to you..." }
-      case "idle":
-        return { title: "Ready", subtitle: "Start speaking to begin" }
-      default:
-        return { title: "Initializing", subtitle: "Setting up voice mode..." }
+    return () => {
+      if (audioLevelInterval.current) {
+        clearInterval(audioLevelInterval.current)
+      }
     }
+  }, [audioTrack, state])
+
+  // Save message to database and update local state
+  const saveMessage = useCallback(
+    async (role: "user" | "assistant", content: string, skipDb = false) => {
+      if (!content.trim()) return
+
+      const newMessage: Message = {
+        role,
+        content: content.trim(),
+        timestamp: new Date()
+      }
+
+      // Update local UI immediately
+      setMessages(prev => [...prev, newMessage])
+
+      // Save to database if we have required info
+      if (!skipDb && chatId && profile?.user_id) {
+        try {
+          await createMessage({
+            chat_id: chatId,
+            user_id: profile.user_id,
+            role,
+            content: content.trim(),
+            model: "voice-assistant",
+            sequence_number: messageSequence,
+            image_paths: []
+          })
+          setMessageSequence(prev => prev + 1)
+        } catch (error) {
+          console.error("Failed to save message:", error)
+        }
+      }
+    },
+    [chatId, messageSequence, profile?.user_id]
+  )
+
+  // Listen for agent transcriptions
+  useEffect(() => {
+    if (!agentTranscriptions || agentTranscriptions.length === 0) return
+
+    const latestTranscription = agentTranscriptions[agentTranscriptions.length - 1]
+
+    if (latestTranscription?.final && latestTranscription.text?.trim()) {
+      const text = latestTranscription.text.trim()
+
+      // Only save if it's different from the last one
+      if (text !== lastAgentTranscript.current) {
+        lastAgentTranscript.current = text
+        saveMessage("assistant", text)
+      }
+    }
+  }, [agentTranscriptions, saveMessage])
+
+  // Listen for ALL room transcriptions (to capture user speech)
+  useEffect(() => {
+    if (!room) return
+
+    const handleTranscription = (
+      segments: TranscriptionSegment[],
+      participant?: any,
+      publication?: any
+    ) => {
+      segments.forEach((segment) => {
+        if (!segment.final || !segment.text?.trim()) return
+
+        const segmentId = `${participant?.sid || 'unknown'}-${segment.id}`
+        if (processedSegmentIds.current.has(segmentId)) return
+
+        processedSegmentIds.current.add(segmentId)
+        const text = segment.text.trim()
+
+        // Check if this is the user (not the agent)
+        const isUser = participant?.identity && !participant.identity.toLowerCase().includes("agent")
+
+        if (isUser) {
+          console.log("User transcription:", text)
+          saveMessage("user", text)
+        }
+      })
+    }
+
+    room.on(RoomEvent.TranscriptionReceived, handleTranscription)
+
+    return () => {
+      room.off(RoomEvent.TranscriptionReceived, handleTranscription)
+    }
+  }, [room, saveMessage])
+
+  const getStateLabel = () => {
+    if (connectionState !== ConnectionState.Connected) {
+      return "connecting"
+    }
+    return state || "idle"
   }
 
-  const statusText = getStatusText()
+  const stateLabel = getStateLabel()
 
   return (
-    <div className="relative flex size-full flex-col items-center justify-center bg-gradient-to-br from-black via-gray-900 to-black">
+    <div className="fixed inset-0 z-[9999] flex flex-col bg-black">
+      {/* Galaxy Background */}
+      <GalaxyBackground />
+
       {/* Close button */}
       <Button
         onClick={onClose}
         variant="ghost"
         size="icon"
-        className="absolute right-6 top-6 z-50 size-12 rounded-full bg-white/10 text-white hover:bg-white/20"
+        className="absolute right-6 top-6 z-50 size-12 rounded-full bg-white/5 text-gray-300 backdrop-blur-sm hover:bg-white/10"
       >
         <IconX size={24} />
       </Button>
 
-      {/* Main content - Just the orb */}
-      <div className="flex size-full flex-col items-center justify-center">
-        <AnimatedOrb state={state || "idle"} />
+      {/* Transcript Display - Top area */}
+      <div className="relative z-10 overflow-hidden" style={{ height: "55%" }}>
+        <VoiceTranscript messages={messages} />
       </div>
 
-      {/* Bottom controls */}
-      <div className="absolute bottom-12 flex items-center gap-8">
-        <Button
-          onClick={toggleMute}
-          variant="ghost"
-          className={`size-16 rounded-full${
-            isMuted
-              ? "bg-red-500 hover:bg-red-600"
-              : "bg-white/10 hover:bg-white/20"
-          } text-white transition-all`}
-          disabled={connectionState !== ConnectionState.Connected}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={2}
-            stroke="currentColor"
-            className="size-6"
+      {/* State Label and Dots Cluster - Bottom area */}
+      <div className="relative z-10 flex flex-col items-center justify-center pb-20" style={{ height: "45%" }}>
+        {/* State Label */}
+        <div className="mb-8 text-center">
+          <p className="text-sm font-light uppercase tracking-widest text-gray-400">
+            {stateLabel}
+          </p>
+        </div>
+
+        {/* Dots Cluster */}
+        <DotsCluster
+          state={state as any || "idle"}
+          audioLevel={audioLevel}
+        />
+
+        {/* Controls */}
+        <div className="mt-12 flex items-center gap-6">
+          <Button
+            onClick={toggleMute}
+            variant="ghost"
+            size="icon"
+            className={`size-14 rounded-full backdrop-blur-sm transition-all ${
+              isMuted
+                ? "bg-red-500/20 text-red-400 hover:bg-red-500/30"
+                : "bg-white/5 text-gray-300 hover:bg-white/10"
+            }`}
+            disabled={connectionState !== ConnectionState.Connected}
           >
             {isMuted ? (
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M19 19L5 5m14 0L5 19M12 19v-7m0 0a3 3 0 003-3V7a3 3 0 10-6 0v2a3 3 0 003 3z"
-              />
+              <IconMicrophoneOff size={24} />
             ) : (
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z"
-              />
+              <IconMicrophone size={24} />
             )}
-          </svg>
-        </Button>
+          </Button>
+        </div>
       </div>
     </div>
   )
 }
 
-export function VoiceMode({ onClose }: VoiceModeProps) {
+export function VoiceMode({ onClose, chatId }: VoiceModeProps) {
   const [token, setToken] = useState<string>("")
   const [connecting, setConnecting] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -238,10 +269,20 @@ export function VoiceMode({ onClose }: VoiceModeProps) {
   useEffect(() => {
     async function getToken() {
       try {
-        const response = await fetch("/api/livekit/token")
+        // Generate unique room name using chatId if provided
+        const roomName = chatId
+          ? `voice-chat-${chatId}`
+          : `voice-room-${Date.now()}`
+
+        const response = await fetch(
+          `/api/livekit/token?roomName=${roomName}&participantName=user-${Date.now()}`
+        )
+
         if (!response.ok) {
-          throw new Error("Failed to get LiveKit token")
+          const errorData = await response.json()
+          throw new Error(errorData.error || "Failed to get LiveKit token")
         }
+
         const data = await response.json()
         setToken(data.token)
         setConnecting(false)
@@ -253,14 +294,14 @@ export function VoiceMode({ onClose }: VoiceModeProps) {
     }
 
     getToken()
-  }, [])
+  }, [chatId])
 
   if (connecting) {
     return (
-      <div className="flex size-full items-center justify-center">
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black">
         <div className="text-center">
-          <div className="border-primary mx-auto mb-4 size-8 animate-spin rounded-full border-4 border-t-transparent"></div>
-          <p className="text-muted-foreground text-sm">
+          <div className="mx-auto mb-4 size-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
+          <p className="text-sm text-gray-400">
             Connecting to voice assistant...
           </p>
         </div>
@@ -270,13 +311,17 @@ export function VoiceMode({ onClose }: VoiceModeProps) {
 
   if (error) {
     return (
-      <div className="flex size-full items-center justify-center">
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black">
         <div className="max-w-md text-center">
           <div className="mb-4 text-red-500">
             <IconX size={48} className="mx-auto" />
           </div>
-          <p className="text-muted-foreground mb-4 text-sm">{error}</p>
-          <Button onClick={onClose} variant="outline">
+          <p className="mb-4 text-sm text-gray-400">{error}</p>
+          <Button
+            onClick={onClose}
+            variant="outline"
+            className="rounded-lg border-gray-700 bg-white/5 text-gray-300 hover:bg-white/10"
+          >
             Close
           </Button>
         </div>
@@ -289,18 +334,16 @@ export function VoiceMode({ onClose }: VoiceModeProps) {
   }
 
   return (
-    <div className="size-full">
-      <LiveKitRoom
-        token={token}
-        serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL}
-        connect={true}
-        audio={true}
-        video={false}
-        className="size-full"
-      >
-        <VoiceAssistantControls onClose={onClose} />
-        <RoomAudioRenderer />
-      </LiveKitRoom>
-    </div>
+    <LiveKitRoom
+      token={token}
+      serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL}
+      connect={true}
+      audio={true}
+      video={false}
+      className="size-full"
+    >
+      <VoiceAssistantControls onClose={onClose} chatId={chatId} />
+      <RoomAudioRenderer />
+    </LiveKitRoom>
   )
 }

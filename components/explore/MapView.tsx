@@ -121,6 +121,8 @@ const MapView: React.FC<MapViewProps> = ({
   const [mapLoaded, setMapLoaded] = useState(false)
   const [scriptLoaded, setScriptLoaded] = useState(false)
   const [scriptError, setScriptError] = useState<string | null>(null)
+  const [loadAttempts, setLoadAttempts] = useState(0)
+  const scriptLoadTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const [center, setCenter] = useState({ lat: 39.8283, lng: -98.5795 }) // Default to US center
   const [zoom, setZoom] = useState(4)
   const [isSearching, setIsSearching] = useState(false)
@@ -168,20 +170,79 @@ const MapView: React.FC<MapViewProps> = ({
     setIsClient(true)
   }, [])
 
+  // Check if Google Maps is already loaded
+  const checkGoogleMapsLoaded = useCallback(() => {
+    return (
+      typeof window !== "undefined" &&
+      typeof window.google !== "undefined" &&
+      typeof window.google.maps !== "undefined"
+    )
+  }, [])
+
   // Handle script loading success
   const handleScriptLoad = useCallback(() => {
     console.log("Google Maps script loaded")
+    if (scriptLoadTimeoutRef.current) {
+      clearTimeout(scriptLoadTimeoutRef.current)
+      scriptLoadTimeoutRef.current = null
+    }
     setScriptLoaded(true)
     setScriptError(null)
+    setLoadAttempts(0)
   }, [])
 
-  // Handle script loading error
+  // Handle script loading error with retry
   const handleScriptError = useCallback(() => {
     console.error("Failed to load Google Maps script")
-    setScriptError(
-      "Failed to load map. Please check your internet connection and refresh the page."
-    )
-  }, [])
+
+    // Try up to 3 times before giving up
+    if (loadAttempts < 3) {
+      console.log(`Retrying map load... Attempt ${loadAttempts + 1}/3`)
+      setLoadAttempts(prev => prev + 1)
+
+      // Remove existing script tag
+      const existingScript = document.querySelector('script[src*="maps.googleapis.com"]')
+      if (existingScript) {
+        existingScript.remove()
+      }
+
+      // Force reload after a brief delay
+      setTimeout(() => {
+        setScriptLoaded(false)
+        setScriptError(null)
+      }, 1000)
+    } else {
+      setScriptError(
+        "Failed to load map after multiple attempts. Please refresh the page."
+      )
+    }
+  }, [loadAttempts])
+
+  // Set up timeout detection for script loading
+  useEffect(() => {
+    if (isClient && !scriptLoaded && !scriptError) {
+      // Check if Google Maps is already loaded
+      if (checkGoogleMapsLoaded()) {
+        console.log("Google Maps already loaded, using existing instance")
+        handleScriptLoad()
+        return
+      }
+
+      // Set a timeout to detect if script loading is stuck
+      scriptLoadTimeoutRef.current = setTimeout(() => {
+        if (!checkGoogleMapsLoaded() && !scriptLoaded) {
+          console.error("Map loading timeout - attempting recovery")
+          handleScriptError()
+        }
+      }, 10000) // 10 second timeout
+
+      return () => {
+        if (scriptLoadTimeoutRef.current) {
+          clearTimeout(scriptLoadTimeoutRef.current)
+        }
+      }
+    }
+  }, [isClient, scriptLoaded, scriptError, checkGoogleMapsLoaded, handleScriptLoad, handleScriptError])
 
   // Retry loading the map
   const handleRetry = useCallback(() => {
@@ -338,6 +399,14 @@ const MapView: React.FC<MapViewProps> = ({
       mapInitialized
     )
       return
+
+    // Add additional safety check
+    if (!checkGoogleMapsLoaded()) {
+      console.error("Google Maps not loaded despite scriptLoaded being true")
+      setScriptLoaded(false)
+      handleScriptError()
+      return
+    }
 
     try {
       logDebug("Initializing Google Maps")
@@ -1022,8 +1091,8 @@ const MapView: React.FC<MapViewProps> = ({
     height: "100%"
   }
 
-  // Show error state if script failed to load
-  if (scriptError) {
+  // Show error state only after all retries have been exhausted
+  if (scriptError && loadAttempts >= 3) {
     return (
       <div className="explore-map-container h-full">
         <div className="flex h-full items-center justify-center bg-gray-100 dark:bg-gray-900">
@@ -1038,11 +1107,11 @@ const MapView: React.FC<MapViewProps> = ({
               Map Failed to Load
             </h3>
             <p className="mb-4 text-gray-600 dark:text-gray-400">
-              {scriptError || "The map is taking longer than expected to load."}
+              {scriptError || "The map could not be loaded after multiple attempts."}
             </p>
             <Button onClick={handleRetry} className="gap-2">
               <IconLoader2 size={16} />
-              Retry Loading Map
+              Refresh Page
             </Button>
           </div>
         </div>
@@ -1321,10 +1390,12 @@ const MapView: React.FC<MapViewProps> = ({
     <div className="size-full">
       {/* Load Google Maps script directly with Next.js Script component */}
       <Script
+        id="google-maps-script"
         src={`https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places,drawing,visualization,geometry`}
         onLoad={handleScriptLoad}
         onError={handleScriptError}
-        strategy="afterInteractive"
+        onReady={handleScriptLoad}
+        strategy="lazyOnload"
       />
 
       <div className="flex h-full flex-col">
@@ -1444,6 +1515,11 @@ const MapView: React.FC<MapViewProps> = ({
                   className="mb-3 animate-spin text-blue-400"
                 />
                 <div>Loading map...</div>
+                {loadAttempts > 0 && (
+                  <div className="mt-2 text-sm text-gray-400">
+                    Retry attempt {loadAttempts}/3
+                  </div>
+                )}
               </div>
             </div>
           )}

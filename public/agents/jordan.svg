@@ -1,0 +1,33 @@
+<svg width="400" height="400" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="jordanGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f97316;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f59e0b;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <!-- Background circle -->
+  <circle cx="200" cy="200" r="180" fill="url(#jordanGradient)" opacity="0.1"/>
+  <!-- Professional figure with calendar and checklist -->
+  <g transform="translate(200, 200)">
+    <!-- Head -->
+    <circle cx="0" cy="-60" r="35" fill="url(#jordanGradient)"/>
+    <!-- Body -->
+    <ellipse cx="0" cy="20" rx="45" ry="60" fill="url(#jordanGradient)"/>
+    <!-- Calendar/Schedule -->
+    <rect x="15" y="-15" width="55" height="65" rx="5" fill="#ffffff" stroke="url(#jordanGradient)" stroke-width="3"/>
+    <rect x="20" y="-10" width="45" height="12" rx="2" fill="url(#jordanGradient)"/>
+    <!-- Calendar grid -->
+    <line x1="25" y1="7" x2="65" y2="7" stroke="url(#jordanGradient)" stroke-width="2"/>
+    <line x1="25" y1="17" x2="65" y2="17" stroke="url(#jordanGradient)" stroke-width="2"/>
+    <line x1="25" y1="27" x2="65" y2="27" stroke="url(#jordanGradient)" stroke-width="2"/>
+    <line x1="25" y1="37" x2="65" y2="37" stroke="url(#jordanGradient)" stroke-width="2"/>
+    <circle cx="32" cy="12" r="2" fill="url(#jordanGradient)"/>
+    <circle cx="45" cy="12" r="2" fill="url(#jordanGradient)"/>
+    <circle cx="58" cy="12" r="2" fill="url(#jordanGradient)"/>
+    <circle cx="32" cy="22" r="2" fill="url(#jordanGradient)"/>
+    <circle cx="45" cy="22" r="2" fill="url(#jordanGradient)"/>
+    <!-- Arms -->
+    <ellipse cx="-30" cy="15" rx="12" ry="40" fill="url(#jordanGradient)" transform="rotate(-20 -30 15)"/>
+    <ellipse cx="40" cy="20" rx="12" ry="35" fill="url(#jordanGradient)" transform="rotate(15 40 20)"/>
+  </g>
+</svg>

@@ -17,6 +17,8 @@ import { useSearchParams, useRouter } from "next/navigation"
 import { VoiceMode } from "@/components/voice-mode/VoiceMode"
 import { IconMicrophone, IconSparkles, IconCheck } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
+import { createChat } from "@/db/chats"
+import { toast } from "sonner"
 import {
   Dialog,
   DialogContent,
@@ -25,6 +27,7 @@ import {
   DialogDescription
 } from "@/components/ui/dialog"
 import { PLANS } from "@/lib/stripe-config"
+import { getGreeting } from "@/lib/greetings"
 
 export default function ChatPage() {
   // pull out the initialPrompt param if present
@@ -37,7 +40,7 @@ export default function ChatPage() {
   const sessionId = searchParams.get("session_id")
 
   // grab our context + handlers
-  const { chatMessages, setUserSubscription, profile, selectedChat } =
+  const { chatMessages, setUserSubscription, profile, selectedChat, selectedWorkspace } =
     useChatbotUI()
   const { handleNewChat, handleSendMessage, handleFocusChatInput } =
     useChatHandler()
@@ -46,6 +49,8 @@ export default function ChatPage() {
   // ensure we only initialize once per mount
   const [didInit, setDidInit] = useState(false)
   const [isVoiceModeOpen, setIsVoiceModeOpen] = useState(false)
+  const [greeting, setGreeting] = useState("Let's get to work.")
+  const [voiceChatId, setVoiceChatId] = useState<string | null>(null)
   const [showSuccessModal, setShowSuccessModal] = useState(subscriptionSuccess)
   const [subscriptionProcessed, setSubscriptionProcessed] = useState(false)
 
@@ -93,9 +98,45 @@ export default function ChatPage() {
     setUserSubscription
   ])
 
+  // Set dynamic greeting based on time of day (client-side only to avoid hydration mismatch)
+  useEffect(() => {
+    setGreeting(getGreeting())
+  }, [])
+
   // allow hotkeys for new chat & focusing
   useHotkey("o", () => handleNewChat())
   useHotkey("l", () => handleFocusChatInput())
+
+  const handleVoiceModeOpen = async () => {
+    if (!profile || !selectedWorkspace) {
+      toast.error("Please select a workspace first")
+      return
+    }
+
+    try {
+      // Create a new chat for the voice conversation
+      const newChat = await createChat({
+        user_id: profile.user_id,
+        workspace_id: selectedWorkspace.id,
+        name: `Voice Chat - ${new Date().toLocaleString()}`,
+        model: selectedWorkspace.default_model,
+        prompt: selectedWorkspace.default_prompt,
+        temperature: selectedWorkspace.default_temperature,
+        context_length: selectedWorkspace.default_context_length,
+        include_profile_context: selectedWorkspace.include_profile_context,
+        include_workspace_instructions:
+          selectedWorkspace.include_workspace_instructions,
+        embeddings_provider: selectedWorkspace.embeddings_provider,
+        folder_id: null
+      })
+
+      setVoiceChatId(newChat.id)
+      setIsVoiceModeOpen(true)
+    } catch (error) {
+      console.error("Failed to create voice chat:", error)
+      toast.error("Failed to start voice mode")
+    }
+  }
 
   return (
     <>
@@ -114,7 +155,7 @@ export default function ChatPage() {
           <div className="flex w-full max-w-[800px] flex-col items-center justify-center space-y-8">
             {/* Mobile greeting text - visible on mobile only */}
             <h1 className="text-center text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl md:hidden dark:text-white">
-              Let&apos;s get to work.
+              {greeting}
             </h1>
 
             {/* Desktop greeting section with logo inline with text - hidden on mobile */}
@@ -123,13 +164,13 @@ export default function ChatPage() {
                 <RooftopsSVG width="48" height="48" />
               </div>
               <h1 className="mt-1 text-[52px] font-bold leading-none tracking-tight text-gray-900 dark:text-white">
-                Let&apos;s get to work.
+                {greeting}
               </h1>
             </div>
 
             {/* Chat input */}
             <div className="w-full">
-              <ChatInput onVoiceModeClick={() => setIsVoiceModeOpen(true)} />
+              <ChatInput onVoiceModeClick={handleVoiceModeOpen} />
             </div>
 
             {/* Quick prompts below input */}
@@ -143,10 +184,14 @@ export default function ChatPage() {
       )}
 
       {/* Voice Mode Modal - Fullscreen */}
-      {isVoiceModeOpen && (
-        <div className="fixed inset-0 z-[9999]">
-          <VoiceMode onClose={() => setIsVoiceModeOpen(false)} />
-        </div>
+      {isVoiceModeOpen && voiceChatId && (
+        <VoiceMode
+          chatId={voiceChatId}
+          onClose={() => {
+            setIsVoiceModeOpen(false)
+            setVoiceChatId(null)
+          }}
+        />
       )}
 
       {/* Subscription Success Modal */}

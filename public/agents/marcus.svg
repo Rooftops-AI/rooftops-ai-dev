@@ -1,0 +1,26 @@
+<svg width="400" height="400" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="marcusGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2563eb;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4f46e5;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <!-- Background circle -->
+  <circle cx="200" cy="200" r="180" fill="url(#marcusGradient)" opacity="0.1"/>
+  <!-- Professional figure silhouette with clipboard -->
+  <g transform="translate(200, 200)">
+    <!-- Head -->
+    <circle cx="0" cy="-60" r="35" fill="url(#marcusGradient)"/>
+    <!-- Body -->
+    <ellipse cx="0" cy="20" rx="45" ry="60" fill="url(#marcusGradient)"/>
+    <!-- Clipboard -->
+    <rect x="15" y="-10" width="50" height="70" rx="5" fill="#ffffff" stroke="url(#marcusGradient)" stroke-width="3"/>
+    <line x1="25" y1="5" x2="55" y2="5" stroke="url(#marcusGradient)" stroke-width="2"/>
+    <line x1="25" y1="15" x2="55" y2="15" stroke="url(#marcusGradient)" stroke-width="2"/>
+    <line x1="25" y1="25" x2="55" y2="25" stroke="url(#marcusGradient)" stroke-width="2"/>
+    <line x1="25" y1="35" x2="50" y2="35" stroke="url(#marcusGradient)" stroke-width="2"/>
+    <!-- Arms -->
+    <ellipse cx="-30" cy="15" rx="12" ry="40" fill="url(#marcusGradient)" transform="rotate(-20 -30 15)"/>
+    <ellipse cx="40" cy="20" rx="12" ry="35" fill="url(#marcusGradient)" transform="rotate(15 40 20)"/>
+  </g>
+</svg>

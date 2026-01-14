@@ -1,0 +1,39 @@
+<svg width="400" height="400" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="derekGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#eab308;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f97316;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <!-- Background circle -->
+  <circle cx="200" cy="200" r="180" fill="url(#derekGradient)" opacity="0.1"/>
+  <!-- Professional figure with hard hat and safety checklist -->
+  <g transform="translate(200, 200)">
+    <!-- Safety Hard Hat -->
+    <ellipse cx="0" cy="-75" rx="40" ry="12" fill="url(#derekGradient)"/>
+    <path d="M -35,-75 L -30,-95 Q 0,-105 30,-95 L 35,-75" fill="url(#derekGradient)" stroke="url(#derekGradient)" stroke-width="2"/>
+    <rect x="-8" y="-85" width="16" height="8" rx="2" fill="#ffffff"/>
+    <!-- Head -->
+    <circle cx="0" cy="-55" r="32" fill="url(#derekGradient)"/>
+    <!-- Body -->
+    <ellipse cx="0" cy="20" rx="45" ry="60" fill="url(#derekGradient)"/>
+    <!-- Safety vest stripes -->
+    <rect x="-35" y="0" width="70" height="8" fill="#ffffff" opacity="0.8"/>
+    <rect x="-35" y="30" width="70" height="8" fill="#ffffff" opacity="0.8"/>
+    <!-- Checklist/Clipboard -->
+    <rect x="20" y="-10" width="45" height="60" rx="4" fill="#ffffff" stroke="url(#derekGradient)" stroke-width="3"/>
+    <rect x="35" y="-5" width="15" height="5" rx="2" fill="url(#derekGradient)"/>
+    <!-- Checkboxes -->
+    <rect x="27" y="5" width="8" height="8" rx="1" stroke="url(#derekGradient)" stroke-width="1.5" fill="none"/>
+    <path d="M 29,9 L 31,11 L 33,7" stroke="url(#derekGradient)" stroke-width="2" fill="none"/>
+    <line x1="38" y1="9" x2="58" y2="9" stroke="url(#derekGradient)" stroke-width="1.5"/>
+    <rect x="27" y="18" width="8" height="8" rx="1" stroke="url(#derekGradient)" stroke-width="1.5" fill="none"/>
+    <path d="M 29,22 L 31,24 L 33,20" stroke="url(#derekGradient)" stroke-width="2" fill="none"/>
+    <line x1="38" y1="22" x2="58" y2="22" stroke="url(#derekGradient)" stroke-width="1.5"/>
+    <rect x="27" y="31" width="8" height="8" rx="1" stroke="url(#derekGradient)" stroke-width="1.5" fill="none"/>
+    <line x1="38" y1="35" x2="58" y2="35" stroke="url(#derekGradient)" stroke-width="1.5"/>
+    <!-- Arms -->
+    <ellipse cx="-32" cy="20" rx="12" ry="35" fill="url(#derekGradient)" transform="rotate(-20 -32 20)"/>
+    <ellipse cx="38" cy="18" rx="12" ry="35" fill="url(#derekGradient)" transform="rotate(15 38 18)"/>
+  </g>
+</svg>

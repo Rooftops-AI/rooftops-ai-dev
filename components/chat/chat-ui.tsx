@@ -4,7 +4,7 @@ import { useChatHandler } from "@/components/chat/chat-hooks/use-chat-handler"
 import { useChatbotUI } from "@/context/context"
 import { getAssistantToolsByAssistantId } from "@/db/assistant-tools"
 import { getChatFilesByChatId } from "@/db/chat-files"
-import { getChatById } from "@/db/chats"
+import { getChatById, createChat } from "@/db/chats"
 import { getMessageFileItemsByMessageId } from "@/db/message-file-items"
 import { getMessagesByChatId } from "@/db/messages"
 import { getMessageImageFromStorage } from "@/db/storage/message-images"
@@ -13,6 +13,7 @@ import useHotkey from "@/lib/hooks/use-hotkey"
 import { LLMID, MessageImage } from "@/types"
 import { useParams } from "next/navigation"
 import { FC, useContext, useEffect, useState } from "react"
+import { toast } from "sonner"
 import { ChatHelp } from "./chat-help"
 import { useScroll } from "./chat-hooks/use-scroll"
 import { ChatInput } from "./chat-input"
@@ -45,7 +46,9 @@ export const ChatUI: FC<ChatUIProps> = ({}) => {
     setChatFiles,
     setShowFilesDisplay,
     setUseRetrieval,
-    setSelectedTools
+    setSelectedTools,
+    profile,
+    selectedWorkspace
   } = useChatbotUI()
 
   const { handleNewChat, handleFocusChatInput, handleSendMessage } =
@@ -66,6 +69,7 @@ export const ChatUI: FC<ChatUIProps> = ({}) => {
   const [loading, setLoading] = useState(true)
   const [isMobile, setIsMobile] = useState(false)
   const [isVoiceModeOpen, setIsVoiceModeOpen] = useState(false)
+  const [voiceChatId, setVoiceChatId] = useState<string | null>(null)
 
   // Check if we're on mobile
   useEffect(() => {
@@ -203,6 +207,37 @@ export const ChatUI: FC<ChatUIProps> = ({}) => {
     })
   }
 
+  const handleVoiceModeOpen = async () => {
+    if (!profile || !selectedWorkspace) {
+      toast.error("Please select a workspace first")
+      return
+    }
+
+    try {
+      // Create a new chat for the voice conversation
+      const newChat = await createChat({
+        user_id: profile.user_id,
+        workspace_id: selectedWorkspace.id,
+        name: `Voice Chat - ${new Date().toLocaleString()}`,
+        model: selectedWorkspace.default_model,
+        prompt: selectedWorkspace.default_prompt,
+        temperature: selectedWorkspace.default_temperature,
+        context_length: selectedWorkspace.default_context_length,
+        include_profile_context: selectedWorkspace.include_profile_context,
+        include_workspace_instructions:
+          selectedWorkspace.include_workspace_instructions,
+        embeddings_provider: selectedWorkspace.embeddings_provider,
+        folder_id: null
+      })
+
+      setVoiceChatId(newChat.id)
+      setIsVoiceModeOpen(true)
+    } catch (error) {
+      console.error("Failed to create voice chat:", error)
+      toast.error("Failed to start voice mode")
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex size-full items-center justify-center">
@@ -262,7 +297,7 @@ export const ChatUI: FC<ChatUIProps> = ({}) => {
 
       {/* Add px-4 (or adjust px-6 etc. as needed) for horizontal padding */}
       <div
-        className="flex size-full flex-col overflow-auto border-b px-4"
+        className="flex size-full flex-col overflow-auto px-4"
         onScroll={handleScroll}
       >
         <div ref={messagesStartRef} />
@@ -280,17 +315,21 @@ export const ChatUI: FC<ChatUIProps> = ({}) => {
 
       {/* Chat input with responsive width */}
       <div className={getChatInputClasses()}>
-        <ChatInput onVoiceModeClick={() => setIsVoiceModeOpen(true)} />
+        <ChatInput onVoiceModeClick={handleVoiceModeOpen} />
         <p className="p-1 text-center text-sm text-gray-500 dark:text-gray-400">
           Rooftops AI can make mistakes. Check important information.
         </p>
       </div>
 
       {/* Voice Mode Modal - Fullscreen */}
-      {isVoiceModeOpen && (
-        <div className="fixed inset-0 z-[9999]">
-          <VoiceMode onClose={() => setIsVoiceModeOpen(false)} />
-        </div>
+      {isVoiceModeOpen && voiceChatId && (
+        <VoiceMode
+          chatId={voiceChatId}
+          onClose={() => {
+            setIsVoiceModeOpen(false)
+            setVoiceChatId(null)
+          }}
+        />
       )}
 
       {/* Canvas Drawer for artifacts/documents */}

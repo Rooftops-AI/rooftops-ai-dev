@@ -7,47 +7,81 @@ import { useParams } from "next/navigation"
 import { useChatbotUI } from "@/context/context"
 import { UpgradeModal } from "@/components/modals/upgrade-modal"
 import { EmptyStateAgentsLocked } from "@/components/empty-states/empty-state-agents-locked"
+import { FeaturedAgentHero } from "@/components/creator/FeaturedAgentHero"
+import { IconChevronRight } from "@tabler/icons-react"
 
 const agents = [
   {
-    id: "proposal",
-    name: "Dylan the Proposal Expert",
-    title: "Roofing Proposal Generator",
-    avatarUrl:
-      "https://api.dicebear.com/7.x/avataaars/svg?seed=Dylan&backgroundColor=3b82f6",
-    gradient: "from-blue-500 to-cyan-500",
-    description: "Creates professional roofing proposals for customers",
-    categories: ["Sales", "Documentation"]
+    id: "marcus",
+    name: "Marcus",
+    title: "Sales Specialist",
+    avatar: "/agents/marcus.svg",
+    gradient: "from-blue-600 to-indigo-600",
+    description: "Expert in lead follow-ups, proposal writing, and closing deals. Handles objections and creates compelling sales communications.",
+    categories: ["Sales", "Lead Generation", "Proposals"]
   },
   {
-    id: "insurance",
-    name: "Claire the Claims Specialist",
-    title: "Insurance Claim Assistant",
-    avatarUrl:
-      "https://api.dicebear.com/7.x/avataaars/svg?seed=Claire&backgroundColor=a855f7",
-    gradient: "from-purple-500 to-pink-500",
-    description: "Generates insurance claim documentation",
-    categories: ["Claims", "Documentation"]
+    id: "elena",
+    name: "Elena",
+    title: "Estimating Expert",
+    avatar: "/agents/elena.svg",
+    gradient: "from-purple-600 to-violet-600",
+    description: "Specializes in precise material calculations, labor estimates, and competitive bid preparation for roofing projects.",
+    categories: ["Estimating", "Bidding", "Materials"]
   },
   {
-    id: "followup",
-    name: "Finn the Follow-Up Pro",
-    title: "Lead Follow-Up Writer",
-    avatarUrl:
-      "https://api.dicebear.com/7.x/avataaars/svg?seed=Finn&backgroundColor=10b981",
-    gradient: "from-green-500 to-emerald-500",
-    description: "Writes personalized lead follow-up messages",
-    categories: ["Sales", "Communication"]
+    id: "jordan",
+    name: "Jordan",
+    title: "Project Coordinator",
+    avatar: "/agents/jordan.svg",
+    gradient: "from-orange-600 to-amber-600",
+    description: "Creates project schedules, coordinates crews, and manages customer communications throughout the roofing project lifecycle.",
+    categories: ["Project Management", "Scheduling", "Coordination"]
   },
   {
-    id: "jobreport",
-    name: "Riley the Project Reporter",
-    title: "Job Completion Report",
-    avatarUrl:
-      "https://api.dicebear.com/7.x/avataaars/svg?seed=Riley&backgroundColor=f97316",
-    gradient: "from-orange-500 to-amber-500",
-    description: "Documents job completions professionally",
-    categories: ["Operations", "Documentation"]
+    id: "sophia",
+    name: "Sophia",
+    title: "Customer Service Representative",
+    avatar: "/agents/sophia.svg",
+    gradient: "from-green-600 to-emerald-600",
+    description: "Handles customer inquiries, resolves complaints, and delivers exceptional service with empathy and professionalism.",
+    categories: ["Customer Service", "Support", "Communication"]
+  },
+  {
+    id: "ryan",
+    name: "Ryan",
+    title: "Insurance Claims Specialist",
+    avatar: "/agents/ryan.svg",
+    gradient: "from-red-600 to-rose-600",
+    description: "Expert in insurance claim documentation, supplement requests, and maximizing claim approvals for storm damage repairs.",
+    categories: ["Insurance", "Claims", "Documentation"]
+  },
+  {
+    id: "aisha",
+    name: "Aisha",
+    title: "Marketing Manager",
+    avatar: "/agents/aisha.svg",
+    gradient: "from-pink-600 to-fuchsia-600",
+    description: "Creates engaging marketing content including social media posts, blog articles, review responses, and brand messaging.",
+    categories: ["Marketing", "Social Media", "Content"]
+  },
+  {
+    id: "derek",
+    name: "Derek",
+    title: "Safety & Compliance Officer",
+    avatar: "/agents/derek.svg",
+    gradient: "from-yellow-500 to-orange-500",
+    description: "Develops safety checklists, OSHA compliance documentation, incident reports, and training materials for roofing operations.",
+    categories: ["Safety", "Compliance", "Training"]
+  },
+  {
+    id: "nina",
+    name: "Nina",
+    title: "Business Manager",
+    avatar: "/agents/nina.svg",
+    gradient: "from-gray-600 to-slate-600",
+    description: "Creates professional business documents including contracts, invoices, collection letters, and financial reports.",
+    categories: ["Business", "Legal", "Finance"]
   }
 ]
 
@@ -58,8 +92,9 @@ export default function CreatorStudioPage() {
     workspaceid: string
   }
 
-  // 2) track the search term
+  // 2) track the search term and selected categories
   const [searchTerm, setSearchTerm] = useState("")
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
 
   // Get user subscription to check tier
@@ -68,57 +103,59 @@ export default function CreatorStudioPage() {
     userSubscription?.tier || userSubscription?.plan_type || "free"
   const hasAgentAccess = userTier === "premium" || userTier === "business"
 
-  // 3) derive a filtered list
+  // 3) extract all unique categories
+  const allCategories = Array.from(
+    new Set(agents.flatMap(agent => agent.categories))
+  ).sort()
+
+  // 4) derive a filtered list
   const filtered = agents.filter(agent => {
     const term = searchTerm.toLowerCase()
-    return (
+    const matchesSearch =
       agent.name.toLowerCase().includes(term) ||
       agent.title.toLowerCase().includes(term) ||
       agent.description.toLowerCase().includes(term) ||
       agent.categories.some(cat => cat.toLowerCase().includes(term))
-    )
+
+    const matchesCategory =
+      selectedCategories.length === 0 ||
+      agent.categories.some(cat => selectedCategories.includes(cat))
+
+    return matchesSearch && matchesCategory
   })
+
+  const toggleCategory = (category: string) => {
+    setSelectedCategories(prev =>
+      prev.includes(category)
+        ? prev.filter(c => c !== category)
+        : [...prev, category]
+    )
+  }
+
+  const clearFilters = () => {
+    setSearchTerm("")
+    setSelectedCategories([])
+  }
+
+  // 5) select featured agents for hero rotator
+  const featuredAgents = [
+    agents.find(a => a.id === "marcus"),
+    agents.find(a => a.id === "ryan"),
+    agents.find(a => a.id === "elena")
+  ].filter(Boolean) as typeof agents
 
   return (
     <div className="mx-auto max-w-7xl p-8">
-      {/* Hero Section with gradient background */}
-      <div className="relative mb-12 overflow-hidden rounded-2xl bg-gradient-to-br from-cyan-500/10 via-blue-500/10 to-purple-500/10 p-8 dark:from-cyan-500/20 dark:via-blue-500/20 dark:to-purple-500/20">
-        {/* Decorative elements */}
-        <div className="absolute right-0 top-0 size-64 -translate-y-32 translate-x-32 rounded-full bg-gradient-to-br from-cyan-400/20 to-blue-400/20 blur-3xl" />
-        <div className="absolute bottom-0 left-0 size-64 -translate-x-32 translate-y-32 rounded-full bg-gradient-to-br from-purple-400/20 to-pink-400/20 blur-3xl" />
-
-        {/* Content */}
-        <div className="relative z-10">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-cyan-500/20 to-blue-500/20 px-4 py-1.5 text-sm font-medium text-cyan-700 dark:text-cyan-300">
-            <svg className="size-4" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M13 7H7v6h6V7z" />
-              <path
-                fillRule="evenodd"
-                d="M7 2a1 1 0 012 0v1h2V2a1 1 0 112 0v1h2a2 2 0 012 2v2h1a1 1 0 110 2h-1v2h1a1 1 0 110 2h-1v2a2 2 0 01-2 2h-2v1a1 1 0 11-2 0v-1H9v1a1 1 0 11-2 0v-1H5a2 2 0 01-2-2v-2H2a1 1 0 110-2h1V9H2a1 1 0 010-2h1V5a2 2 0 012-2h2V2zM5 5h10v10H5V5z"
-                clipRule="evenodd"
-              />
-            </svg>
-            Powered by AI
-          </div>
-
-          <h1 className="mb-3 bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600 bg-clip-text text-4xl font-bold text-transparent dark:from-cyan-400 dark:via-blue-400 dark:to-purple-400">
-            AI Agent Library
-          </h1>
-
-          <p className="text-muted-foreground max-w-2xl text-lg">
-            Choose from our collection of specialized AI agents to streamline
-            your workflow and boost productivity.
-          </p>
-        </div>
-      </div>
+      {/* Featured Agent Hero Rotator */}
+      {hasAgentAccess && <FeaturedAgentHero featuredAgents={featuredAgents} />}
 
       {/* Show empty state for free users */}
       {!hasAgentAccess ? (
         <EmptyStateAgentsLocked />
       ) : (
-        <>
+        <div className="mx-auto max-w-4xl">
           {/* Search bar */}
-          <div className="mb-8">
+          <div className="mb-4">
             <div className="relative">
               <input
                 type="text"
@@ -144,132 +181,105 @@ export default function CreatorStudioPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-2">
-            {filtered.map(agent => {
-              const handleClick = (e: React.MouseEvent) => {
-                if (!hasAgentAccess) {
-                  e.preventDefault()
-                  setShowUpgradeModal(true)
-                }
-              }
-
-              return (
-                <Link
-                  key={agent.id}
-                  href={`/${locale}/${workspaceId}/creator/${agent.id}`}
-                  onClick={handleClick}
-                  className="group block cursor-pointer"
+          {/* Category Filters */}
+          <div className="mb-8">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Filter by:
+              </span>
+              {(searchTerm || selectedCategories.length > 0) && (
+                <button
+                  onClick={clearFilters}
+                  className="text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 underline"
                 >
-                  <div
-                    className={`bg-card border-border hover:border-primary/20 relative h-full overflow-hidden rounded-xl border shadow-sm transition-all duration-300 hover:shadow-md ${
-                      !hasAgentAccess ? "opacity-60" : ""
+                  Clear all
+                </button>
+              )}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {allCategories.map(category => {
+                const isSelected = selectedCategories.includes(category)
+                return (
+                  <button
+                    key={category}
+                    onClick={() => toggleCategory(category)}
+                    className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all duration-150 ${
+                      isSelected
+                        ? "bg-blue-600 text-white shadow-md hover:bg-blue-700"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                     }`}
                   >
-                    {/* Premium Badge */}
-                    <div className="absolute right-3 top-3 z-10">
-                      <span
-                        className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-600 to-orange-600 px-2.5 py-1 text-xs font-semibold text-white shadow-md"
-                        style={{ textShadow: "0 1px 2px rgba(0,0,0,0.5)" }}
-                        aria-label="Premium feature - Upgrade to Premium or Business plan required"
-                      >
-                        <svg
-                          className="size-3"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                          aria-hidden="true"
-                        >
-                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                        </svg>
-                        Premium
-                      </span>
-                    </div>
-
-                    {/* Lock icon overlay for free users */}
-                    {!hasAgentAccess && (
-                      <div
-                        className="absolute inset-0 z-10 flex items-center justify-center"
-                        aria-label="Locked - Premium or Business plan required to access this agent"
-                        role="img"
-                      >
-                        <div className="rounded-full bg-gray-900/80 p-4">
-                          <svg
-                            className="size-8 text-white"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                            aria-hidden="true"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                            />
-                          </svg>
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="p-6">
-                      <div className="flex items-start gap-4">
-                        {/* Avatar */}
-                        <div className="size-14 shrink-0 overflow-hidden rounded-full shadow-lg">
-                          <img
-                            src={agent.avatarUrl}
-                            alt={agent.name}
-                            className="size-full object-cover"
-                          />
-                        </div>
-
-                        {/* Content */}
-                        <div className="flex-1">
-                          <div className="mb-1 flex items-center justify-between">
-                            <h2 className="text-foreground text-lg font-bold">
-                              {agent.name}
-                            </h2>
-                            <svg
-                              width="20"
-                              height="20"
-                              viewBox="0 0 20 20"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="text-muted-foreground group-hover:text-primary transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-                            >
-                              <path
-                                d="M5.83331 14.1667L14.1666 5.83334M14.1666 5.83334H5.83331M14.1666 5.83334V14.1667"
-                                stroke="currentColor"
-                                strokeWidth="1.5"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                            </svg>
-                          </div>
-                          <p className="text-primary mb-2 text-sm font-medium">
-                            {agent.title}
-                          </p>
-                          <p className="text-muted-foreground mb-3 text-sm leading-relaxed">
-                            {agent.description}
-                          </p>
-
-                          <div className="flex flex-wrap gap-2">
-                            {agent.categories.map(cat => (
-                              <span
-                                key={cat}
-                                className="bg-secondary border-border text-secondary-foreground inline-block rounded-xl border px-2.5 py-1 text-xs font-medium"
-                              >
-                                {cat}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              )
-            })}
+                    {category}
+                  </button>
+                )
+              })}
+            </div>
           </div>
-        </>
+
+          {/* All Agents - List View */}
+          <div className="mb-6 flex items-center justify-between">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+              All Agents
+            </h2>
+            <span className="text-sm text-gray-500 dark:text-gray-400">
+              {filtered.length} {filtered.length === 1 ? "agent" : "agents"}
+            </span>
+          </div>
+
+          {filtered.length === 0 ? (
+            <div className="py-12 text-center">
+              <p className="text-gray-500 dark:text-gray-400 mb-4">
+                No agents found matching your filters.
+              </p>
+              <button
+                onClick={clearFilters}
+                className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
+              >
+                Clear filters
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+              {filtered.map(agent => (
+              <Link
+                key={agent.id}
+                href={`/${locale}/${workspaceId}/creator/${agent.id}`}
+                className="group block"
+              >
+                <div className="flex items-center gap-4 rounded-lg p-4 transition-all duration-150 hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                  {/* Avatar */}
+                  <img
+                    src={(agent as any).avatar || (agent as any).avatarUrl}
+                    alt={agent.name}
+                    className="size-12 flex-shrink-0 rounded-full"
+                  />
+
+                  {/* Info */}
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-medium text-gray-900 dark:text-white">
+                      {agent.name}
+                    </h3>
+                    <p className="truncate text-sm text-gray-600 dark:text-gray-400">
+                      {agent.title}
+                    </p>
+                  </div>
+
+                  {/* Badge */}
+                  <span className="rounded bg-amber-100 px-2 py-1 text-xs font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
+                    Premium
+                  </span>
+
+                  {/* Arrow */}
+                  <IconChevronRight
+                    className="flex-shrink-0 text-gray-400 transition-colors group-hover:text-gray-600 dark:group-hover:text-gray-300"
+                    size={20}
+                  />
+                </div>
+              </Link>
+            ))}
+            </div>
+          )}
+        </div>
       )}
 
       {/* Upgrade Modal */}

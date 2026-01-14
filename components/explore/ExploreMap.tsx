@@ -16,7 +16,8 @@ import {
   calculateOptimalZoom,
   calculateZoomForAngle,
   validatePropertyFitsInFrame,
-  calculateTightBounds
+  calculateTightBounds,
+  calculateScale
 } from "@/lib/image-processing"
 import {
   extractSolarRoofMetrics,
@@ -230,6 +231,7 @@ const ExploreMap: React.FC<ExploreMapProps> = ({
       logDebug("Fetching Solar API data for accurate roof measurements...")
 
       let solarMetrics: any = null
+      let fullSolarData: any = null // Store the complete solar API response
       let propertySize: any
 
       try {
@@ -244,6 +246,12 @@ const ExploreMap: React.FC<ExploreMapProps> = ({
 
         if (solarResponse.ok) {
           const solarData = await solarResponse.json()
+          fullSolarData = solarData // Keep the full response for solar panel data
+          console.log(
+            "[Solar API] Full response received:",
+            fullSolarData?.solarPotential?.maxArrayPanelsCount,
+            "panels"
+          )
           solarMetrics = extractSolarRoofMetrics(solarData)
 
           if (solarMetrics) {
@@ -480,7 +488,7 @@ const ExploreMap: React.FC<ExploreMapProps> = ({
           viewportHeight,
           0.95 // 95% coverage - tight crop on roof only, eliminate neighboring context
         )
-        const angleZoom = Math.min(22, calculatedZoom + 4) // Add +4 to zoom in extremely close on target roof
+        const angleZoom = Math.min(22, calculatedZoom + 1) // With fixed tilt calculation, minimal +1 offset is safe
 
         logDebug(
           `Capturing view at ${angle}° heading with optimized zoom ${angleZoom} (tilt: ${tiltAngle}°)`
@@ -508,6 +516,56 @@ const ExploreMap: React.FC<ExploreMapProps> = ({
             logDebug(
               `Map adjusted to heading ${angle}° with TIGHT bounds (${propertySize.widthMeters}m x ${propertySize.heightMeters}m), tilt: ${tiltAngle}°`
             )
+
+            // Validate that zoom level will capture complete property
+            await new Promise(resolve => setTimeout(resolve, 1500)) // Wait for initial zoom to apply
+
+            let zoomAttempts = 0
+            const maxAttempts = 3
+            let validationPassed = false
+
+            while (!validationPassed && zoomAttempts < maxAttempts) {
+              const actualZoom = mapRef.current.getZoom()
+              const validation = validatePropertyFitsInFrame(
+                propertySize.widthMeters,
+                propertySize.heightMeters,
+                actualZoom,
+                selectedLocation.lat,
+                viewportWidth,
+                viewportHeight
+              )
+
+              if (validation.fits && validation.coveragePercent < 0.95) {
+                validationPassed = true
+                logDebug(
+                  `✓ Validation passed at zoom ${actualZoom} (${(validation.coveragePercent * 100).toFixed(0)}% coverage)`
+                )
+              } else if (validation.coveragePercent >= 0.95) {
+                // Too tight - zoom out by 1
+                const newZoom = actualZoom - 1
+                logDebug(
+                  `⚠ Coverage ${(validation.coveragePercent * 100).toFixed(0)}% too tight, reducing to zoom ${newZoom}`
+                )
+                mapRef.current.setZoom(newZoom)
+                await new Promise(resolve => setTimeout(resolve, 1000))
+                zoomAttempts++
+              } else {
+                // Doesn't fit - zoom out by 1
+                const newZoom = actualZoom - 1
+                logDebug(
+                  `⚠ Property doesn't fit at zoom ${actualZoom}, reducing to zoom ${newZoom}`
+                )
+                mapRef.current.setZoom(newZoom)
+                await new Promise(resolve => setTimeout(resolve, 1000))
+                zoomAttempts++
+              }
+            }
+
+            if (!validationPassed) {
+              logDebug(
+                `⚠ Validation failed after ${maxAttempts} attempts, proceeding with current zoom`
+              )
+            }
           } catch (e) {
             console.error(
               `Error setting map heading/tilt/bounds for angle ${angle}:`,
@@ -520,7 +578,7 @@ const ExploreMap: React.FC<ExploreMapProps> = ({
         }
 
         // Allow time for map to render with new orientation and tiles to load
-        await new Promise(resolve => setTimeout(resolve, 2500))
+        await new Promise(resolve => setTimeout(resolve, 1000)) // Reduced since we already waited in validation
 
         // Get the direction name based on the angle
         const directionName = getDirectionName(angle)
@@ -562,14 +620,19 @@ const ExploreMap: React.FC<ExploreMapProps> = ({
       )
 
       // Send views to Multi-Agent system for comprehensive analysis
-      const analysisResult = await sendToMultiAgentSystem(views, solarMetrics)
+      const analysisResult = await sendToMultiAgentSystem(
+        views,
+        fullSolarData,
+        solarMetrics
+      )
 
       // Store the captured views and solar data in the analysis result
       if (analysisResult) {
         analysisResult.capturedImages = views
         analysisResult.satelliteViews = views
-        if (solarMetrics && !analysisResult.solarData) {
-          analysisResult.solarData = solarMetrics
+        // Ensure solar data is present (use full solar data, not just extracted metrics)
+        if (fullSolarData && !analysisResult.solarData) {
+          analysisResult.solarData = fullSolarData
         }
       }
 
@@ -703,6 +766,13 @@ const ExploreMap: React.FC<ExploreMapProps> = ({
     // Wait for map tiles to fully load
     await new Promise(resolve => setTimeout(resolve, 1500))
 
+    // Get current map metadata (needed for scale calculations)
+    const currentZoom = mapRef.current?.getZoom() || 20
+    const currentLat = selectedLocation?.lat || 0
+    const currentLng = selectedLocation?.lng || 0
+    const currentTilt = mapRef.current?.getTilt() || 0
+    const currentHeading = mapRef.current?.getHeading() || 0
+
     // Store original container styles for restoration (outside try block for catch access)
     const isMobile = window.innerWidth < 768
     const originalWidth = containerRef.current.style.width
@@ -783,10 +853,49 @@ const ExploreMap: React.FC<ExploreMapProps> = ({
         logDebug("Restored original container size after mobile capture")
       }
 
-      // WORKAROUND: Crop to center 40% to simulate tighter zoom (Google Maps limits zoom)
-      // This compensates for Google Maps restricting zoom levels based on available imagery
-      // Combined with 2.5x scale, this gives excellent detail on the target roof
-      const cropPercent = 0.4 // Crop to center 40% = 2.5x effective zoom
+      // ADAPTIVE CROP: Calculate safe crop percentage based on actual zoom achieved
+      // Priority: NEVER crop any part of roof > Maximum zoom
+      const actualZoom = mapRef.current?.getZoom() || currentZoom
+      const scale = calculateScale(actualZoom, currentLat)
+
+      // Get viewport dimensions from the container
+      const viewportWidth = mapContainerRef.current?.offsetWidth || 640
+      const viewportHeight = mapContainerRef.current?.offsetHeight || 480
+      const visibleWidthMeters = viewportWidth * scale.metersPerPixel
+      const visibleHeightMeters = viewportHeight * scale.metersPerPixel
+
+      // Estimate property size for crop calculations
+      const propertySize = estimatePropertySize(currentLat, currentLng)
+
+      // Calculate how much of the frame the property actually fills
+      const widthRatio = propertySize.widthMeters / visibleWidthMeters
+      const heightRatio = propertySize.heightMeters / visibleHeightMeters
+      const coverageRatio = Math.max(widthRatio, heightRatio)
+
+      // Determine safe crop percentage based on coverage
+      let cropPercent = 1.0 // Default: no crop
+      let cropReason = "No crop - "
+
+      if (coverageRatio > 0.9) {
+        // Property fills >90% of frame - NO CROP SAFE
+        cropPercent = 1.0
+        cropReason = "Property fills >90% of frame, no crop applied"
+      } else if (coverageRatio > 0.7) {
+        // Property fills 70-90% - gentle 85% crop safe
+        cropPercent = 0.85
+        cropReason = `Property fills ${(coverageRatio * 100).toFixed(0)}%, gentle 85% crop`
+      } else if (coverageRatio > 0.5) {
+        // Property fills 50-70% - moderate 75% crop safe
+        cropPercent = 0.75
+        cropReason = `Property fills ${(coverageRatio * 100).toFixed(0)}%, moderate 75% crop`
+      } else {
+        // Property fills <50% - generous room for 65% crop
+        cropPercent = 0.65
+        cropReason = `Property fills ${(coverageRatio * 100).toFixed(0)}%, aggressive 65% crop`
+      }
+
+      logDebug(`Adaptive crop decision: ${cropReason}`)
+
       const cropWidth = canvas.width * cropPercent
       const cropHeight = canvas.height * cropPercent
       const cropX = (canvas.width - cropWidth) / 2
@@ -830,13 +939,6 @@ const ExploreMap: React.FC<ExploreMapProps> = ({
 
       // Apply image enhancements with improved settings + metadata
       logDebug(`Enhancing ${viewName} view with image processing v2.0...`)
-
-      // Get current map metadata
-      const currentZoom = mapRef.current?.getZoom() || 20
-      const currentLat = selectedLocation?.lat || 0
-      const currentLng = selectedLocation?.lng || 0
-      const currentTilt = mapRef.current?.getTilt() || 0
-      const currentHeading = mapRef.current?.getHeading() || 0
 
       // Apply main enhancements (edges, contrast, grid) with metadata
       const enhancedResult = await enhanceImageForRoofAnalysis(imageData, {
@@ -936,6 +1038,7 @@ const ExploreMap: React.FC<ExploreMapProps> = ({
   // Function to send images to Multi-Agent system for comprehensive analysis
   const sendToMultiAgentSystem = async (
     satelliteViews,
+    fullSolarData = null,
     solarMetrics = null
   ) => {
     const startTime = Date.now()
@@ -991,7 +1094,8 @@ const ExploreMap: React.FC<ExploreMapProps> = ({
         },
         body: JSON.stringify({
           capturedImages: validViews,
-          solarData: solarMetrics,
+          solarData: fullSolarData, // Full solar API response for solar panel data
+          solarMetrics: solarMetrics, // Extracted metrics for roof measurements
           address:
             selectedAddress ||
             `${selectedLocation?.lat.toFixed(6)}, ${selectedLocation?.lng.toFixed(6)}`,
@@ -1199,34 +1303,21 @@ ${result.finalReport?.recommendations?.budgetGuidance || ""}
         }
       }
 
-      // Show user-friendly error with details and report option
-      const errorMessage = `Property report failed: ${errorInfo.error}`
-      const errorDetails = `Agent: ${errorInfo.agent || "Unknown"}\nDetails: ${errorInfo.details}\nTime: ${new Date(errorInfo.timestamp).toLocaleString()}`
+      // Show simplified error toast
+      const errorMessage = `Report failed: ${errorInfo.error}`
 
-      toast.error(
-        <div className="flex flex-col gap-2">
-          <div className="font-semibold">{errorMessage}</div>
-          <div className="whitespace-pre-line text-xs text-gray-600 dark:text-gray-400">
-            {errorDetails}
-          </div>
-          <button
-            onClick={() => {
-              // Copy error details to clipboard
-              navigator.clipboard.writeText(JSON.stringify(errorInfo, null, 2))
-              toast.success(
-                "Error details copied to clipboard. Please email them to support@rooftopsai.com"
-              )
-            }}
-            className="mt-2 rounded-md bg-red-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-red-700"
-          >
-            Report this problem
-          </button>
-        </div>,
-        {
-          duration: 10000, // Show for 10 seconds
-          important: true
-        }
-      )
+      toast.error(errorMessage, {
+        duration: 5000,
+        important: true
+      })
+
+      // Log full details to console for debugging
+      console.error("Property report error:", {
+        error: errorInfo.error,
+        agent: errorInfo.agent,
+        details: errorInfo.details,
+        timestamp: errorInfo.timestamp
+      })
 
       return null
     }
@@ -2187,37 +2278,18 @@ ${referenceSection}
 
       // Only show error if it's not a MultiAgentAnalysisError (already shown)
       if (error.name !== "MultiAgentAnalysisError") {
-        toast.error(
-          <div className="flex flex-col gap-2">
-            <div className="font-semibold">Report generation failed</div>
-            <div className="text-xs text-gray-600 dark:text-gray-400">
-              {error.message || "An unexpected error occurred"}
-            </div>
-            <button
-              onClick={() => {
-                const errorInfo = {
-                  error: error.message || "Unknown error",
-                  stack: error.stack,
-                  timestamp: new Date().toISOString(),
-                  location: selectedAddress || "unknown"
-                }
-                navigator.clipboard.writeText(
-                  JSON.stringify(errorInfo, null, 2)
-                )
-                toast.success(
-                  "Error details copied. Please email them to support@rooftopsai.com"
-                )
-              }}
-              className="mt-2 rounded-md bg-red-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-red-700"
-            >
-              Report this problem
-            </button>
-          </div>,
-          {
-            duration: 10000,
-            important: true
-          }
-        )
+        toast.error(`Report generation failed: ${error.message || "Unknown error"}`, {
+          duration: 5000,
+          important: true
+        })
+
+        // Log full error details to console
+        console.error("Report generation error:", {
+          error: error.message,
+          stack: error.stack,
+          timestamp: new Date().toISOString(),
+          location: selectedAddress || "unknown"
+        })
       }
     } finally {
       setIsLoading(false)
@@ -2225,7 +2297,7 @@ ${referenceSection}
   }
 
   // Handle analyze property click with validation
-  const handleAnalyzePropertyClick = () => {
+  const handleAnalyzePropertyClick = async () => {
     if (!selectedLocation) {
       toast.error(
         "Please select a property location first by clicking on the map or searching for an address."
@@ -2233,9 +2305,32 @@ ${referenceSection}
       return
     }
 
+    // Fetch fresh usage data before checking limits
+    let currentSubscriptionInfo = subscriptionInfo
+    try {
+      const response = await fetch("/api/subscription/check")
+      if (response.ok) {
+        const data = await response.json()
+        currentSubscriptionInfo = data
+        setSubscriptionInfo(data)
+        console.log(
+          "[Subscription Check] Fresh data:",
+          data.propertyReports.currentUsage,
+          "/",
+          data.propertyReports.limit,
+          "used"
+        )
+      }
+    } catch (error) {
+      console.error("Error fetching subscription info:", error)
+    }
+
     // Check subscription limits before starting analysis
-    if (subscriptionInfo && !subscriptionInfo.propertyReports.canUse) {
-      const { limit, currentUsage } = subscriptionInfo.propertyReports
+    if (
+      currentSubscriptionInfo &&
+      !currentSubscriptionInfo.propertyReports.canUse
+    ) {
+      const { limit, currentUsage } = currentSubscriptionInfo.propertyReports
       toast.error(
         `You've used ${currentUsage} of ${limit} reports this month. Upgrade your plan to generate more reports.`
       )
@@ -2244,29 +2339,6 @@ ${referenceSection}
         window.location.href = "/pricing"
       }, 2000)
       return
-    }
-
-    // Show proactive warning for free users with remaining reports
-    if (
-      subscriptionInfo &&
-      subscriptionInfo.propertyReports.canUse &&
-      subscriptionInfo.propertyReports.remainingUsage !== "unlimited"
-    ) {
-      const { remainingUsage, currentUsage, limit } =
-        subscriptionInfo.propertyReports
-
-      // Show warning toast if user has limited reports remaining
-      if (typeof remainingUsage === "number" && remainingUsage <= 3) {
-        if (remainingUsage === 1) {
-          toast.warning(
-            `This is your last free property report. Upgrade to Pro for unlimited reports.`
-          )
-        } else {
-          toast.info(
-            `You have ${remainingUsage} free property reports remaining this month (${currentUsage}/${limit} used).`
-          )
-        }
-      }
     }
 
     // Start the analysis process
@@ -2395,13 +2467,18 @@ ${referenceSection}
       {/* Report Display - Shows in main content area */}
       {(roofAnalysis || reportData) && (
         <div className="absolute inset-0 z-20">
+          {console.log(
+            "[ExploreMap] Passing solar data to PropertyReportViewer:",
+            (roofAnalysis || reportData)?.solarData?.solarPotential
+              ?.maxArrayPanelsCount || "NOT FOUND"
+          )}
           <PropertyReportViewer
             reportData={roofAnalysis || reportData}
             solarData={
               roofAnalysis?.solarData ||
               roofAnalysis?.metadata?.solarData ||
-              reportData?.solar ||
-              reportData?.solarMetrics
+              reportData?.solarData ||
+              null
             }
             images={
               roofAnalysis?.capturedImages ||

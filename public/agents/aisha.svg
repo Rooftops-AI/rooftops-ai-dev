@@ -1,0 +1,33 @@
+<svg width="400" height="400" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="aishaGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ec4899;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d946ef;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <!-- Background circle -->
+  <circle cx="200" cy="200" r="180" fill="url(#aishaGradient)" opacity="0.1"/>
+  <!-- Professional figure with megaphone and social media -->
+  <g transform="translate(200, 200)">
+    <!-- Head -->
+    <circle cx="0" cy="-60" r="35" fill="url(#aishaGradient)"/>
+    <!-- Body -->
+    <ellipse cx="0" cy="20" rx="45" ry="60" fill="url(#aishaGradient)"/>
+    <!-- Megaphone -->
+    <path d="M 15,-5 L 65,-15 L 65,5 L 15,15 Z" fill="#ffffff" stroke="url(#aishaGradient)" stroke-width="3"/>
+    <ellipse cx="15" cy="5" rx="8" ry="12" fill="url(#aishaGradient)"/>
+    <path d="M 65,-10 Q 75,-12 75,-5 Q 75,2 65,0" fill="url(#aishaGradient)"/>
+    <!-- Sound waves -->
+    <path d="M 70,-18 Q 78,-20 80,-15" stroke="url(#aishaGradient)" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M 72,-8 Q 80,-10 85,-5" stroke="url(#aishaGradient)" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M 70,8 Q 78,10 80,5" stroke="url(#aishaGradient)" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <!-- Social media icons (simplified) -->
+    <circle cx="-50" cy="-10" r="12" fill="#ffffff" stroke="url(#aishaGradient)" stroke-width="3"/>
+    <path d="M -55,-10 L -45,-10 M -50,-15 L -50,-5" stroke="url(#aishaGradient)" stroke-width="2"/>
+    <circle cx="-50" cy="15" r="12" fill="#ffffff" stroke="url(#aishaGradient)" stroke-width="3"/>
+    <circle cx="-50" cy="15" r="6" fill="url(#aishaGradient)"/>
+    <!-- Arms -->
+    <ellipse cx="-30" cy="20" rx="12" ry="35" fill="url(#aishaGradient)" transform="rotate(-15 -30 20)"/>
+    <ellipse cx="35" cy="15" rx="12" ry="38" fill="url(#aishaGradient)" transform="rotate(20 35 15)"/>
+  </g>
+</svg>

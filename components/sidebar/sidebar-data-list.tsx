@@ -221,7 +221,7 @@ export const SidebarDataList: FC<SidebarDataListProps> = ({
     <>
       <div
         ref={divRef}
-        className="mt-2 flex flex-col overflow-auto"
+        className="mt-2 flex flex-col overflow-auto px-2"
         onDrop={handleDrop}
       >
         {(dataWithFolders.length > 0 || dataWithoutFolders.length > 0) && (

@@ -210,18 +210,32 @@ export const calculateZoomForAngle = (
     Math.abs(propertyWidthMeters * Math.sin(headingRad)) +
     Math.abs(propertyHeightMeters * Math.cos(headingRad))
 
-  // Adjust for tilt perspective
-  // At 60° tilt, we need more vertical space because we're viewing at an angle
-  // The vertical space needed increases by 1/cos(tilt)
+  // Adjust for tilt perspective - CORRECT formula for horizontal surfaces
+  // When viewing a horizontal roof at a tilt angle:
+  // - The depth dimension appears compressed in screen space
+  // - Multiply by cos(tilt), NOT divide (roofs are horizontal, not vertical walls)
+  // - Add perspective factor for 3D distortion safety margin
   let effectiveHeight = apparentDepth
   if (tilt > 0) {
     const tiltRad = (tilt * Math.PI) / 180
-    effectiveHeight = apparentDepth / Math.cos(tiltRad)
+
+    // For horizontal surfaces viewed from above at an angle:
+    // - Screen vertical extent = depth × cos(tilt)
+    // - But 3D perspective stretches the far edge
+    // - Use conservative multiplier for safety
+    const perspectiveFactor = tilt > 45 ? 1.4 : 1.2
+
+    effectiveHeight = apparentDepth * Math.cos(tiltRad) * perspectiveFactor
   }
 
-  // Calculate required dimensions with target coverage
-  const requiredWidthMeters = apparentWidth / targetCoverage
-  const requiredHeightMeters = effectiveHeight / targetCoverage
+  // Use angle-aware coverage targets for safety
+  // Overhead views (0° tilt) are predictable → aggressive 92% coverage
+  // Tilted views (45°+ tilt) have 3D perspective distortion → conservative 85% coverage
+  const adaptiveCoverage = tilt === 0 ? 0.92 : 0.85
+
+  // Calculate required dimensions with adaptive coverage
+  const requiredWidthMeters = apparentWidth / adaptiveCoverage
+  const requiredHeightMeters = effectiveHeight / adaptiveCoverage
 
   // Use the larger dimension to ensure both fit
   const requiredMeters = Math.max(requiredWidthMeters, requiredHeightMeters)
@@ -284,6 +298,23 @@ export const calculateZoomForAngle = (
   }
 
   return optimalZoom
+}
+
+// Calculate visible area dimensions at a given zoom level
+// Used for pre-capture validation
+export const calculateVisibleArea = (
+  zoom: number,
+  latitude: number,
+  viewportWidthPixels: number = 640,
+  viewportHeightPixels: number = 480
+): { widthMeters: number; heightMeters: number } => {
+  const scale = calculateScale(zoom, latitude)
+  const metersPerPixel = scale.metersPerPixel
+
+  return {
+    widthMeters: viewportWidthPixels * metersPerPixel,
+    heightMeters: viewportHeightPixels * metersPerPixel
+  }
 }
 
 // Assess image quality before processing

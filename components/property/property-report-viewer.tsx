@@ -151,6 +151,20 @@ const PropertyReportViewer: React.FC<PropertyReportViewerProps> = ({
       reportData?.metadata?.solarData || // Try metadata.solarData
       {}
 
+    console.log("[PropertyReportViewer] Solar data extraction:", {
+      hasSolarDataProp: !!solarData,
+      hasReportDataSolar: !!reportData?.solarData,
+      maxPanelsFound: solar?.maxArrayPanelsCount || "Not found",
+      solarStructure: Object.keys(solar || {}).slice(0, 5)
+    })
+
+    console.log("[PropertyReportViewer] Address extraction:", {
+      metadataAddress: reportData?.metadata?.address,
+      topLevelAddress: reportData?.address,
+      finalAddress:
+        reportData?.metadata?.address || reportData?.address || "NOT FOUND"
+    })
+
     return {
       property: {
         address:

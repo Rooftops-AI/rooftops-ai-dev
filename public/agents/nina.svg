@@ -1,0 +1,39 @@
+<svg width="400" height="400" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="ninaGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#64748b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#475569;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <!-- Background circle -->
+  <circle cx="200" cy="200" r="180" fill="url(#ninaGradient)" opacity="0.1"/>
+  <!-- Professional figure with briefcase and documents -->
+  <g transform="translate(200, 200)">
+    <!-- Head -->
+    <circle cx="0" cy="-60" r="35" fill="url(#ninaGradient)"/>
+    <!-- Body -->
+    <ellipse cx="0" cy="20" rx="45" ry="60" fill="url(#ninaGradient)"/>
+    <!-- Briefcase -->
+    <rect x="-60" y="10" width="45" height="35" rx="3" fill="#ffffff" stroke="url(#ninaGradient)" stroke-width="3"/>
+    <rect x="-47" y="5" width="20" height="8" rx="3" fill="url(#ninaGradient)"/>
+    <circle cx="-37.5" cy="27.5" r="3" fill="url(#ninaGradient)"/>
+    <line x1="-53" y1="20" x2="-22" y2="20" stroke="url(#ninaGradient)" stroke-width="2"/>
+    <line x1="-53" y1="28" x2="-22" y2="28" stroke="url(#ninaGradient)" stroke-width="2"/>
+    <line x1="-53" y1="36" x2="-35" y2="36" stroke="url(#ninaGradient)" stroke-width="2"/>
+    <!-- Contract/Document with signature -->
+    <rect x="15" y="-5" width="55" height="70" rx="4" fill="#ffffff" stroke="url(#ninaGradient)" stroke-width="3"/>
+    <line x1="25" y1="5" x2="60" y2="5" stroke="url(#ninaGradient)" stroke-width="2"/>
+    <line x1="25" y1="15" x2="60" y2="15" stroke="url(#ninaGradient)" stroke-width="2"/>
+    <line x1="25" y1="25" x2="60" y2="25" stroke="url(#ninaGradient)" stroke-width="2"/>
+    <line x1="25" y1="35" x2="55" y2="35" stroke="url(#ninaGradient)" stroke-width="1.5"/>
+    <!-- Signature line -->
+    <line x1="25" y1="50" x2="60" y2="50" stroke="url(#ninaGradient)" stroke-width="1" stroke-dasharray="2,2"/>
+    <path d="M 30,48 Q 35,45 40,48 Q 45,51 50,48" stroke="url(#ninaGradient)" stroke-width="2" fill="none"/>
+    <!-- Dollar sign -->
+    <circle cx="42" cy="58" r="6" stroke="url(#ninaGradient)" stroke-width="2" fill="none"/>
+    <path d="M 42,52 L 42,64 M 39,55 Q 39,54 42,54 Q 45,54 45,56 Q 45,58 42,58 Q 39,58 39,60 Q 39,62 42,62 Q 45,62 45,61" stroke="url(#ninaGradient)" stroke-width="1.5" fill="none"/>
+    <!-- Arms -->
+    <ellipse cx="-35" cy="20" rx="12" ry="35" fill="url(#ninaGradient)" transform="rotate(-25 -35 20)"/>
+    <ellipse cx="38" cy="20" rx="12" ry="35" fill="url(#ninaGradient)" transform="rotate(15 38 20)"/>
+  </g>
+</svg>
