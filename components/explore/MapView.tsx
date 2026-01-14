@@ -1266,6 +1266,11 @@ const MapView: React.FC<MapViewProps> = ({
                         }`}
                       >
                         {step.shortName}
+                        {step.number === 4 && (
+                          <div className="mt-1 text-[10px] opacity-70">
+                            (this may take a moment)
+                          </div>
+                        )}
                       </div>
                     </div>
                   )
