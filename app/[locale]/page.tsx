@@ -110,6 +110,9 @@ export default function LandingPage() {
             <h1 className="animate-shimmer-text text-2xl leading-tight tracking-tight sm:text-4xl md:text-5xl lg:text-6xl">
               A new era of roofing is here.
             </h1>
+            <p className="mx-auto mt-4 max-w-2xl font-[Inter] text-sm font-normal text-gray-600 sm:text-base md:text-lg">
+              Instantly analyze roof conditions, generate professional reports, and close deals faster with our AI-powered platform.
+            </p>
             <div className="mt-4 flex justify-center">
               <span className="rounded-full bg-gray-100 px-4 py-1.5 text-sm font-medium text-gray-600">
                 Try it for free
@@ -131,7 +134,7 @@ export default function LandingPage() {
               >
                 <button
                   onClick={() => setActiveTab("chat")}
-                  className={`flex h-full w-full items-center gap-1.5 whitespace-nowrap rounded-t-[11px] px-3 py-2 text-sm font-medium sm:gap-2 sm:px-4 sm:py-2.5 ${
+                  className={`flex size-full items-center gap-1.5 whitespace-nowrap rounded-t-[11px] px-3 py-2 text-sm font-medium sm:gap-2 sm:px-4 sm:py-2.5${
                     activeTab === "chat"
                       ? "border-b border-white bg-white pb-2.5 pt-2 text-gray-900 sm:pb-3 sm:pt-2.5"
                       : "border border-transparent bg-gray-200 text-gray-600 hover:bg-gray-300 hover:text-gray-900"
@@ -152,7 +155,7 @@ export default function LandingPage() {
               >
                 <button
                   onClick={() => setActiveTab("report")}
-                  className={`flex h-full w-full items-center gap-1.5 whitespace-nowrap rounded-t-[11px] px-3 py-2 text-sm font-medium sm:gap-2 sm:px-4 sm:py-2.5 ${
+                  className={`flex size-full items-center gap-1.5 whitespace-nowrap rounded-t-[11px] px-3 py-2 text-sm font-medium sm:gap-2 sm:px-4 sm:py-2.5${
                     activeTab === "report"
                       ? "border-b border-white bg-white pb-2.5 pt-2 text-gray-900 sm:pb-3 sm:pt-2.5"
                       : "border border-transparent bg-gray-200 text-gray-600 hover:bg-gray-300 hover:text-gray-900"
@@ -312,7 +315,7 @@ export default function LandingPage() {
 
       {/* CSS for Shimmer Effect and Gradient Border */}
       <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@700&display=swap');
+        @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap");
 
         @keyframes shimmer {
           0% {
@@ -324,14 +327,14 @@ export default function LandingPage() {
         }
 
         .animate-shimmer-text {
-          font-family: 'Inter', sans-serif;
+          font-family: "Inter", sans-serif;
           font-weight: 700;
           background: linear-gradient(
             to right,
             #1a1a1a 0%,
             #1a1a1a 40%,
-            #24BDEB 47%,
-            #4FEBBC 53%,
+            #24bdeb 47%,
+            #4febbc 53%,
             #1a1a1a 60%,
             #1a1a1a 100%
           );
@@ -345,7 +348,7 @@ export default function LandingPage() {
         }
 
         .gradient-border {
-          background: linear-gradient(to right, #24BDEB, #4FEBBC);
+          background: linear-gradient(to right, #24bdeb, #4febbc);
         }
       `}</style>
     </div>
