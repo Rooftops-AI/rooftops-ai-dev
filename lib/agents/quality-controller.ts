@@ -1,6 +1,19 @@
 // Quality Controller Agent - Pure function (no Next.js dependencies)
 // Extracted core logic from app/api/agents/quality-controller/route.ts
 
+// ═══════════════════════════════════════════════════════════════════
+// MODEL CONFIGURATION - Change this to switch between models
+// ═══════════════════════════════════════════════════════════════════
+const MODEL_CONFIG = {
+  provider: "anthropic" as "openai" | "anthropic", // Switch between "openai" or "anthropic"
+  model:
+    "claude-opus-4-5-20251101" as
+      | "gpt-5.1-2025-11-13"
+      | "claude-opus-4-5-20251101",
+  temperature: 0.2, // Very low temperature for precise validation
+  maxTokens: 6000 // More tokens for comprehensive synthesis
+}
+
 export async function runQualityController({
   measurementData,
   conditionData,
@@ -289,20 +302,27 @@ NO MARKDOWN. NO CODE BLOCKS. JUST RAW JSON.
 
 BE THOROUGH. BE CRITICAL. BE HONEST ABOUT LIMITATIONS. THE HOMEOWNER DESERVES ACCURATE INFORMATION.`
 
-  // Call Anthropic API with Claude Opus 4.5
-  const anthropicResponse = await fetch(
-    "https://api.anthropic.com/v1/messages",
-    {
+  // Call appropriate API based on provider
+  let response: Response
+  let data: any
+  let content: string
+
+  if (MODEL_CONFIG.provider === "anthropic") {
+    // Call Anthropic API
+    response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": process.env.GLOBAL_ANTHROPIC_API_KEY || process.env.ANTHROPIC_API_KEY || "",
+        "x-api-key":
+          process.env.GLOBAL_ANTHROPIC_API_KEY ||
+          process.env.ANTHROPIC_API_KEY ||
+          "",
         "anthropic-version": "2023-06-01"
       },
       body: JSON.stringify({
-        model: "claude-opus-4-5-20251101",
-        max_tokens: 6000, // More tokens for comprehensive synthesis
-        temperature: 0.2, // Very low temperature for precise validation
+        model: MODEL_CONFIG.model,
+        max_tokens: MODEL_CONFIG.maxTokens,
+        temperature: MODEL_CONFIG.temperature,
         system:
           "You are a senior quality controller reviewing roof analysis reports. Be critical, thorough, and honest. Respond only with valid JSON.",
         messages: [
@@ -312,17 +332,51 @@ BE THOROUGH. BE CRITICAL. BE HONEST ABOUT LIMITATIONS. THE HOMEOWNER DESERVES AC
           }
         ]
       })
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error("Anthropic API error:", errorText)
+      throw new Error(`Failed to perform quality control: ${errorText}`)
     }
-  )
 
-  if (!anthropicResponse.ok) {
-    const errorText = await anthropicResponse.text()
-    console.error("Anthropic API error:", errorText)
-    throw new Error(`Failed to perform quality control: ${errorText}`)
+    data = await response.json()
+    content = data.content[0]?.text
+  } else {
+    // Call OpenAI API
+    response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: MODEL_CONFIG.model,
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are a senior quality controller reviewing roof analysis reports. Be critical, thorough, and honest. Respond only with valid JSON."
+          },
+          {
+            role: "user",
+            content: prompt
+          }
+        ],
+        temperature: MODEL_CONFIG.temperature,
+        max_completion_tokens: MODEL_CONFIG.maxTokens
+      })
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error("OpenAI API error:", errorText)
+      throw new Error(`Failed to perform quality control: ${errorText}`)
+    }
+
+    data = await response.json()
+    content = data.choices[0]?.message?.content
   }
-
-  const data = await anthropicResponse.json()
-  const content = data.content[0]?.text
 
   // Parse JSON response
   try {
@@ -335,7 +389,7 @@ BE THOROUGH. BE CRITICAL. BE HONEST ABOUT LIMITATIONS. THE HOMEOWNER DESERVES AC
       success: true,
       agent: "quality_controller",
       data: result,
-      model: "claude-opus-4-5-20251101",
+      model: MODEL_CONFIG.model,
       tokensUsed: data.usage
     }
   } catch (parseError) {

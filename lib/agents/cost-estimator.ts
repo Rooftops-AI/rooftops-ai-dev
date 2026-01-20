@@ -1,6 +1,19 @@
 // Cost Estimator Agent - Pure function (no Next.js dependencies)
 // Extracted core logic from app/api/agents/cost-estimator/route.ts
 
+// ═══════════════════════════════════════════════════════════════════
+// MODEL CONFIGURATION - Change this to switch between models
+// ═══════════════════════════════════════════════════════════════════
+const MODEL_CONFIG = {
+  provider: "anthropic" as "openai" | "anthropic", // Switch between "openai" or "anthropic"
+  model:
+    "claude-opus-4-5-20251101" as
+      | "gpt-5.1-2025-11-13"
+      | "claude-opus-4-5-20251101",
+  temperature: 0.3, // Lower temperature for precise cost calculations
+  maxTokens: 4000
+}
+
 export async function runCostEstimator({
   measurementData,
   conditionData,
@@ -243,20 +256,27 @@ NO MARKDOWN. NO CODE BLOCKS. JUST RAW JSON.
 
 IMPORTANT: Use current 2025 pricing. Be realistic and comprehensive. Include all typical costs.`
 
-  // Call Anthropic API with Claude Opus 4.5
-  const anthropicResponse = await fetch(
-    "https://api.anthropic.com/v1/messages",
-    {
+  // Call appropriate API based on provider
+  let response: Response
+  let data: any
+  let content: string
+
+  if (MODEL_CONFIG.provider === "anthropic") {
+    // Call Anthropic API
+    response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": process.env.GLOBAL_ANTHROPIC_API_KEY || process.env.ANTHROPIC_API_KEY || "",
+        "x-api-key":
+          process.env.GLOBAL_ANTHROPIC_API_KEY ||
+          process.env.ANTHROPIC_API_KEY ||
+          "",
         "anthropic-version": "2023-06-01"
       },
       body: JSON.stringify({
-        model: "claude-opus-4-5-20251101",
-        max_tokens: 4000,
-        temperature: 0.3, // Lower temperature for precise cost calculations
+        model: MODEL_CONFIG.model,
+        max_tokens: MODEL_CONFIG.maxTokens,
+        temperature: MODEL_CONFIG.temperature,
         system:
           "You are a specialized roofing cost estimator. Respond only with valid JSON. Use realistic 2025 pricing.",
         messages: [
@@ -266,17 +286,51 @@ IMPORTANT: Use current 2025 pricing. Be realistic and comprehensive. Include all
           }
         ]
       })
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error("Anthropic API error:", errorText)
+      throw new Error(`Failed to estimate costs: ${errorText}`)
     }
-  )
 
-  if (!anthropicResponse.ok) {
-    const errorText = await anthropicResponse.text()
-    console.error("Anthropic API error:", errorText)
-    throw new Error(`Failed to estimate costs: ${errorText}`)
+    data = await response.json()
+    content = data.content[0]?.text
+  } else {
+    // Call OpenAI API
+    response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: MODEL_CONFIG.model,
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are a specialized roofing cost estimator. Respond only with valid JSON. Use realistic 2025 pricing."
+          },
+          {
+            role: "user",
+            content: prompt
+          }
+        ],
+        temperature: MODEL_CONFIG.temperature,
+        max_completion_tokens: MODEL_CONFIG.maxTokens
+      })
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error("OpenAI API error:", errorText)
+      throw new Error(`Failed to estimate costs: ${errorText}`)
+    }
+
+    data = await response.json()
+    content = data.choices[0]?.message?.content
   }
-
-  const data = await anthropicResponse.json()
-  const content = data.content[0]?.text
 
   // Parse JSON response
   try {
@@ -289,7 +343,7 @@ IMPORTANT: Use current 2025 pricing. Be realistic and comprehensive. Include all
       success: true,
       agent: "cost_estimator",
       data: result,
-      model: "claude-opus-4-5-20251101",
+      model: MODEL_CONFIG.model,
       tokensUsed: data.usage
     }
   } catch (parseError) {

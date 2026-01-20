@@ -1,6 +1,19 @@
 // Condition Inspector Agent - Pure function (no Next.js dependencies)
 // Extracted core logic from app/api/agents/condition-inspector/route.ts
 
+// ═══════════════════════════════════════════════════════════════════
+// MODEL CONFIGURATION - Change this to switch between models
+// ═══════════════════════════════════════════════════════════════════
+const MODEL_CONFIG = {
+  provider: "anthropic" as "openai" | "anthropic", // Switch between "openai" or "anthropic"
+  model:
+    "claude-opus-4-5-20251101" as
+      | "gpt-5.1-2025-11-13"
+      | "claude-opus-4-5-20251101",
+  temperature: 0.4, // Slightly higher for condition assessment nuance
+  maxTokens: 4000
+}
+
 export async function runConditionInspector({
   allImages,
   address,
@@ -185,41 +198,59 @@ NO MARKDOWN. NO CODE BLOCKS. JUST RAW JSON.`
     }
   ]
 
-  // Add all images (convert to Anthropic format)
+  // Add all images (format based on provider)
   allImages.forEach((img: any) => {
-    // Extract base64 data from data URL
-    const imageData = img.imageData
-    if (imageData.startsWith("data:")) {
-      const matches = imageData.match(/^data:(.+?);base64,(.+)$/)
-      if (matches) {
-        const mediaType = matches[1]
-        const base64Data = matches[2]
-        messageContent.push({
-          type: "image",
-          source: {
-            type: "base64",
-            media_type: mediaType,
-            data: base64Data
-          }
-        })
+    if (MODEL_CONFIG.provider === "anthropic") {
+      // Anthropic format: base64 image
+      const imageData = img.imageData
+      if (imageData.startsWith("data:")) {
+        const matches = imageData.match(/^data:(.+?);base64,(.+)$/)
+        if (matches) {
+          const mediaType = matches[1]
+          const base64Data = matches[2]
+          messageContent.push({
+            type: "image",
+            source: {
+              type: "base64",
+              media_type: mediaType,
+              data: base64Data
+            }
+          })
+        }
       }
+    } else {
+      // OpenAI format: image_url
+      messageContent.push({
+        type: "image_url",
+        image_url: {
+          url: img.imageData,
+          detail: "high"
+        }
+      })
     }
   })
 
-  // Call Anthropic API with Claude Opus 4.5
-  const anthropicResponse = await fetch(
-    "https://api.anthropic.com/v1/messages",
-    {
+  // Call appropriate API based on provider
+  let response: Response
+  let data: any
+  let content: string
+
+  if (MODEL_CONFIG.provider === "anthropic") {
+    // Call Anthropic API
+    response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": process.env.GLOBAL_ANTHROPIC_API_KEY || process.env.ANTHROPIC_API_KEY || "",
+        "x-api-key":
+          process.env.GLOBAL_ANTHROPIC_API_KEY ||
+          process.env.ANTHROPIC_API_KEY ||
+          "",
         "anthropic-version": "2023-06-01"
       },
       body: JSON.stringify({
-        model: "claude-opus-4-5-20251101",
-        max_tokens: 4000,
-        temperature: 0.4, // Slightly higher for condition assessment nuance
+        model: MODEL_CONFIG.model,
+        max_tokens: MODEL_CONFIG.maxTokens,
+        temperature: MODEL_CONFIG.temperature,
         system:
           "You are a specialized roof condition inspector. Respond only with valid JSON.",
         messages: [
@@ -229,17 +260,51 @@ NO MARKDOWN. NO CODE BLOCKS. JUST RAW JSON.`
           }
         ]
       })
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error("Anthropic API error:", errorText)
+      throw new Error(`Failed to analyze condition: ${errorText}`)
     }
-  )
 
-  if (!anthropicResponse.ok) {
-    const errorText = await anthropicResponse.text()
-    console.error("Anthropic API error:", errorText)
-    throw new Error(`Failed to analyze condition: ${errorText}`)
+    data = await response.json()
+    content = data.content[0]?.text
+  } else {
+    // Call OpenAI API
+    response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: MODEL_CONFIG.model,
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are a specialized roof condition inspector. Respond only with valid JSON."
+          },
+          {
+            role: "user",
+            content: messageContent
+          }
+        ],
+        temperature: MODEL_CONFIG.temperature,
+        max_completion_tokens: MODEL_CONFIG.maxTokens
+      })
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error("OpenAI API error:", errorText)
+      throw new Error(`Failed to analyze condition: ${errorText}`)
+    }
+
+    data = await response.json()
+    content = data.choices[0]?.message?.content
   }
-
-  const data = await anthropicResponse.json()
-  const content = data.content[0]?.text
 
   // Parse JSON response
   try {
@@ -252,7 +317,7 @@ NO MARKDOWN. NO CODE BLOCKS. JUST RAW JSON.`
       success: true,
       agent: "condition_inspector",
       data: result,
-      model: "claude-opus-4-5-20251101",
+      model: MODEL_CONFIG.model,
       tokensUsed: data.usage
     }
   } catch (parseError) {

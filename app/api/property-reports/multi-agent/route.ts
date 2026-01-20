@@ -222,7 +222,7 @@ export async function POST(req: NextRequest) {
     const finalReport = {
       success: true,
       multiAgent: true,
-      model: "claude-opus-4-5-20251101",
+      model: agentResults.quality?.model || "claude-opus-4-5-20251101", // Use model from agent response
 
       // Property info at top level for easy access
       address: address,
