@@ -36,12 +36,9 @@ export async function middleware(request: NextRequest) {
           console.log("🟢 Redirecting authenticated user to:", redirectUrl)
           return NextResponse.redirect(new URL(redirectUrl, request.url))
         }
-      } else {
-        // Not authenticated: redirect to login
-        const redirectUrl = `/${locale}/login`
-        console.log("🔴 Redirecting unauthenticated user to:", redirectUrl)
-        return NextResponse.redirect(new URL(redirectUrl, request.url))
       }
+      // Not authenticated: let them see the landing page (no redirect)
+      console.log("🔵 Unauthenticated user can view landing page")
     }
 
     // Process i18n routing for non-root paths
