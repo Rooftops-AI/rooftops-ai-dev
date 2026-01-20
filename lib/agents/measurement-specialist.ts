@@ -282,15 +282,25 @@ NO MARKDOWN. NO CODE BLOCKS. JUST RAW JSON.`
     }
   ]
 
-  // Add overhead images
+  // Add overhead images (convert to Anthropic format)
   overheadImages.forEach((img: any) => {
-    messageContent.push({
-      type: "image_url",
-      image_url: {
-        url: img.imageData,
-        detail: "high"
+    // Extract base64 data from data URL
+    const imageData = img.imageData
+    if (imageData.startsWith("data:")) {
+      const matches = imageData.match(/^data:(.+?);base64,(.+)$/)
+      if (matches) {
+        const mediaType = matches[1]
+        const base64Data = matches[2]
+        messageContent.push({
+          type: "image",
+          source: {
+            type: "base64",
+            media_type: mediaType,
+            data: base64Data
+          }
+        })
       }
-    })
+    }
   })
 
   // Call Anthropic API with Claude Opus 4.5
