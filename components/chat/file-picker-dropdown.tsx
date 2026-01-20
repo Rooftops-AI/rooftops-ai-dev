@@ -91,9 +91,9 @@ export const FilePickerDropdown: FC<FilePickerDropdownProps> = ({
     }
 
     if (!hasConnection) {
-      // Redirect to connect Google Drive
+      // Redirect to Google Drive OAuth flow
       toast.info("Redirecting to connect Google Drive...")
-      router.push("/tools")
+      window.location.href = "/api/auth/google/drive"
       return
     }
 
