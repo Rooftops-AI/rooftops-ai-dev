@@ -21,8 +21,8 @@ export function LoginForm({
   const [activeTab, setActiveTab] = useState<"signin" | "signup">("signup")
 
   return (
-    <div className="w-full max-w-md pt-16 lg:pt-0">
-      <div className="mb-8">
+    <div className="w-full max-w-md">
+      <div className="mb-6">
         <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
           {activeTab === "signin" ? "Welcome back" : "Get Started"}
         </h2>

@@ -284,9 +284,9 @@ export default async function Login({
       </div>
 
       {/* Right side - Login form */}
-      <div className="flex w-full items-center justify-center bg-white px-8 py-12 lg:w-1/2 dark:bg-slate-950">
+      <div className="flex w-full flex-col items-center overflow-y-auto bg-white px-4 py-6 sm:px-8 sm:py-8 lg:w-1/2 lg:justify-center lg:py-12 dark:bg-slate-950">
         {/* Mobile logo */}
-        <div className="absolute left-1/2 top-8 -translate-x-1/2 lg:hidden">
+        <div className="mb-6 flex w-full justify-center lg:hidden">
           <Image
             src="/rooftops-logo-gr-black.png"
             alt="Rooftops AI"

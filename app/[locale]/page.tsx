@@ -55,9 +55,9 @@ export default function LandingPage() {
   }
 
   return (
-    <div className="relative flex h-screen w-full items-center justify-center overflow-hidden bg-gradient-to-br from-slate-100 via-blue-50 to-slate-200 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+    <div className="relative min-h-screen w-full overflow-y-auto bg-gradient-to-br from-slate-100 via-blue-50 to-slate-200 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
       {/* Map-like background pattern */}
-      <div className="absolute inset-0 opacity-20 dark:opacity-10">
+      <div className="fixed inset-0 opacity-20 dark:opacity-10">
         <svg className="h-full w-full" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <pattern
@@ -80,10 +80,10 @@ export default function LandingPage() {
       </div>
 
       {/* Blur overlay */}
-      <div className="absolute inset-0 backdrop-blur-[2px]"></div>
+      <div className="fixed inset-0 backdrop-blur-[2px]"></div>
 
       {/* Content */}
-      <div className="relative z-10 flex w-full max-w-4xl flex-col items-center gap-8 px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 flex w-full max-w-4xl flex-col items-center gap-6 px-4 py-8 sm:gap-8 sm:px-6 sm:py-12 lg:px-8">
         {/* Logo */}
         <div className="flex flex-col items-center gap-4">
           <Image
@@ -209,7 +209,7 @@ export default function LandingPage() {
         </div>
 
         {/* CTA */}
-        <div className="mt-4 text-center">
+        <div className="mb-8 mt-4 text-center">
           <button
             onClick={handleInputClick}
             className="rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 px-8 py-3 font-semibold text-white shadow-lg transition-all hover:from-cyan-600 hover:to-blue-700 hover:shadow-xl"
