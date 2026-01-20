@@ -122,7 +122,7 @@ export default async function Login({
     const cookieStore = cookies()
     const supabase = createClient(cookieStore)
 
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -134,6 +134,13 @@ export default async function Login({
     if (error) {
       console.error(error)
       return redirect(`/login?message=${error.message}`)
+    }
+
+    // Check if user already exists (Supabase returns empty identities for existing users)
+    if (data?.user?.identities?.length === 0) {
+      return redirect(
+        "/login?message=An account with this email already exists. Please sign in instead."
+      )
     }
 
     return redirect(
