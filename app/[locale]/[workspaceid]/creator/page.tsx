@@ -17,7 +17,8 @@ const agents = [
     title: "Sales Specialist",
     avatar: "/agents/marcus.svg",
     gradient: "from-blue-600 to-indigo-600",
-    description: "Expert in lead follow-ups, proposal writing, and closing deals. Handles objections and creates compelling sales communications.",
+    description:
+      "Expert in lead follow-ups, proposal writing, and closing deals. Handles objections and creates compelling sales communications.",
     categories: ["Sales", "Lead Generation", "Proposals"]
   },
   {
@@ -26,7 +27,8 @@ const agents = [
     title: "Estimating Expert",
     avatar: "/agents/elena.svg",
     gradient: "from-purple-600 to-violet-600",
-    description: "Specializes in precise material calculations, labor estimates, and competitive bid preparation for roofing projects.",
+    description:
+      "Specializes in precise material calculations, labor estimates, and competitive bid preparation for roofing projects.",
     categories: ["Estimating", "Bidding", "Materials"]
   },
   {
@@ -35,7 +37,8 @@ const agents = [
     title: "Project Coordinator",
     avatar: "/agents/jordan.svg",
     gradient: "from-orange-600 to-amber-600",
-    description: "Creates project schedules, coordinates crews, and manages customer communications throughout the roofing project lifecycle.",
+    description:
+      "Creates project schedules, coordinates crews, and manages customer communications throughout the roofing project lifecycle.",
     categories: ["Project Management", "Scheduling", "Coordination"]
   },
   {
@@ -44,7 +47,8 @@ const agents = [
     title: "Customer Service Representative",
     avatar: "/agents/sophia.svg",
     gradient: "from-green-600 to-emerald-600",
-    description: "Handles customer inquiries, resolves complaints, and delivers exceptional service with empathy and professionalism.",
+    description:
+      "Handles customer inquiries, resolves complaints, and delivers exceptional service with empathy and professionalism.",
     categories: ["Customer Service", "Support", "Communication"]
   },
   {
@@ -53,7 +57,8 @@ const agents = [
     title: "Insurance Claims Specialist",
     avatar: "/agents/ryan.svg",
     gradient: "from-red-600 to-rose-600",
-    description: "Expert in insurance claim documentation, supplement requests, and maximizing claim approvals for storm damage repairs.",
+    description:
+      "Expert in insurance claim documentation, supplement requests, and maximizing claim approvals for storm damage repairs.",
     categories: ["Insurance", "Claims", "Documentation"]
   },
   {
@@ -62,7 +67,8 @@ const agents = [
     title: "Marketing Manager",
     avatar: "/agents/aisha.svg",
     gradient: "from-pink-600 to-fuchsia-600",
-    description: "Creates engaging marketing content including social media posts, blog articles, review responses, and brand messaging.",
+    description:
+      "Creates engaging marketing content including social media posts, blog articles, review responses, and brand messaging.",
     categories: ["Marketing", "Social Media", "Content"]
   },
   {
@@ -71,7 +77,8 @@ const agents = [
     title: "Safety & Compliance Officer",
     avatar: "/agents/derek.svg",
     gradient: "from-yellow-500 to-orange-500",
-    description: "Develops safety checklists, OSHA compliance documentation, incident reports, and training materials for roofing operations.",
+    description:
+      "Develops safety checklists, OSHA compliance documentation, incident reports, and training materials for roofing operations.",
     categories: ["Safety", "Compliance", "Training"]
   },
   {
@@ -80,7 +87,8 @@ const agents = [
     title: "Business Manager",
     avatar: "/agents/nina.svg",
     gradient: "from-gray-600 to-slate-600",
-    description: "Creates professional business documents including contracts, invoices, collection letters, and financial reports.",
+    description:
+      "Creates professional business documents including contracts, invoices, collection letters, and financial reports.",
     categories: ["Business", "Legal", "Finance"]
   }
 ]
@@ -101,7 +109,16 @@ export default function CreatorStudioPage() {
   const { userSubscription } = useChatbotUI()
   const userTier =
     userSubscription?.tier || userSubscription?.plan_type || "free"
-  const hasAgentAccess = userTier === "premium" || userTier === "business"
+
+  // Comprehensive check for premium/business access (including monthly/annual variants)
+  const hasAgentAccess =
+    (userTier === "premium" ||
+      userTier === "business" ||
+      userTier === "premium_monthly" ||
+      userTier === "premium_annual" ||
+      userTier === "business_monthly" ||
+      userTier === "business_annual") &&
+    userSubscription?.status === "active"
 
   // 3) extract all unique categories
   const allCategories = Array.from(
@@ -183,14 +200,14 @@ export default function CreatorStudioPage() {
 
           {/* Category Filters */}
           <div className="mb-8">
-            <div className="flex items-center gap-2 mb-3">
+            <div className="mb-3 flex items-center gap-2">
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Filter by:
               </span>
               {(searchTerm || selectedCategories.length > 0) && (
                 <button
                   onClick={clearFilters}
-                  className="text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 underline"
+                  className="text-xs text-gray-500 underline hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                 >
                   Clear all
                 </button>
@@ -228,12 +245,12 @@ export default function CreatorStudioPage() {
 
           {filtered.length === 0 ? (
             <div className="py-12 text-center">
-              <p className="text-gray-500 dark:text-gray-400 mb-4">
+              <p className="mb-4 text-gray-500 dark:text-gray-400">
                 No agents found matching your filters.
               </p>
               <button
                 onClick={clearFilters}
-                className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
+                className="font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
               >
                 Clear filters
               </button>
@@ -241,42 +258,42 @@ export default function CreatorStudioPage() {
           ) : (
             <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
               {filtered.map(agent => (
-              <Link
-                key={agent.id}
-                href={`/${locale}/${workspaceId}/creator/${agent.id}`}
-                className="group block"
-              >
-                <div className="flex items-center gap-4 rounded-lg p-4 transition-all duration-150 hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                  {/* Avatar */}
-                  <img
-                    src={(agent as any).avatar || (agent as any).avatarUrl}
-                    alt={agent.name}
-                    className="size-12 flex-shrink-0 rounded-full"
-                  />
+                <Link
+                  key={agent.id}
+                  href={`/${locale}/${workspaceId}/creator/${agent.id}`}
+                  className="group block"
+                >
+                  <div className="flex items-center gap-4 rounded-lg p-4 transition-all duration-150 hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                    {/* Avatar */}
+                    <img
+                      src={(agent as any).avatar || (agent as any).avatarUrl}
+                      alt={agent.name}
+                      className="size-12 shrink-0 rounded-full"
+                    />
 
-                  {/* Info */}
-                  <div className="min-w-0 flex-1">
-                    <h3 className="font-medium text-gray-900 dark:text-white">
-                      {agent.name}
-                    </h3>
-                    <p className="truncate text-sm text-gray-600 dark:text-gray-400">
-                      {agent.title}
-                    </p>
+                    {/* Info */}
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-medium text-gray-900 dark:text-white">
+                        {agent.name}
+                      </h3>
+                      <p className="truncate text-sm text-gray-600 dark:text-gray-400">
+                        {agent.title}
+                      </p>
+                    </div>
+
+                    {/* Badge */}
+                    <span className="rounded bg-amber-100 px-2 py-1 text-xs font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
+                      Premium
+                    </span>
+
+                    {/* Arrow */}
+                    <IconChevronRight
+                      className="shrink-0 text-gray-400 transition-colors group-hover:text-gray-600 dark:group-hover:text-gray-300"
+                      size={20}
+                    />
                   </div>
-
-                  {/* Badge */}
-                  <span className="rounded bg-amber-100 px-2 py-1 text-xs font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
-                    Premium
-                  </span>
-
-                  {/* Arrow */}
-                  <IconChevronRight
-                    className="flex-shrink-0 text-gray-400 transition-colors group-hover:text-gray-600 dark:group-hover:text-gray-300"
-                    size={20}
-                  />
-                </div>
-              </Link>
-            ))}
+                </Link>
+              ))}
             </div>
           )}
         </div>

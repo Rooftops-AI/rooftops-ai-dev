@@ -467,43 +467,81 @@ const ExploreMap: React.FC<ExploreMapProps> = ({
         }
       }
 
-      // Capture Google Street View image
+      // Capture Google Street View image with proper heading calculation
       setCurrentCaptureStage("Capturing Street View...")
       setCaptureProgress(20)
       try {
-        const streetViewUrl = `https://maps.googleapis.com/maps/api/streetview?size=1280x960&location=${selectedLocation.lat},${selectedLocation.lng}&fov=80&heading=0&pitch=10&key=${process.env.NEXT_PUBLIC_GOOGLEMAPS_API_KEY}`
+        const apiKey = process.env.NEXT_PUBLIC_GOOGLEMAPS_API_KEY
 
-        logDebug("Fetching Street View image...")
+        // First, get the Street View metadata to find the actual panorama location
+        const metadataUrl = `https://maps.googleapis.com/maps/api/streetview/metadata?location=${selectedLocation.lat},${selectedLocation.lng}&source=outdoor&key=${apiKey}`
 
-        // Fetch the Street View image and convert to base64
-        const streetViewResponse = await fetch(streetViewUrl)
-        if (streetViewResponse.ok) {
-          const blob = await streetViewResponse.blob()
-          const base64 = await new Promise<string>(resolve => {
-            const reader = new FileReader()
-            reader.onloadend = () => resolve(reader.result as string)
-            reader.readAsDataURL(blob)
-          })
+        logDebug("Fetching Street View metadata...")
+        const metadataResponse = await fetch(metadataUrl)
+        const metadata = await metadataResponse.json()
 
-          const streetView = {
-            imageData: base64,
-            viewName: "Street View",
-            timestamp: new Date().toISOString(),
-            enhanced: false,
-            metadata: {
-              lat: selectedLocation.lat,
-              lng: selectedLocation.lng,
-              heading: 0,
-              pitch: 10,
-              fov: 80
+        if (metadata.status === "OK" && metadata.location) {
+          // Calculate heading FROM the panorama location TO the property
+          // This ensures the camera points at the actual property
+          const panoLat = metadata.location.lat
+          const panoLng = metadata.location.lng
+
+          // Calculate bearing from panorama to property
+          const dLng = (selectedLocation.lng - panoLng) * (Math.PI / 180)
+          const lat1 = panoLat * (Math.PI / 180)
+          const lat2 = selectedLocation.lat * (Math.PI / 180)
+
+          const x = Math.sin(dLng) * Math.cos(lat2)
+          const y =
+            Math.cos(lat1) * Math.sin(lat2) -
+            Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLng)
+
+          let heading = Math.atan2(x, y) * (180 / Math.PI)
+          heading = (heading + 360) % 360 // Normalize to 0-360
+
+          logDebug(
+            `Street View panorama at ${panoLat.toFixed(6)}, ${panoLng.toFixed(6)}, heading to property: ${heading.toFixed(1)}°`
+          )
+
+          // Fetch the Street View image with the calculated heading
+          const streetViewUrl = `https://maps.googleapis.com/maps/api/streetview?size=1280x960&location=${panoLat},${panoLng}&fov=80&heading=${heading}&pitch=10&source=outdoor&key=${apiKey}`
+
+          const streetViewResponse = await fetch(streetViewUrl)
+          if (streetViewResponse.ok) {
+            const blob = await streetViewResponse.blob()
+            const base64 = await new Promise<string>(resolve => {
+              const reader = new FileReader()
+              reader.onloadend = () => resolve(reader.result as string)
+              reader.readAsDataURL(blob)
+            })
+
+            const streetView = {
+              imageData: base64,
+              viewName: "Street View",
+              timestamp: new Date().toISOString(),
+              enhanced: false,
+              metadata: {
+                lat: panoLat,
+                lng: panoLng,
+                propertyLat: selectedLocation.lat,
+                propertyLng: selectedLocation.lng,
+                heading: heading,
+                pitch: 10,
+                fov: 80,
+                panoId: metadata.pano_id
+              }
             }
-          }
 
-          views.push(streetView)
-          setLivePreviewImages(prev => [...prev, streetView])
-          logDebug("Street View captured successfully")
+            views.push(streetView)
+            setLivePreviewImages(prev => [...prev, streetView])
+            logDebug("Street View captured successfully")
+          } else {
+            logDebug("Street View image fetch failed")
+          }
         } else {
-          logDebug("Street View not available for this location")
+          logDebug(
+            `Street View not available for this location: ${metadata.status}`
+          )
         }
       } catch (error) {
         console.error("Error capturing Street View:", error)
@@ -676,6 +714,12 @@ const ExploreMap: React.FC<ExploreMapProps> = ({
       if (analysisResult) {
         analysisResult.capturedImages = views
         analysisResult.satelliteViews = views
+        // Include address for header display
+        analysisResult.address = selectedAddress || "Property Address"
+        analysisResult.metadata = {
+          ...analysisResult.metadata,
+          address: selectedAddress || "Property Address"
+        }
         // Ensure solar data is present (use full solar data, not just extracted metrics)
         if (fullSolarData && !analysisResult.solarData) {
           analysisResult.solarData = fullSolarData
@@ -1206,12 +1250,15 @@ const ExploreMap: React.FC<ExploreMapProps> = ({
         console.error("Multi-agent analysis failed:", errorData)
 
         // Handle limit errors specially - redirect to upgrade
-        if (response.status === 403 && errorData.error === "REPORT_LIMIT_REACHED") {
+        if (
+          response.status === 403 &&
+          errorData.error === "REPORT_LIMIT_REACHED"
+        ) {
           toast.error(errorData.message || "You've reached your report limit", {
             duration: 6000,
             action: {
               label: "Upgrade",
-              onClick: () => window.location.href = "/upgrade"
+              onClick: () => (window.location.href = "/upgrade")
             }
           })
 
@@ -2064,7 +2111,7 @@ ${referenceSection}
       setCurrentCaptureStage("Complete!")
       setCaptureProgress(100)
 
-      // Format for display
+      // Format for display - include address at top level for header display
       const analysis = {
         analysis: instantReport.userSummary,
         userSummary: instantReport.userSummary,
@@ -2072,6 +2119,8 @@ ${referenceSection}
         structuredData: instantReport.structuredData,
         capturedImages, // Add captured images
         satelliteViews: capturedImages, // Also set as satelliteViews for compatibility
+        address: selectedAddress || "Property Address", // Include address for header display
+        metadata: { address: selectedAddress || "Property Address" }, // Also include in metadata
         mode: "instant"
       }
 

@@ -40,8 +40,24 @@ export default function ChatPage() {
   const sessionId = searchParams.get("session_id")
 
   // grab our context + handlers
-  const { chatMessages, setUserSubscription, profile, selectedChat, selectedWorkspace } =
-    useChatbotUI()
+  const {
+    chatMessages,
+    setUserSubscription,
+    profile,
+    selectedChat,
+    selectedWorkspace,
+    userSubscription
+  } = useChatbotUI()
+
+  // Check for premium or business subscription
+  const isPremiumOrBusiness =
+    (userSubscription?.plan_type === "premium" ||
+      userSubscription?.plan_type === "business" ||
+      userSubscription?.plan_type === "premium_monthly" ||
+      userSubscription?.plan_type === "premium_annual" ||
+      userSubscription?.plan_type === "business_monthly" ||
+      userSubscription?.plan_type === "business_annual") &&
+    userSubscription?.status === "active"
   const { handleNewChat, handleSendMessage, handleFocusChatInput } =
     useChatHandler()
   const { theme } = useTheme()
@@ -143,12 +159,17 @@ export default function ChatPage() {
       {chatMessages.length === 0 ? (
         <div className="relative flex h-full flex-col items-center justify-center px-4">
           {/* Mobile logo at top - only visible on mobile */}
-          <div className="absolute inset-x-0 top-4 flex justify-center md:hidden">
+          <div className="absolute inset-x-0 top-4 flex items-center justify-center gap-2 md:hidden">
             <img
               src="https://uploads-ssl.webflow.com/64e9150f53771ac56ef528b7/64ee16bb300d3e08d25a03ac_rooftops-logo-gr-black.png"
               alt="Rooftops AI"
               className="h-8 w-auto dark:invert"
             />
+            {isPremiumOrBusiness && (
+              <span className="rounded-full bg-gradient-to-r from-amber-200 via-yellow-300 to-amber-400 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-900 shadow-sm">
+                Pro
+              </span>
+            )}
           </div>
 
           {/* Centered content container */}

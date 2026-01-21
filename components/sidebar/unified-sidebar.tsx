@@ -38,7 +38,11 @@ const NAV_ITEM_HEIGHT = 40
 interface NavItem {
   id: string
   label: string
-  icon: React.ComponentType<{ size?: number; className?: string; stroke?: number }>
+  icon: React.ComponentType<{
+    size?: number
+    className?: string
+    stroke?: number
+  }>
   route?: (workspaceId: string) => string
   tab?: string
   badge?: "premium" | "pro"
@@ -129,9 +133,14 @@ export function UnifiedSidebar({ isCollapsed, onToggle }: UnifiedSidebarProps) {
     return () => window.removeEventListener("resize", checkMobile)
   }, [])
 
-  // Premium subscription detection
-  const isPremium =
-    userSubscription?.plan_type === "premium" &&
+  // Premium/Business subscription detection
+  const isPremiumOrBusiness =
+    (userSubscription?.plan_type === "premium" ||
+      userSubscription?.plan_type === "business" ||
+      userSubscription?.plan_type === "premium_monthly" ||
+      userSubscription?.plan_type === "premium_annual" ||
+      userSubscription?.plan_type === "business_monthly" ||
+      userSubscription?.plan_type === "business_annual") &&
     userSubscription?.status === "active"
   const hasActiveSubscription = userSubscription?.status === "active"
 
@@ -247,18 +256,21 @@ export function UnifiedSidebar({ isCollapsed, onToggle }: UnifiedSidebarProps) {
         className={cn(
           "relative flex items-center rounded-lg transition-all duration-150",
           isCollapsed
-            ? "justify-center w-10 h-10"
-            : "justify-start gap-3 px-3 w-full h-10",
+            ? "size-10 justify-center"
+            : "h-10 w-full justify-start gap-3 px-3",
           isActive
-            ? "bg-gray-100 text-gray-900 font-medium"
+            ? "bg-gray-100 font-medium text-gray-900"
             : "text-gray-700 hover:bg-gray-50",
           isLoading && "opacity-70"
         )}
       >
         {isLoading ? (
-          <IconLoader2 size={SIDEBAR_ICON_SIZE} className="animate-spin flex-shrink-0" />
+          <IconLoader2
+            size={SIDEBAR_ICON_SIZE}
+            className="shrink-0 animate-spin"
+          />
         ) : (
-          <Icon size={SIDEBAR_ICON_SIZE} stroke={2} className="flex-shrink-0" />
+          <Icon size={SIDEBAR_ICON_SIZE} stroke={2} className="shrink-0" />
         )}
 
         {!isCollapsed && (
@@ -269,7 +281,7 @@ export function UnifiedSidebar({ isCollapsed, onToggle }: UnifiedSidebarProps) {
             {item.badge && (
               <IconCrown
                 size={BADGE_ICON_SIZE}
-                className="ml-auto opacity-60 flex-shrink-0"
+                className="ml-auto shrink-0 opacity-60"
                 fill="currentColor"
                 stroke={0}
               />
@@ -293,24 +305,25 @@ export function UnifiedSidebar({ isCollapsed, onToggle }: UnifiedSidebarProps) {
       )
     }
 
-    return <div key={item.id} className="w-full">{content}</div>
+    return (
+      <div key={item.id} className="w-full">
+        {content}
+      </div>
+    )
   }
 
   return (
     <>
       {/* Mobile backdrop */}
       {isMobile && !isCollapsed && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40"
-          onClick={onToggle}
-        />
+        <div className="fixed inset-0 z-40 bg-black/50" onClick={onToggle} />
       )}
 
       {/* Mobile hamburger button */}
       {isMobile && isCollapsed && (
         <button
           onClick={onToggle}
-          className="fixed top-4 left-4 z-50 p-2 bg-white rounded-lg shadow-lg"
+          className="fixed left-4 top-4 z-50 rounded-lg bg-white p-2 shadow-lg"
         >
           <IconMenu2 size={24} className="text-gray-700" />
         </button>
@@ -319,7 +332,7 @@ export function UnifiedSidebar({ isCollapsed, onToggle }: UnifiedSidebarProps) {
       {/* Sidebar */}
       <div
         className={cn(
-          "flex flex-col bg-white border-r border-gray-200 h-screen transition-all duration-300 ease-in-out",
+          "flex h-screen flex-col border-r border-gray-200 bg-white transition-all duration-300 ease-in-out",
           isCollapsed ? "w-[60px]" : "w-[280px]",
           isMobile && !isCollapsed && "fixed left-0 top-0 z-50",
           isMobile && isCollapsed && "hidden"
@@ -336,33 +349,45 @@ export function UnifiedSidebar({ isCollapsed, onToggle }: UnifiedSidebarProps) {
         }}
       >
         {/* Header */}
-        <div className="flex-shrink-0">
-          <div className={cn("flex items-center", isCollapsed ? "justify-center p-3" : "justify-between p-3")}>
+        <div className="shrink-0">
+          <div
+            className={cn(
+              "flex items-center",
+              isCollapsed ? "justify-center p-3" : "justify-between p-3"
+            )}
+          >
             {/* Logo */}
             {isCollapsed ? (
               <div
-                className="relative flex items-center justify-center cursor-pointer"
+                className="relative flex cursor-pointer items-center justify-center"
                 onClick={onToggle}
               >
                 <RooftopsSVG width="36" height="36" />
                 {showHamburger && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-white/95 rounded-lg transition-opacity duration-150">
+                  <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-white/95 transition-opacity duration-150">
                     <IconMenu2 size={20} className="text-gray-700" />
                   </div>
                 )}
               </div>
             ) : (
               <>
-                <img
-                  src="https://uploads-ssl.webflow.com/64e9150f53771ac56ef528b7/64ee16bb300d3e08d25a03ac_rooftops-logo-gr-black.png"
-                  alt="Rooftops AI"
-                  className="h-7 w-auto dark:invert"
-                />
+                <div className="flex items-center gap-2">
+                  <img
+                    src="https://uploads-ssl.webflow.com/64e9150f53771ac56ef528b7/64ee16bb300d3e08d25a03ac_rooftops-logo-gr-black.png"
+                    alt="Rooftops AI"
+                    className="h-7 w-auto dark:invert"
+                  />
+                  {isPremiumOrBusiness && (
+                    <span className="rounded-full bg-gradient-to-r from-amber-200 via-yellow-300 to-amber-400 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-900 shadow-sm">
+                      Pro
+                    </span>
+                  )}
+                </div>
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={onToggle}
-                  className="flex-shrink-0 h-8 w-8"
+                  className="size-8 shrink-0"
                 >
                   <IconLayoutSidebarLeftCollapse size={20} />
                 </Button>
@@ -372,7 +397,7 @@ export function UnifiedSidebar({ isCollapsed, onToggle }: UnifiedSidebarProps) {
         </div>
 
         {/* Navigation Section */}
-        <nav className="flex-shrink-0 p-2 space-y-1">
+        <nav className="shrink-0 space-y-1 p-2">
           {/* Primary Navigation Items */}
           {primaryNavigationItems.map(renderNavItem)}
 
@@ -381,7 +406,7 @@ export function UnifiedSidebar({ isCollapsed, onToggle }: UnifiedSidebarProps) {
             <>
               <button
                 onClick={() => setShowMore(!showMore)}
-                className="flex items-center justify-between w-full px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-all duration-150"
+                className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm text-gray-600 transition-all duration-150 hover:bg-gray-50"
               >
                 <div className="flex items-center gap-2">
                   <IconGrid3x3 size={SIDEBAR_ICON_SIZE} stroke={2} />
@@ -414,8 +439,12 @@ export function UnifiedSidebar({ isCollapsed, onToggle }: UnifiedSidebarProps) {
               const contentType = getCurrentContentType()
               const chatFolders = folders.filter(f => f.type === "chats")
               const filesFolders = folders.filter(f => f.type === "files")
-              const collectionFolders = folders.filter(f => f.type === "collections")
-              const assistantFolders = folders.filter(f => f.type === "assistants")
+              const collectionFolders = folders.filter(
+                f => f.type === "collections"
+              )
+              const assistantFolders = folders.filter(
+                f => f.type === "assistants"
+              )
               const toolFolders = folders.filter(f => f.type === "tools")
 
               // Show content only for specific routes/tabs
@@ -497,14 +526,16 @@ export function UnifiedSidebar({ isCollapsed, onToggle }: UnifiedSidebarProps) {
         )}
 
         {/* Footer Section */}
-        <div className={cn(
-          "flex-shrink-0 mt-auto",
-          isCollapsed ? "p-2 flex justify-center" : "p-3"
-        )}>
+        <div
+          className={cn(
+            "mt-auto shrink-0",
+            isCollapsed ? "flex justify-center p-2" : "p-3"
+          )}
+        >
           {/* Upgrade button for free users */}
-          {!isCollapsed && !hasActiveSubscription && (
+          {!isCollapsed && !isPremiumOrBusiness && (
             <Link href="/pricing">
-              <Button className="h-[36px] w-full mb-3 bg-gradient-to-r from-[#ffd700] via-[#ffb700] to-[#ff8c00] text-gray-900 font-semibold hover:opacity-90 transition-opacity">
+              <Button className="mb-3 h-[36px] w-full bg-gradient-to-r from-[#ffd700] via-[#ffb700] to-[#ff8c00] font-semibold text-gray-900 transition-opacity hover:opacity-90">
                 <IconCrown
                   size={20}
                   className="mr-2"

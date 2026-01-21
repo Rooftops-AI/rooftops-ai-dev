@@ -26,7 +26,15 @@ export default function ExplorePage() {
     setPropertyData(data.propertyData)
   }
 
-  const isPremium = userSubscription?.status === "active"
+  // Check for premium or business subscription
+  const isPremiumOrBusiness =
+    (userSubscription?.plan_type === "premium" ||
+      userSubscription?.plan_type === "business" ||
+      userSubscription?.plan_type === "premium_monthly" ||
+      userSubscription?.plan_type === "premium_annual" ||
+      userSubscription?.plan_type === "business_monthly" ||
+      userSubscription?.plan_type === "business_annual") &&
+    userSubscription?.status === "active"
 
   return (
     <ErrorBoundary>
@@ -43,16 +51,21 @@ export default function ExplorePage() {
               <IconMenu2 size={20} />
             </Button>
 
-            <img
-              src="https://uploads-ssl.webflow.com/64e9150f53771ac56ef528b7/64ee16bb300d3e08d25a03ac_rooftops-logo-gr-black.png"
-              alt="Rooftops AI"
-              className="h-7 w-auto dark:invert"
-            />
+            <div className="flex items-center gap-2">
+              <img
+                src="https://uploads-ssl.webflow.com/64e9150f53771ac56ef528b7/64ee16bb300d3e08d25a03ac_rooftops-logo-gr-black.png"
+                alt="Rooftops AI"
+                className="h-7 w-auto dark:invert"
+              />
+              {isPremiumOrBusiness && (
+                <span className="rounded-full bg-gradient-to-r from-amber-200 via-yellow-300 to-amber-400 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-900 shadow-sm">
+                  Pro
+                </span>
+              )}
+            </div>
 
-            {isPremium ? (
-              <div className="flex size-9 items-center justify-center rounded-lg bg-gradient-to-br from-yellow-400 to-orange-500">
-                <IconCrown size={18} className="text-white" />
-              </div>
+            {isPremiumOrBusiness ? (
+              <div className="size-9" /> // Empty spacer to maintain layout
             ) : (
               <Link href={`/${params.locale}/${workspaceId}/upgrade`}>
                 <Button variant="default" size="sm" className="h-9">

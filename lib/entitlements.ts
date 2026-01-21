@@ -56,6 +56,26 @@ export function invalidateUserCache(userId: string): void {
 
 export type Tier = "free" | "premium" | "business"
 
+/**
+ * Normalize tier/plan_type to base tier (remove _monthly/_annual suffix)
+ * e.g., "premium_monthly" -> "premium", "business_annual" -> "business"
+ */
+function normalizeTier(tier: string | null | undefined): Tier {
+  if (!tier) return "free"
+
+  const normalized = tier.toLowerCase()
+
+  if (normalized.startsWith("business")) return "business"
+  if (normalized.startsWith("premium")) return "premium"
+
+  // Check if it's already a valid base tier
+  if (normalized === "free" || normalized === "premium" || normalized === "business") {
+    return normalized as Tier
+  }
+
+  return "free"
+}
+
 // Tier limits as defined in PRD
 export const TIER_LIMITS = {
   free: {
@@ -122,17 +142,9 @@ export async function getUserTier(userId: string): Promise<Tier> {
     }
 
     // Check tier (or fall back to plan_type for backward compatibility)
-    const tier = (subscription.tier || subscription.plan_type || "free") as Tier
-
-    // Validate that it's a valid tier
-    if (!["free", "premium", "business"].includes(tier)) {
-      console.warn(
-        `Invalid tier "${tier}" for user ${userId}, defaulting to free`
-      )
-      const freeTier = "free"
-      setCache(cacheKey, freeTier)
-      return freeTier
-    }
+    // Normalize the tier/plan_type (e.g., "premium_monthly" -> "premium")
+    const rawTier = subscription.tier || subscription.plan_type || "free"
+    const tier = normalizeTier(rawTier)
 
     // Handle past_due status with grace period
     if (subscription.status === "past_due") {

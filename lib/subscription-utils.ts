@@ -4,6 +4,26 @@
 
 export type PlanType = "free" | "premium" | "business"
 
+/**
+ * Normalize plan type to base type (remove _monthly/_annual suffix)
+ * e.g., "premium_monthly" -> "premium", "business_annual" -> "business"
+ */
+export function normalizePlanType(planType: string | null | undefined): PlanType {
+  if (!planType) return "free"
+
+  const normalized = planType.toLowerCase()
+
+  if (normalized.startsWith("business")) return "business"
+  if (normalized.startsWith("premium")) return "premium"
+
+  // Check if it's already a valid base type
+  if (normalized === "free" || normalized === "premium" || normalized === "business") {
+    return normalized as PlanType
+  }
+
+  return "free"
+}
+
 export type FeatureType =
   | "chat_messages"
   | "property_reports"

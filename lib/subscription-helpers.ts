@@ -11,11 +11,12 @@ export {
   type FeatureType,
   PLAN_LIMITS,
   getAllowedModels,
-  isModelAllowed
+  isModelAllowed,
+  normalizePlanType
 } from "./subscription-utils"
 
 import type { PlanType } from "./subscription-utils"
-import { PLAN_LIMITS } from "./subscription-utils"
+import { PLAN_LIMITS, normalizePlanType } from "./subscription-utils"
 
 export interface SubscriptionCheck {
   canUse: boolean
@@ -38,7 +39,8 @@ export async function checkUserFeatureAccess(
 
   let planType: PlanType = "free"
   if (subscription && subscription.status === "active") {
-    planType = (subscription.plan_type as PlanType) || "free"
+    // Normalize plan type (e.g., "premium_monthly" -> "premium")
+    planType = normalizePlanType(subscription.plan_type)
   }
 
   // Get limits for the plan
@@ -93,7 +95,8 @@ export async function getUserSubscriptionStatus(userId: string) {
   }
 
   return {
-    planType: (subscription.plan_type as PlanType) || "free",
+    // Normalize plan type (e.g., "premium_monthly" -> "premium")
+    planType: normalizePlanType(subscription.plan_type),
     status: subscription.status,
     isActive: subscription.status === "active",
     currentPeriodEnd: subscription.current_period_end,
