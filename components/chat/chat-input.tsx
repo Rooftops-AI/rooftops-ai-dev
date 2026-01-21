@@ -412,15 +412,18 @@ export const ChatInput: FC<ChatInputProps> = ({ onVoiceModeClick }) => {
           {/* Web Search Pill Indicator */}
           {profile?.web_search_enabled && (
             <div className="px-4 pt-3">
-              <div className="inline-flex items-center gap-2 rounded-full bg-blue-600 px-3 py-1.5 text-white dark:bg-blue-500">
+              <div
+                className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-gray-700"
+                style={{ backgroundColor: "rgb(184 191 206)" }}
+              >
                 <IconWorld size={16} />
-                <span className="text-sm font-medium">Web Search</span>
+                <span className="text-sm font-medium">Web Search On</span>
                 <button
                   onClick={handleToggleWebSearch}
-                  className="ml-1 rounded-full p-0.5 hover:bg-blue-700 dark:hover:bg-blue-600"
+                  className="ml-1 rounded-full p-0.5 hover:bg-gray-400/50"
                   aria-label="Disable web search"
                 >
-                  <IconX size={14} className="text-white" />
+                  <IconX size={14} className="text-gray-700" />
                 </button>
               </div>
             </div>
