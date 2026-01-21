@@ -68,7 +68,12 @@ export async function POST(req: Request) {
       ],
       mode: "subscription",
       subscription_data: {
-        trial_period_days: 3 // 3-day free trial
+        trial_period_days: 3,
+        trial_settings: {
+          end_behavior: {
+            missing_payment_method: "cancel"
+          }
+        }
       },
       success_url: `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}&plan=${planType}`,
       cancel_url: `${baseUrl}/pricing?canceled=true`,
