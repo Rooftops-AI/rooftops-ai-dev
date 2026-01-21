@@ -50,17 +50,14 @@ export async function POST(req: Request) {
 
     console.log("[Stripe Checkout] User email:", userEmail)
     console.log("[Stripe Checkout] Base URL:", baseUrl)
-    console.log(
-      "[Stripe Checkout] Creating session with:",
-      {
-        priceId,
-        userEmail,
-        successUrl: `${baseUrl}/checkout/success`,
-        cancelUrl: `${baseUrl}/pricing?canceled=true`
-      }
-    )
+    console.log("[Stripe Checkout] Creating session with:", {
+      priceId,
+      userEmail,
+      successUrl: `${baseUrl}/checkout/success`,
+      cancelUrl: `${baseUrl}/pricing?canceled=true`
+    })
 
-    // Create a checkout session
+    // Create a checkout session with 3-day free trial
     const stripeSession = await stripe.checkout.sessions.create({
       customer_email: userEmail,
       line_items: [
@@ -70,6 +67,9 @@ export async function POST(req: Request) {
         }
       ],
       mode: "subscription",
+      subscription_data: {
+        trial_period_days: 3 // 3-day free trial
+      },
       success_url: `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}&plan=${planType}`,
       cancel_url: `${baseUrl}/pricing?canceled=true`,
       metadata: {

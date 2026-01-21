@@ -61,11 +61,16 @@ export default function UpgradePage() {
       <div className="mx-auto w-full max-w-md">
         {/* Header */}
         <div className="mb-8 text-center">
+          <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-cyan-500/10 to-green-500/10 px-4 py-2">
+            <span className="text-sm font-semibold text-cyan-700">
+              Start with a 3-day free trial
+            </span>
+          </div>
           <h1 className="mb-3 text-3xl font-bold text-gray-900">
             Unlock Premium Features
           </h1>
           <p className="text-gray-600">
-            Get access to exclusive agents and advanced features
+            Try any plan free for 3 days. Cancel anytime.
           </p>
         </div>
 
@@ -153,10 +158,15 @@ export default function UpgradePage() {
                     )
                   }
                   disabled={loading}
-                  className="flex w-full items-center justify-between rounded-lg border-2 border-gray-300 bg-white px-6 py-4 text-base font-semibold text-gray-900 transition-all hover:border-gray-400 hover:bg-gray-50 disabled:opacity-50"
+                  className="flex w-full flex-col items-center rounded-lg border-2 border-gray-300 bg-white px-6 py-4 text-base font-semibold text-gray-900 transition-all hover:border-gray-400 hover:bg-gray-50 disabled:opacity-50"
                 >
-                  <span>Monthly</span>
-                  <span>$29/month</span>
+                  <div className="flex w-full items-center justify-between">
+                    <span>Monthly</span>
+                    <span>$29/month</span>
+                  </div>
+                  <span className="mt-1 text-xs font-medium text-cyan-600">
+                    3 days free, then $29/mo
+                  </span>
                 </button>
                 <button
                   onClick={() =>
@@ -166,13 +176,18 @@ export default function UpgradePage() {
                     )
                   }
                   disabled={loading}
-                  className="relative flex w-full items-center justify-between rounded-lg bg-gradient-to-r from-cyan-500 to-green-500 px-6 py-4 text-base font-semibold text-white transition-all hover:from-cyan-600 hover:to-green-600 disabled:opacity-50"
+                  className="relative flex w-full flex-col items-center rounded-lg bg-gradient-to-r from-cyan-500 to-green-500 px-6 py-4 text-base font-semibold text-white transition-all hover:from-cyan-600 hover:to-green-600 disabled:opacity-50"
                 >
                   <div className="absolute -top-2.5 right-4 rounded-full bg-green-600 px-3 py-1 text-xs font-bold text-white">
                     Save $48
                   </div>
-                  <span>Annual</span>
-                  <span>$25/month</span>
+                  <div className="flex w-full items-center justify-between">
+                    <span>Annual</span>
+                    <span>$25/month</span>
+                  </div>
+                  <span className="mt-1 text-xs font-medium text-white/90">
+                    3 days free, then $25/mo
+                  </span>
                 </button>
               </div>
             </>
@@ -231,10 +246,15 @@ export default function UpgradePage() {
                     )
                   }
                   disabled={loading}
-                  className="flex w-full items-center justify-between rounded-lg border-2 border-gray-300 bg-white px-6 py-4 text-base font-semibold text-gray-900 transition-all hover:border-gray-400 hover:bg-gray-50 disabled:opacity-50"
+                  className="flex w-full flex-col items-center rounded-lg border-2 border-gray-300 bg-white px-6 py-4 text-base font-semibold text-gray-900 transition-all hover:border-gray-400 hover:bg-gray-50 disabled:opacity-50"
                 >
-                  <span>Monthly</span>
-                  <span>$99/month</span>
+                  <div className="flex w-full items-center justify-between">
+                    <span>Monthly</span>
+                    <span>$99/month</span>
+                  </div>
+                  <span className="mt-1 text-xs font-medium text-cyan-600">
+                    3 days free, then $99/mo
+                  </span>
                 </button>
                 <button
                   onClick={() =>
@@ -244,13 +264,18 @@ export default function UpgradePage() {
                     )
                   }
                   disabled={loading}
-                  className="relative flex w-full items-center justify-between rounded-lg bg-gradient-to-r from-cyan-500 to-green-500 px-6 py-4 text-base font-semibold text-white transition-all hover:from-cyan-600 hover:to-green-600 disabled:opacity-50"
+                  className="relative flex w-full flex-col items-center rounded-lg bg-gradient-to-r from-cyan-500 to-green-500 px-6 py-4 text-base font-semibold text-white transition-all hover:from-cyan-600 hover:to-green-600 disabled:opacity-50"
                 >
                   <div className="absolute -top-2.5 right-4 rounded-full bg-green-600 px-3 py-1 text-xs font-bold text-white">
                     Save $180
                   </div>
-                  <span>Annual</span>
-                  <span>$84/month</span>
+                  <div className="flex w-full items-center justify-between">
+                    <span>Annual</span>
+                    <span>$84/month</span>
+                  </div>
+                  <span className="mt-1 text-xs font-medium text-white/90">
+                    3 days free, then $84/mo
+                  </span>
                 </button>
               </div>
             </>
