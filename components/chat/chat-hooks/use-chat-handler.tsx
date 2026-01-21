@@ -181,7 +181,8 @@ export const useChatHandler = () => {
     models,
     isPromptPickerOpen,
     isFilePickerOpen,
-    isToolPickerOpen
+    isToolPickerOpen,
+    pipedreamDataSources
   } = context || {}
 
   const chatInputRef = useRef<HTMLTextAreaElement>(null)
@@ -386,7 +387,7 @@ export const useChatHandler = () => {
 
         // Determine plan type (default to free if no subscription)
         const planType =
-          userSubscription && userSubscription.status === "active"
+          userSubscription && (userSubscription.status === "active" || userSubscription.status === "trialing")
             ? (userSubscription.plan_type as "free" | "premium" | "business") ||
               "free"
             : "free"
@@ -489,7 +490,63 @@ export const useChatHandler = () => {
         }
 
         // Generate the response using the appropriate method
-        if (selectedTools.length) {
+        // Check if Pipedream apps are enabled
+        const enabledPipedreamApps = (pipedreamDataSources || [])
+          .filter((ds: { enabled: boolean; app_slug: string }) => ds.enabled)
+          .map((ds: { app_slug: string }) => ds.app_slug)
+
+        console.log("[Chat] Pipedream data sources:", pipedreamDataSources)
+        console.log("[Chat] Enabled Pipedream apps:", enabledPipedreamApps)
+
+        if (enabledPipedreamApps.length > 0) {
+          // Route to Pipedream endpoint when user has connected apps
+          console.log("[Chat] Routing to Pipedream endpoint with apps:", enabledPipedreamApps)
+          setToolInUse("Pipedream")
+          const formatted = await buildFinalMessages(
+            payload,
+            profile!,
+            chatImages
+          )
+
+          const res = await fetch("/api/chat/pipedream", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              chatSettings: payload.chatSettings,
+              messages: formatted,
+              enabledApps: enabledPipedreamApps,
+              chatId: selectedChat?.id
+            })
+          })
+
+          // Handle API errors gracefully
+          if (!res.ok) {
+            setToolInUse("none")
+            let errorMessage = "Failed to process with connected apps"
+            try {
+              const errorData = await res.json()
+              errorMessage = errorData.message || errorMessage
+            } catch {
+              // If we can't parse JSON, use default message
+            }
+            throw new Error(errorMessage)
+          }
+
+          setToolInUse("none")
+          const result = await processResponse(
+            res,
+            isRegeneration
+              ? payload.chatMessages[payload.chatMessages.length - 1]
+              : tempAssistantChatMessage,
+            true,
+            newAbort,
+            setFirstTokenReceived,
+            setChatMessages,
+            setToolInUse
+          )
+          generatedText = result.fullText
+          documentMetadata = result.documentMetadata
+        } else if (selectedTools.length) {
           setToolInUse("Tools")
           const formatted = await buildFinalMessages(
             payload,
@@ -506,18 +563,6 @@ export const useChatHandler = () => {
             })
           })
 
-          console.log("Property Result Structure:", {
-            type: propertyResult.type,
-            hasReportData: !!propertyResult.reportData,
-            hasAnalysisData: !!propertyResult.analysisData,
-            reportDataKeys: propertyResult.reportData
-              ? Object.keys(propertyResult.reportData)
-              : [],
-            analysisDataKeys: propertyResult.analysisData
-              ? Object.keys(propertyResult.analysisData)
-              : []
-          })
-
           setToolInUse("none")
           const result = await processResponse(
             res,
@@ -532,9 +577,6 @@ export const useChatHandler = () => {
           )
           generatedText = result.fullText
           documentMetadata = result.documentMetadata
-
-          // Removed auto-injection of weather markers from AI responses
-          // Weather widget should only trigger when user explicitly requests weather
         } else {
           const result =
             modelData!.provider === "ollama"

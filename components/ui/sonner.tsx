@@ -177,6 +177,54 @@ const Toaster = ({ ...props }: ToasterProps) => {
         .sonner-toast-custom button:not([data-content]) {
           display: none !important;
         }
+
+        /* Remove ALL focus outlines, borders, and rings from toast elements */
+        [data-sonner-toast],
+        [data-sonner-toast]:focus,
+        [data-sonner-toast]:focus-visible,
+        [data-sonner-toast]:focus-within,
+        [data-sonner-toast]:active,
+        [data-sonner-toast] *,
+        .sonner-toast-custom,
+        .sonner-toast-custom:focus,
+        .sonner-toast-custom:focus-visible,
+        .sonner-toast-custom:focus-within,
+        .sonner-toast-custom:active,
+        .sonner-toast-custom * {
+          outline: none !important;
+          outline-offset: 0 !important;
+          border-color: transparent !important;
+          --tw-ring-shadow: none !important;
+          --tw-ring-offset-shadow: none !important;
+          --tw-ring-color: transparent !important;
+          --tw-ring-offset-color: transparent !important;
+        }
+
+        /* Maintain only the desired box-shadow */
+        [data-sonner-toast],
+        .sonner-toast-custom {
+          box-shadow:
+            0 10px 40px -10px rgba(0, 0, 0, 0.1),
+            0 0 20px -5px rgba(59, 130, 246, 0.15),
+            0 0 30px -10px rgba(16, 185, 129, 0.15) !important;
+        }
+
+        /* Prevent any focus ring from appearing on any child */
+        [data-sonner-toaster] *:focus,
+        [data-sonner-toaster] *:focus-visible,
+        [data-sonner-toaster] *:focus-within {
+          outline: none !important;
+          --tw-ring-shadow: none !important;
+          --tw-ring-offset-shadow: none !important;
+        }
+
+        /* Remove list item styling that might cause visual artifacts */
+        [data-sonner-toaster] li,
+        [data-sonner-toaster] ol {
+          list-style: none !important;
+          padding: 0 !important;
+          margin: 0 !important;
+        }
       `}</style>
       <Sonner
         position="top-center"

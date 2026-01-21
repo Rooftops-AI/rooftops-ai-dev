@@ -1,6 +1,6 @@
 // Connector types and definitions for OAuth integrations
 
-export type ConnectorType = "google_drive"
+export type ConnectorType = "google_drive" | "pipedream"
 
 export interface ConnectorDefinition {
   type: ConnectorType
@@ -23,6 +23,15 @@ export const AVAILABLE_CONNECTORS: ConnectorDefinition[] = [
       "https://www.googleapis.com/auth/drive.readonly",
       "https://www.googleapis.com/auth/drive.metadata.readonly"
     ]
+  },
+  {
+    type: "pipedream",
+    name: "Pipedream",
+    description: "Connect 2000+ apps including Gmail, Slack, Sheets, and more",
+    icon: "pipedream",
+    requiresAuth: true,
+    scopes: ["execute:workflow", "read:workflow"],
+    comingSoon: false
   }
 ]
 

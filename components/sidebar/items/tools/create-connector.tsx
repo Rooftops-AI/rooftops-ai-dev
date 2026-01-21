@@ -246,7 +246,16 @@ export const CreateConnector: FC<CreateConnectorProps> = ({
 
                 <div className="mb-4 flex items-center gap-3">
                   <div className="flex size-12 items-center justify-center rounded-lg bg-white p-2 shadow-sm">
-                    {connector.type === "google_drive" ? (
+                    {connector.type === "pipedream" ? (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        className="size-8"
+                        fill="#25B869"
+                      >
+                        <path d="M19.09 3.82a2.7 2.7 0 0 0-2.7 2.7c0 .48.13.94.35 1.33L14.27 10H8.36a2.7 2.7 0 1 0-2.4 4h8.31l2.47 2.16a2.7 2.7 0 1 0 .95-1.66L15.43 12h3.66a2.7 2.7 0 1 0 0-5.39 2.7 2.7 0 0 0-.86.14l2.1-2.1a2.7 2.7 0 0 0-.24-4.83zM5.96 12.6a1.3 1.3 0 1 1 0 2.6 1.3 1.3 0 0 1 0-2.6zm13.14-1.3a1.3 1.3 0 1 1 0-2.6 1.3 1.3 0 0 1 0 2.6zm-1.3 6.5a1.3 1.3 0 1 1 2.6 0 1.3 1.3 0 0 1-2.6 0zM19.1 5.22a1.3 1.3 0 1 1 0 2.6 1.3 1.3 0 0 1 0-2.6z" />
+                      </svg>
+                    ) : connector.type === "google_drive" ? (
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 87.3 78"

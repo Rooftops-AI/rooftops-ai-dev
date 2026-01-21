@@ -4,7 +4,7 @@ import { NextResponse } from "next/server"
 import { headers } from "next/headers"
 import { stripe } from "@/lib/stripe"
 import {
-  createSubscription,
+  upsertSubscription,
   updateSubscription,
   getSubscriptionByStripeId
 } from "@/db/subscriptions"
@@ -89,19 +89,36 @@ export async function POST(req: Request) {
 
           console.log(`📋 Determined plan type: ${planType}`)
 
-          await createSubscription({
-            user_id: session.metadata?.userId!,
+          const userId = session.metadata?.userId
+          if (!userId) {
+            console.error("❌ No userId in session metadata!")
+            console.error("Session metadata:", session.metadata)
+            return NextResponse.json(
+              { error: "Missing userId in metadata" },
+              { status: 400 }
+            )
+          }
+
+          console.log(`📝 Creating/updating subscription for user: ${userId}`)
+          console.log(`   Customer: ${session.customer}`)
+          console.log(`   Subscription ID: ${subscription.id}`)
+          console.log(`   Plan: ${planType}`)
+          console.log(`   Status: ${subscription.status}`)
+
+          await upsertSubscription({
+            user_id: userId,
             stripe_customer_id: session.customer as string,
             stripe_subscription_id: subscription.id,
             status: subscription.status,
             plan_type: planType,
+            tier: planType, // Also set tier field to match plan_type
             current_period_start: new Date(
               subscription.current_period_start * 1000
             ),
             current_period_end: new Date(subscription.current_period_end * 1000)
           })
 
-          console.log("✅ Subscription created in database")
+          console.log("✅ Subscription created/updated in database")
         }
         break
       }

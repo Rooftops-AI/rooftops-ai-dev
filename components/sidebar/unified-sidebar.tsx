@@ -141,8 +141,8 @@ export function UnifiedSidebar({ isCollapsed, onToggle }: UnifiedSidebarProps) {
       userSubscription?.plan_type === "premium_annual" ||
       userSubscription?.plan_type === "business_monthly" ||
       userSubscription?.plan_type === "business_annual") &&
-    userSubscription?.status === "active"
-  const hasActiveSubscription = userSubscription?.status === "active"
+    (userSubscription?.status === "active" || userSubscription?.status === "trialing")
+  const hasActiveSubscription = userSubscription?.status === "active" || userSubscription?.status === "trialing"
 
   const workspaceId = selectedWorkspace?.id || ""
 

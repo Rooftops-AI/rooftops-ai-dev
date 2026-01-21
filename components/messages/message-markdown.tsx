@@ -80,7 +80,7 @@ export const MessageMarkdown: FC<MessageMarkdownProps> = ({
   // Regular markdown rendering for non-document messages
   return (
     <MessageMarkdownMemoized
-      className="prose dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 min-w-full space-y-6 break-words"
+      className="prose dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 prose-headings:mt-4 prose-headings:mb-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0.5 min-w-full space-y-2 break-words"
       remarkPlugins={[remarkGfm, remarkMath]}
       components={{
         p({ children }) {

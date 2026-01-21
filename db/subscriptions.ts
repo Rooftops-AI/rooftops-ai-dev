@@ -75,6 +75,8 @@ export async function updateSubscription(
 export async function upsertSubscription(
   subscription: SubscriptionInsert
 ): Promise<Subscription> {
+  console.log("[upsertSubscription] Input:", JSON.stringify(subscription))
+
   const { data, error } = await supabase
     .from("subscriptions")
     .upsert(subscription, {
@@ -84,8 +86,12 @@ export async function upsertSubscription(
     .single()
 
   if (error) {
+    console.error("[upsertSubscription] Error:", error)
+    console.error("[upsertSubscription] Error code:", error.code)
+    console.error("[upsertSubscription] Error details:", error.details)
     throw new Error(`Error upserting subscription: ${error.message}`)
   }
 
+  console.log("[upsertSubscription] Success:", JSON.stringify(data))
   return data
 }

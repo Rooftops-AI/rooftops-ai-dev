@@ -166,8 +166,8 @@ export async function getUserTier(userId: string): Promise<Tier> {
       return tier
     }
 
-    // Only allow tier access if status is 'active'
-    if (subscription.status !== "active") {
+    // Only allow tier access if status is 'active' or 'trialing'
+    if (subscription.status !== "active" && subscription.status !== "trialing") {
       const freeTier = "free"
       setCache(cacheKey, freeTier)
       return freeTier

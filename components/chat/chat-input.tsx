@@ -35,6 +35,7 @@ import { ReportLoading } from "@/components/property/report-loading"
 import { FilePickerDropdown } from "./file-picker-dropdown"
 import { WebSearchToggle } from "./web-search-toggle"
 import { ModelSelector } from "./model-selector"
+import { PipedreamDataSources } from "./pipedream-data-sources"
 
 interface ChatInputProps {
   onVoiceModeClick?: () => void
@@ -128,7 +129,9 @@ export const ChatInput: FC<ChatInputProps> = ({ onVoiceModeClick }) => {
     setChatMessages,
     setIsGenerating,
     profile,
-    setProfile
+    setProfile,
+    selectedChat,
+    selectedWorkspace
   } = useChatbotUI()
 
   const {
@@ -490,6 +493,9 @@ export const ChatInput: FC<ChatInputProps> = ({ onVoiceModeClick }) => {
 
               {/* Web Search Toggle */}
               <WebSearchToggle />
+
+              {/* Pipedream Data Sources */}
+              <PipedreamDataSources chatId={selectedChat?.id} />
 
               {/* Model Selector */}
               <ModelSelector />

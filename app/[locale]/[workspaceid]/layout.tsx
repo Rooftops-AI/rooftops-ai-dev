@@ -21,6 +21,7 @@ import { OnboardingModal } from "@/components/modals/onboarding-modal"
 import { PaymentFailureBanner } from "@/components/billing/payment-failure-banner"
 import { CancellationNoticeBanner } from "@/components/billing/cancellation-notice-banner"
 import { DowngradeNoticeBanner } from "@/components/billing/downgrade-notice-banner"
+import { AppsBrowser } from "@/components/pipedream/apps-browser"
 import { toast } from "sonner"
 
 interface WorkspaceLayoutProps {
@@ -63,6 +64,7 @@ function InnerWorkspaceLoader({ children }: { children: ReactNode }) {
 
   const [loading, setLoading] = useState(true)
   const [showOnboarding, setShowOnboarding] = useState(false)
+  const [showAppsBrowser, setShowAppsBrowser] = useState(false)
   const [gracePeriodInfo, setGracePeriodInfo] = useState<{
     inGracePeriod: boolean
     daysRemaining: number
@@ -144,6 +146,13 @@ function InnerWorkspaceLoader({ children }: { children: ReactNode }) {
     })()
   }, [workspaceId])
 
+  // Listen for Pipedream apps browser open event
+  useEffect(() => {
+    const handleOpenApps = () => setShowAppsBrowser(true)
+    window.addEventListener("open-pipedream-apps", handleOpenApps)
+    return () => window.removeEventListener("open-pipedream-apps", handleOpenApps)
+  }, [])
+
   async function fetchWorkspaceData(wsId: string) {
     setLoading(true)
 
@@ -195,7 +204,7 @@ function InnerWorkspaceLoader({ children }: { children: ReactNode }) {
           setUserSubscription(subscription)
           // Determine plan type for model validation
           // Normalize plan_type (e.g., "premium_monthly" -> "premium")
-          if (subscription.status === "active" && subscription.plan_type) {
+          if ((subscription.status === "active" || subscription.status === "trialing") && subscription.plan_type) {
             const rawPlan = subscription.plan_type.toLowerCase()
             if (rawPlan.startsWith("business")) {
               userPlanType = "business"
@@ -338,6 +347,10 @@ function InnerWorkspaceLoader({ children }: { children: ReactNode }) {
         <OnboardingModal
           open={showOnboarding}
           onOpenChange={setShowOnboarding}
+        />
+        <AppsBrowser
+          open={showAppsBrowser}
+          onOpenChange={setShowAppsBrowser}
         />
       </Dashboard>
     </>

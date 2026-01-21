@@ -181,6 +181,28 @@ interface ChatbotUIContextValue {
   // EXPLORE REPORT STORE
   hasActiveExploreReport: boolean
   setHasActiveExploreReport: Dispatch<SetStateAction<boolean>>
+
+  // PIPEDREAM STORE
+  pipedreamConnected: boolean
+  setPipedreamConnected: Dispatch<SetStateAction<boolean>>
+  pipedreamDataSources: Array<{
+    id: string
+    app_slug: string
+    app_name: string
+    app_icon_url: string | null
+    enabled: boolean
+  }>
+  setPipedreamDataSources: Dispatch<
+    SetStateAction<
+      Array<{
+        id: string
+        app_slug: string
+        app_name: string
+        app_icon_url: string | null
+        enabled: boolean
+      }>
+    >
+  >
 }
 
 interface ChatbotUIProviderProps {
@@ -286,6 +308,18 @@ export function ChatbotUIProvider({ children }: ChatbotUIProviderProps) {
   // EXPLORE REPORT STORE
   const [hasActiveExploreReport, setHasActiveExploreReport] =
     useState<boolean>(false)
+
+  // PIPEDREAM STORE
+  const [pipedreamConnected, setPipedreamConnected] = useState<boolean>(false)
+  const [pipedreamDataSources, setPipedreamDataSources] = useState<
+    Array<{
+      id: string
+      app_slug: string
+      app_name: string
+      app_icon_url: string | null
+      enabled: boolean
+    }>
+  >([])
 
   // Debug logs
   // console.log(`Document mode state in provider ${instanceIdRef.current}:`, {
@@ -434,7 +468,13 @@ export function ChatbotUIProvider({ children }: ChatbotUIProviderProps) {
 
       // EXPLORE REPORT STORE
       hasActiveExploreReport,
-      setHasActiveExploreReport
+      setHasActiveExploreReport,
+
+      // PIPEDREAM STORE
+      pipedreamConnected,
+      setPipedreamConnected,
+      pipedreamDataSources,
+      setPipedreamDataSources
     }),
     [
       // Dependencies for useMemo - list all state variables
@@ -492,7 +532,10 @@ export function ChatbotUIProvider({ children }: ChatbotUIProviderProps) {
       // IMPORTANT: Include document mode state
       isDocMode,
       documentContent,
-      hasActiveExploreReport
+      hasActiveExploreReport,
+      // PIPEDREAM state
+      pipedreamConnected,
+      pipedreamDataSources
     ]
   )
 

@@ -81,6 +81,31 @@ function PricingContent() {
     return billingPeriod === "annual" ? `${plan}_annual` : `${plan}_monthly`
   }
 
+  const handleDowngradeToFree = async () => {
+    setLoadingPlan("free")
+    try {
+      const response = await fetch("/api/stripe/portal", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        }
+      })
+
+      const data = await response.json()
+
+      if (response.ok && data.url) {
+        window.location.href = data.url
+      } else {
+        toast.error(data.error || "Failed to open subscription portal")
+        setLoadingPlan(null)
+      }
+    } catch (error) {
+      console.error("Error:", error)
+      toast.error("An error occurred. Please try again.")
+      setLoadingPlan(null)
+    }
+  }
+
   return (
     <div className="relative min-h-screen bg-white">
       {/* Close Button */}
@@ -189,10 +214,15 @@ function PricingContent() {
             </div>
 
             <button
+              onClick={currentTier !== "free" ? handleDowngradeToFree : undefined}
               className="w-full rounded-lg border-2 border-gray-300 bg-white px-6 py-4 text-base font-semibold text-gray-900 transition-all hover:border-gray-400 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
-              disabled={currentTier === "free"}
+              disabled={currentTier === "free" || loadingPlan === "free"}
             >
-              {currentTier === "free" ? "Current Plan" : "Downgrade"}
+              {currentTier === "free"
+                ? "Current Plan"
+                : loadingPlan === "free"
+                  ? "Opening Portal..."
+                  : "Manage Subscription"}
             </button>
           </div>
 

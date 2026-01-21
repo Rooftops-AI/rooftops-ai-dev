@@ -1,4 +1,3 @@
-
 export type Json =
   | string
   | number
@@ -995,6 +994,128 @@ export type Database = {
           },
         ]
       }
+      oauth_connections: {
+        Row: {
+          access_token: string
+          connected_at: string
+          created_at: string
+          id: string
+          last_used_at: string | null
+          provider: string
+          provider_user_email: string | null
+          provider_user_id: string | null
+          refresh_token: string | null
+          scopes: string[] | null
+          token_expires_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token: string
+          connected_at?: string
+          created_at?: string
+          id?: string
+          last_used_at?: string | null
+          provider: string
+          provider_user_email?: string | null
+          provider_user_id?: string | null
+          refresh_token?: string | null
+          scopes?: string[] | null
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token?: string
+          connected_at?: string
+          created_at?: string
+          id?: string
+          last_used_at?: string | null
+          provider?: string
+          provider_user_email?: string | null
+          provider_user_id?: string | null
+          refresh_token?: string | null
+          scopes?: string[] | null
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      pipedream_connections: {
+        Row: {
+          api_key: string
+          connected_apps: Json | null
+          created_at: string
+          id: string
+          mcp_server_url: string
+          pipedream_project_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          api_key: string
+          connected_apps?: Json | null
+          created_at?: string
+          id?: string
+          mcp_server_url: string
+          pipedream_project_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          api_key?: string
+          connected_apps?: Json | null
+          created_at?: string
+          id?: string
+          mcp_server_url?: string
+          pipedream_project_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      pipedream_data_sources: {
+        Row: {
+          app_icon_url: string | null
+          app_name: string
+          app_slug: string
+          chat_id: string | null
+          created_at: string
+          enabled: boolean | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          app_icon_url?: string | null
+          app_name: string
+          app_slug: string
+          chat_id?: string | null
+          created_at?: string
+          enabled?: boolean | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          app_icon_url?: string | null
+          app_name?: string
+          app_slug?: string
+          chat_id?: string | null
+          created_at?: string
+          enabled?: boolean | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pipedream_data_sources_chat_id_fkey"
+            columns: ["chat_id"]
+            isOneToOne: false
+            referencedRelation: "chats"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       preset_workspaces: {
         Row: {
           created_at: string
@@ -1302,6 +1423,101 @@ export type Database = {
           },
         ]
       }
+      property_reports: {
+        Row: {
+          address: string
+          analysis_data: Json
+          captured_images: Json | null
+          complexity: string | null
+          condition: string | null
+          confidence: string | null
+          created_at: string | null
+          debug_info: Json | null
+          detailed_analysis: string | null
+          facet_count: number | null
+          id: string
+          latitude: number
+          longitude: number
+          material: string | null
+          pitch: string | null
+          ridge_length: number | null
+          roof_area: number | null
+          roof_area_range: Json | null
+          satellite_views: Json | null
+          solar_metrics: Json | null
+          squares: number | null
+          updated_at: string | null
+          user_id: string
+          user_summary: string | null
+          valley_length: number | null
+          workspace_id: string
+        }
+        Insert: {
+          address: string
+          analysis_data: Json
+          captured_images?: Json | null
+          complexity?: string | null
+          condition?: string | null
+          confidence?: string | null
+          created_at?: string | null
+          debug_info?: Json | null
+          detailed_analysis?: string | null
+          facet_count?: number | null
+          id?: string
+          latitude: number
+          longitude: number
+          material?: string | null
+          pitch?: string | null
+          ridge_length?: number | null
+          roof_area?: number | null
+          roof_area_range?: Json | null
+          satellite_views?: Json | null
+          solar_metrics?: Json | null
+          squares?: number | null
+          updated_at?: string | null
+          user_id: string
+          user_summary?: string | null
+          valley_length?: number | null
+          workspace_id: string
+        }
+        Update: {
+          address?: string
+          analysis_data?: Json
+          captured_images?: Json | null
+          complexity?: string | null
+          condition?: string | null
+          confidence?: string | null
+          created_at?: string | null
+          debug_info?: Json | null
+          detailed_analysis?: string | null
+          facet_count?: number | null
+          id?: string
+          latitude?: number
+          longitude?: number
+          material?: string | null
+          pitch?: string | null
+          ridge_length?: number | null
+          roof_area?: number | null
+          roof_area_range?: Json | null
+          satellite_views?: Json | null
+          solar_metrics?: Json | null
+          squares?: number | null
+          updated_at?: string | null
+          user_id?: string
+          user_summary?: string | null
+          valley_length?: number | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_reports_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscriptions: {
         Row: {
           cancel_at_period_end: boolean | null
@@ -1313,6 +1529,7 @@ export type Database = {
           status: string
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
+          tier: string
           updated_at: string | null
           user_id: string
         }
@@ -1326,6 +1543,7 @@ export type Database = {
           status?: string
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
+          tier?: string
           updated_at?: string | null
           user_id: string
         }
@@ -1339,6 +1557,7 @@ export type Database = {
           status?: string
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
+          tier?: string
           updated_at?: string | null
           user_id?: string
         }
@@ -1438,6 +1657,56 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "folders"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_usage: {
+        Row: {
+          chat_messages_free: number
+          chat_messages_premium: number
+          created_at: string | null
+          daily_chat_count: number
+          id: string
+          last_chat_date: string | null
+          month: string
+          reports_generated: number
+          updated_at: string | null
+          user_id: string
+          web_searches: number
+        }
+        Insert: {
+          chat_messages_free?: number
+          chat_messages_premium?: number
+          created_at?: string | null
+          daily_chat_count?: number
+          id?: string
+          last_chat_date?: string | null
+          month: string
+          reports_generated?: number
+          updated_at?: string | null
+          user_id: string
+          web_searches?: number
+        }
+        Update: {
+          chat_messages_free?: number
+          chat_messages_premium?: number
+          created_at?: string | null
+          daily_chat_count?: number
+          id?: string
+          last_chat_date?: string | null
+          month?: string
+          reports_generated?: number
+          updated_at?: string | null
+          user_id?: string
+          web_searches?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_usage_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
           },
         ]
       }
