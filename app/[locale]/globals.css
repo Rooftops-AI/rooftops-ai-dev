@@ -338,3 +338,12 @@ div[role="button"] svg {
 .gm-style-iw button.gm-ui-hover-effect {
   display: none !important;
 }
+
+/* Prevent iOS auto-zoom on input focus - ensure 16px minimum font size */
+@media screen and (max-width: 768px) {
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
