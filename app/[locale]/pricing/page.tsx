@@ -78,7 +78,16 @@ function PricingContent() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="relative min-h-screen bg-white">
+      {/* Close Button */}
+      <button
+        onClick={() => router.push("/")}
+        className="absolute right-4 top-4 z-10 rounded-full p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 sm:right-6 sm:top-6"
+        aria-label="Close"
+      >
+        <X className="size-8" strokeWidth={2} />
+      </button>
+
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8 text-center">
