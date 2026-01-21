@@ -1,6 +1,6 @@
 "use client"
 
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
 import Image from "next/image"
 import {
@@ -18,11 +18,19 @@ import { createClient } from "@/lib/supabase/client"
 
 export default function LandingPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<"chat" | "report">("chat")
   const [inputValue, setInputValue] = useState("")
 
   useEffect(() => {
+    // If there's a code parameter (from email verification), redirect to auth callback
+    const code = searchParams.get("code")
+    if (code) {
+      router.push(`/auth/callback?code=${code}`)
+      return
+    }
+
     const checkAuth = async () => {
       const supabase = createClient()
       const {
@@ -59,7 +67,7 @@ export default function LandingPage() {
     }
 
     checkAuth()
-  }, [router])
+  }, [router, searchParams])
 
   const handleRedirectToLogin = () => {
     router.push("/login")
