@@ -194,10 +194,14 @@ function InnerWorkspaceLoader({ children }: { children: ReactNode }) {
         if (subscription) {
           setUserSubscription(subscription)
           // Determine plan type for model validation
-          if (subscription.status === "active") {
-            userPlanType =
-              (subscription.plan_type as "free" | "premium" | "business") ||
-              "free"
+          // Normalize plan_type (e.g., "premium_monthly" -> "premium")
+          if (subscription.status === "active" && subscription.plan_type) {
+            const rawPlan = subscription.plan_type.toLowerCase()
+            if (rawPlan.startsWith("business")) {
+              userPlanType = "business"
+            } else if (rawPlan.startsWith("premium")) {
+              userPlanType = "premium"
+            }
           }
 
           // Check for payment failure grace period

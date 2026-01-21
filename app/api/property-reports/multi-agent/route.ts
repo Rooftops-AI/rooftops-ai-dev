@@ -186,15 +186,23 @@ export async function POST(req: NextRequest) {
         agent: "measurement_specialist",
         measurements: {
           facetCount: agentResults.measurement?.data?.measurements?.facetCount,
-          facetCountRange: agentResults.measurement?.data?.measurements?.facetCountRange,
-          roofFootprintArea: agentResults.measurement?.data?.measurements?.roofFootprintArea,
-          estimatedPitch: agentResults.measurement?.data?.measurements?.estimatedPitch,
-          pitchMultiplier: agentResults.measurement?.data?.measurements?.pitchMultiplier,
-          totalRoofArea: agentResults.measurement?.data?.measurements?.totalRoofArea,
-          roofAreaRange: agentResults.measurement?.data?.measurements?.roofAreaRange,
+          facetCountRange:
+            agentResults.measurement?.data?.measurements?.facetCountRange,
+          roofFootprintArea:
+            agentResults.measurement?.data?.measurements?.roofFootprintArea,
+          estimatedPitch:
+            agentResults.measurement?.data?.measurements?.estimatedPitch,
+          pitchMultiplier:
+            agentResults.measurement?.data?.measurements?.pitchMultiplier,
+          totalRoofArea:
+            agentResults.measurement?.data?.measurements?.totalRoofArea,
+          roofAreaRange:
+            agentResults.measurement?.data?.measurements?.roofAreaRange,
           squares: agentResults.measurement?.data?.measurements?.squares,
-          ridgeLength: agentResults.measurement?.data?.measurements?.ridgeLength,
-          valleyLength: agentResults.measurement?.data?.measurements?.valleyLength,
+          ridgeLength:
+            agentResults.measurement?.data?.measurements?.ridgeLength,
+          valleyLength:
+            agentResults.measurement?.data?.measurements?.valleyLength,
           hipLength: agentResults.measurement?.data?.measurements?.hipLength,
           eaveLength: agentResults.measurement?.data?.measurements?.eaveLength,
           complexity: agentResults.measurement?.data?.measurements?.complexity,
@@ -208,13 +216,18 @@ export async function POST(req: NextRequest) {
         agent: "condition_inspector",
         condition: {
           material: agentResults.condition?.data?.condition?.material,
-          overallCondition: agentResults.condition?.data?.condition?.overallCondition,
+          overallCondition:
+            agentResults.condition?.data?.condition?.overallCondition,
           estimatedAge: agentResults.condition?.data?.condition?.estimatedAge,
-          remainingLifespan: agentResults.condition?.data?.condition?.remainingLifespan,
-          damageAssessment: agentResults.condition?.data?.condition?.damageAssessment,
-          specificIssues: agentResults.condition?.data?.condition?.specificIssues,
+          remainingLifespan:
+            agentResults.condition?.data?.condition?.remainingLifespan,
+          damageAssessment:
+            agentResults.condition?.data?.condition?.damageAssessment,
+          specificIssues:
+            agentResults.condition?.data?.condition?.specificIssues,
           riskFactors: agentResults.condition?.data?.condition?.riskFactors,
-          maintenanceNeeds: agentResults.condition?.data?.condition?.maintenanceNeeds,
+          maintenanceNeeds:
+            agentResults.condition?.data?.condition?.maintenanceNeeds,
           urgency: agentResults.condition?.data?.condition?.urgency,
           urgencyReason: agentResults.condition?.data?.condition?.urgencyReason
         },
@@ -231,7 +244,9 @@ export async function POST(req: NextRequest) {
         confidence: agentResults.cost?.data?.confidence
       }
 
-      console.log("[Agent 4] Using optimized data extraction to reduce token usage")
+      console.log(
+        "[Agent 4] Using optimized data extraction to reduce token usage"
+      )
 
       agentResults.quality = await runQualityController({
         measurementData: essentialMeasurementData,

@@ -12,7 +12,10 @@ import { cookies } from "next/headers"
 import { ReactNode } from "react"
 import "./globals.css"
 
-const dmSans = DM_Sans({ subsets: ["latin"], weight: ["400", "500", "600", "700"] })
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"]
+})
 const APP_NAME = "Rooftops AI"
 const APP_DEFAULT_TITLE = "Rooftops AI"
 const APP_TITLE_TEMPLATE = "%s - Rooftops AI"

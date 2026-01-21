@@ -1,5 +1,4 @@
 // @ts-nocheck
-// @ts-nocheck
 // app/api/stripe/create-subscription/route.ts
 // DEVELOPMENT ONLY - Workaround for webhooks not working on localhost
 // In production, subscription creation happens via webhook
@@ -8,6 +7,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { stripe } from "@/lib/stripe"
 import { getServerProfile } from "@/lib/server/server-chat-helpers"
 import { upsertSubscription } from "@/db/subscriptions"
+import { STRIPE_PRICE_IDS } from "@/lib/stripe-config"
 
 export async function POST(req: NextRequest) {
   try {
@@ -45,9 +45,15 @@ export async function POST(req: NextRequest) {
     const priceId = subscription.items.data[0]?.price.id
     let planType: "premium" | "business" = "premium"
 
-    if (priceId === "price_1SWUdKLa49gFMOt6ij7fwsyl") {
+    // Check if it's a business plan (monthly or annual)
+    if (
+      priceId === STRIPE_PRICE_IDS.business_monthly ||
+      priceId === STRIPE_PRICE_IDS.business_annual ||
+      priceId === STRIPE_PRICE_IDS.business
+    ) {
       planType = "business"
     }
+    // Otherwise it's premium (covers premium_monthly, premium_annual, premium)
 
     const subscriptionData = {
       user_id: profile.user_id,

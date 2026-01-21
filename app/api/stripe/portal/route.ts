@@ -73,9 +73,7 @@ export async function POST(req: NextRequest) {
       return_url: returnUrl
     })
 
-    console.log(
-      `[Stripe Portal] Portal session created: ${portalSession.id}`
-    )
+    console.log(`[Stripe Portal] Portal session created: ${portalSession.id}`)
 
     return NextResponse.json({ url: portalSession.url })
   } catch (error: any) {

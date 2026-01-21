@@ -523,7 +523,9 @@ export const ProfileSettings: FC<ProfileSettingsProps> = ({}) => {
         <div className="mt-6 space-y-4">
           {/* Subscription Management and Help */}
           <div className="space-y-3">
-            {(userSubscription?.status === "active" || userSubscription?.status === "trialing" || userSubscription?.status === "past_due") && (
+            {(userSubscription?.status === "active" ||
+              userSubscription?.status === "trialing" ||
+              userSubscription?.status === "past_due") && (
               <Button
                 variant="outline"
                 className="w-full rounded-lg border-gray-200 bg-white from-transparent to-transparent shadow-none hover:bg-gray-50 hover:from-transparent hover:to-transparent dark:border-gray-700 dark:bg-gray-800/50 dark:hover:bg-gray-700"
@@ -538,7 +540,9 @@ export const ProfileSettings: FC<ProfileSettingsProps> = ({}) => {
 
                     if (!response.ok) {
                       const error = await response.json()
-                      throw new Error(error.error || "Failed to open billing portal")
+                      throw new Error(
+                        error.error || "Failed to open billing portal"
+                      )
                     }
 
                     const { url } = await response.json()
@@ -550,7 +554,10 @@ export const ProfileSettings: FC<ProfileSettingsProps> = ({}) => {
                     }
                   } catch (error: any) {
                     console.error("Error opening billing portal:", error)
-                    toast.error(error.message || "Failed to open billing portal. Please try again.")
+                    toast.error(
+                      error.message ||
+                        "Failed to open billing portal. Please try again."
+                    )
                     setIsLoadingPortal(false)
                   }
                 }}

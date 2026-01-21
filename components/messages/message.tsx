@@ -655,11 +655,7 @@ export const Message: FC<MessageProps> = ({
                 />
               ) : (
                 <div className="flex size-[32px] items-center justify-center rounded-full bg-gradient-to-br from-[#4FEBBC] to-[#24BDEB]">
-                  <IconMoodSmile
-                    className="text-white"
-                    size={20}
-                    stroke={2}
-                  />
+                  <IconMoodSmile className="text-white" size={20} stroke={2} />
                 </div>
               )}
 

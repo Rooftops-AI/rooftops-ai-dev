@@ -67,10 +67,7 @@ export const StepContainer: FC<StepContainerProps> = ({
             <div className="mx-auto mb-8 max-w-md space-y-5 text-left">
               <div className="flex items-start gap-4">
                 <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-cyan-500 to-blue-600">
-                  <IconFileText
-                    className="size-6 text-white"
-                    strokeWidth={2}
-                  />
+                  <IconFileText className="size-6 text-white" strokeWidth={2} />
                 </div>
                 <div>
                   <h3 className="mb-1 text-lg font-semibold text-white">

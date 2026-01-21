@@ -190,7 +190,7 @@ export const ArtifactViewer: FC<ArtifactViewerProps> = ({
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <div className="relative flex h-[90vh] w-[90vw] max-w-[1200px] flex-col overflow-hidden rounded-lg bg-white shadow-2xl dark:bg-gray-900">
         {/* Header */}
-        <div className="border-border flex flex-shrink-0 items-center justify-between border-b bg-gray-50 px-6 py-4 dark:bg-gray-800">
+        <div className="border-border flex shrink-0 items-center justify-between border-b bg-gray-50 px-6 py-4 dark:bg-gray-800">
           <div className="flex items-center gap-3">
             <h2 className="text-xl font-bold">{title}</h2>
             {isGenerating && (

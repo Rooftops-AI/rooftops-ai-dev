@@ -276,7 +276,7 @@ export default function ToolPage() {
         <div className="mx-auto max-w-5xl">
           <div className="flex flex-col items-center gap-6 md:flex-row md:items-start md:gap-8">
             {/* Agent Avatar */}
-            <div className="flex-shrink-0">
+            <div className="shrink-0">
               <div className="relative">
                 <div className="absolute inset-0 animate-pulse rounded-full bg-white/20 blur-xl"></div>
                 <img

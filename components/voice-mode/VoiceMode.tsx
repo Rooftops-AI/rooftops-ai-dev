@@ -9,7 +9,11 @@ import {
   useLocalParticipant,
   useRoomContext
 } from "@livekit/components-react"
-import { ConnectionState, RoomEvent, TranscriptionSegment } from "livekit-client"
+import {
+  ConnectionState,
+  RoomEvent,
+  TranscriptionSegment
+} from "livekit-client"
 import { IconX, IconMicrophone, IconMicrophoneOff } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { GalaxyBackground } from "./GalaxyBackground"
@@ -144,7 +148,8 @@ function VoiceAssistantControls({ onClose, chatId }: VoiceModeProps) {
   useEffect(() => {
     if (!agentTranscriptions || agentTranscriptions.length === 0) return
 
-    const latestTranscription = agentTranscriptions[agentTranscriptions.length - 1]
+    const latestTranscription =
+      agentTranscriptions[agentTranscriptions.length - 1]
 
     if (latestTranscription?.final && latestTranscription.text?.trim()) {
       const text = latestTranscription.text.trim()
@@ -166,17 +171,19 @@ function VoiceAssistantControls({ onClose, chatId }: VoiceModeProps) {
       participant?: any,
       publication?: any
     ) => {
-      segments.forEach((segment) => {
+      segments.forEach(segment => {
         if (!segment.final || !segment.text?.trim()) return
 
-        const segmentId = `${participant?.sid || 'unknown'}-${segment.id}`
+        const segmentId = `${participant?.sid || "unknown"}-${segment.id}`
         if (processedSegmentIds.current.has(segmentId)) return
 
         processedSegmentIds.current.add(segmentId)
         const text = segment.text.trim()
 
         // Check if this is the user (not the agent)
-        const isUser = participant?.identity && !participant.identity.toLowerCase().includes("agent")
+        const isUser =
+          participant?.identity &&
+          !participant.identity.toLowerCase().includes("agent")
 
         if (isUser) {
           console.log("User transcription:", text)
@@ -222,7 +229,10 @@ function VoiceAssistantControls({ onClose, chatId }: VoiceModeProps) {
       </div>
 
       {/* State Label and Dots Cluster - Bottom area */}
-      <div className="relative z-10 flex flex-col items-center justify-center pb-20" style={{ height: "45%" }}>
+      <div
+        className="relative z-10 flex flex-col items-center justify-center pb-20"
+        style={{ height: "45%" }}
+      >
         {/* State Label */}
         <div className="mb-8 text-center">
           <p className="text-sm font-light uppercase tracking-widest text-gray-400">
@@ -231,10 +241,7 @@ function VoiceAssistantControls({ onClose, chatId }: VoiceModeProps) {
         </div>
 
         {/* Dots Cluster */}
-        <DotsCluster
-          state={state as any || "idle"}
-          audioLevel={audioLevel}
-        />
+        <DotsCluster state={(state as any) || "idle"} audioLevel={audioLevel} />
 
         {/* Controls */}
         <div className="mt-12 flex items-center gap-6">

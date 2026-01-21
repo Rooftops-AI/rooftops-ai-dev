@@ -64,12 +64,37 @@ export async function POST(req: Request) {
             session.subscription as string
           )
 
+          // Get plan type from price ID (most reliable) or metadata
+          const priceId = subscription.items?.data?.[0]?.price?.id
+          let planType = getPlanTypeFromPriceId(priceId || "")
+
+          // Fallback to metadata if price ID didn't match
+          if (planType === "free" && session.metadata?.planType) {
+            // Normalize metadata planType (e.g., "premium_annual" -> "premium")
+            const metaPlan = session.metadata.planType.toLowerCase()
+            if (metaPlan.startsWith("business")) {
+              planType = "business"
+            } else if (metaPlan.startsWith("premium")) {
+              planType = "premium"
+            }
+          }
+
+          // Final fallback - if still free but this is a paid checkout, default to premium
+          if (planType === "free") {
+            console.warn(
+              "⚠️ Could not determine plan type, defaulting to premium"
+            )
+            planType = "premium"
+          }
+
+          console.log(`📋 Determined plan type: ${planType}`)
+
           await createSubscription({
             user_id: session.metadata?.userId!,
             stripe_customer_id: session.customer as string,
             stripe_subscription_id: subscription.id,
             status: subscription.status,
-            plan_type: session.metadata?.planType || "pro",
+            plan_type: planType,
             current_period_start: new Date(
               subscription.current_period_start * 1000
             ),

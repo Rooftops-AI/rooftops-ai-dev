@@ -43,9 +43,7 @@ export function FeaturedAgentHero({ featuredAgents }: FeaturedAgentHeroProps) {
 
   // Manual navigation
   const goToPrevious = () => {
-    setCurrentIndex(prev =>
-      prev === 0 ? featuredAgents.length - 1 : prev - 1
-    )
+    setCurrentIndex(prev => (prev === 0 ? featuredAgents.length - 1 : prev - 1))
   }
 
   const goToNext = () => {
@@ -66,7 +64,7 @@ export function FeaturedAgentHero({ featuredAgents }: FeaturedAgentHeroProps) {
           key={agent.id}
           className={cn(
             "absolute inset-0 transition-opacity duration-700",
-            idx === currentIndex ? "opacity-100 z-10" : "opacity-0 z-0"
+            idx === currentIndex ? "z-10 opacity-100" : "z-0 opacity-0"
           )}
         >
           <div
@@ -111,7 +109,7 @@ export function FeaturedAgentHero({ featuredAgents }: FeaturedAgentHeroProps) {
             </div>
 
             {/* Right: Agent avatar */}
-            <div className="hidden flex-shrink-0 lg:block">
+            <div className="hidden shrink-0 lg:block">
               <img
                 src={agent.avatar || agent.avatarUrl}
                 alt={agent.name}
@@ -157,7 +155,7 @@ export function FeaturedAgentHero({ featuredAgents }: FeaturedAgentHeroProps) {
 
       {/* Progress bar (optional visual indicator) */}
       {!isPaused && (
-        <div className="absolute bottom-0 left-0 right-0 z-20 h-1 bg-white/20">
+        <div className="absolute inset-x-0 bottom-0 z-20 h-1 bg-white/20">
           <div
             className="h-full bg-white transition-all"
             style={{

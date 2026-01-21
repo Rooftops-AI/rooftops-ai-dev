@@ -31,7 +31,7 @@ export function VoiceTranscript({ messages }: VoiceTranscriptProps) {
   }
 
   return (
-    <div className="relative flex h-full w-full flex-col">
+    <div className="relative flex size-full flex-col">
       <div
         ref={transcriptRef}
         className="flex-1 overflow-y-auto px-6 pb-8 pt-16 md:px-12"
@@ -60,7 +60,7 @@ export function VoiceTranscript({ messages }: VoiceTranscriptProps) {
             <div
               key={index}
               className={cn(
-                "flex flex-col space-y-1 animate-in fade-in slide-in-from-bottom-2 duration-300",
+                "animate-in fade-in slide-in-from-bottom-2 flex flex-col space-y-1 duration-300",
                 message.role === "user" ? "items-end" : "items-start"
               )}
             >

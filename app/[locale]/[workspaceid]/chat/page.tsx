@@ -12,7 +12,13 @@ import { RooftopsSVG } from "@/components/icons/rooftops-svg"
 import { useChatbotUI } from "@/context/context"
 import useHotkey from "@/lib/hooks/use-hotkey"
 import { useTheme } from "next-themes"
-import { useEffect, useState } from "react"
+import {
+  useEffect,
+  useState,
+  useRef,
+  useLayoutEffect,
+  useCallback
+} from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { VoiceMode } from "@/components/voice-mode/VoiceMode"
 import { IconMicrophone, IconSparkles, IconCheck } from "@tabler/icons-react"
@@ -69,6 +75,48 @@ export default function ChatPage() {
   const [voiceChatId, setVoiceChatId] = useState<string | null>(null)
   const [showSuccessModal, setShowSuccessModal] = useState(subscriptionSuccess)
   const [subscriptionProcessed, setSubscriptionProcessed] = useState(false)
+
+  // Auto-fit headline refs and state
+  const headlineContainerRef = useRef<HTMLDivElement>(null)
+  const headlineTextRef = useRef<HTMLHeadingElement>(null)
+  const [headlineFontSize, setHeadlineFontSize] = useState(52)
+
+  // Auto-fit the headline to prevent wrapping
+  const fitHeadline = useCallback(() => {
+    const container = headlineContainerRef.current
+    const text = headlineTextRef.current
+    if (!container || !text) return
+
+    const maxFontSize = 52
+    const minFontSize = 24
+    const containerWidth = container.offsetWidth - 60 // Account for logo + margin
+
+    // Binary search for optimal font size
+    let low = minFontSize
+    let high = maxFontSize
+    let optimalSize = minFontSize
+
+    while (low <= high) {
+      const mid = Math.floor((low + high) / 2)
+      text.style.fontSize = `${mid}px`
+
+      if (text.scrollWidth <= containerWidth) {
+        optimalSize = mid
+        low = mid + 1
+      } else {
+        high = mid - 1
+      }
+    }
+
+    setHeadlineFontSize(optimalSize)
+  }, [])
+
+  // Fit headline on mount and resize
+  useEffect(() => {
+    fitHeadline()
+    window.addEventListener("resize", fitHeadline)
+    return () => window.removeEventListener("resize", fitHeadline)
+  }, [fitHeadline, greeting])
 
   // if there's an initialPrompt, wipe the slate and send it as the first user message
   useEffect(() => {
@@ -180,11 +228,18 @@ export default function ChatPage() {
             </h1>
 
             {/* Desktop greeting section with logo inline with text - hidden on mobile */}
-            <div className="hidden items-center md:flex">
+            <div
+              ref={headlineContainerRef}
+              className="hidden w-full items-center justify-center md:flex"
+            >
               <div className="mr-3 size-12 shrink-0">
                 <RooftopsSVG width="48" height="48" />
               </div>
-              <h1 className="mt-1 text-[52px] font-bold leading-none tracking-tight text-gray-900 dark:text-white">
+              <h1
+                ref={headlineTextRef}
+                style={{ fontSize: `${headlineFontSize}px` }}
+                className="mt-1 whitespace-nowrap font-bold leading-none tracking-tight text-gray-900 dark:text-white"
+              >
                 {greeting}
               </h1>
             </div>

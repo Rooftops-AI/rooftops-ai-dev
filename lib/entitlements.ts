@@ -69,7 +69,11 @@ function normalizeTier(tier: string | null | undefined): Tier {
   if (normalized.startsWith("premium")) return "premium"
 
   // Check if it's already a valid base tier
-  if (normalized === "free" || normalized === "premium" || normalized === "business") {
+  if (
+    normalized === "free" ||
+    normalized === "premium" ||
+    normalized === "business"
+  ) {
     return normalized as Tier
   }
 

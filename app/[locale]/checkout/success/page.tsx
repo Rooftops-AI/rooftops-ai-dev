@@ -2,8 +2,9 @@
 
 import { useEffect, useState, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { Button } from "@/components/ui/button"
 import { Check, Loader2 } from "lucide-react"
+import confetti from "canvas-confetti"
+import { RooftopsSVG } from "@/components/icons/rooftops-svg"
 
 function CheckoutSuccessContent() {
   const router = useRouter()
@@ -16,6 +17,49 @@ function CheckoutSuccessContent() {
   } | null>(null)
   const [loading, setLoading] = useState(true)
 
+  // Fire confetti on mount
+  useEffect(() => {
+    if (!loading && tierDetails) {
+      // Fire confetti from multiple angles
+      const duration = 3000
+      const end = Date.now() + duration
+
+      const colors = ["#24BDEB", "#4FEBBC", "#03A7FF", "#50EBBC"]
+
+      const frame = () => {
+        confetti({
+          particleCount: 3,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0, y: 0.7 },
+          colors: colors
+        })
+        confetti({
+          particleCount: 3,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1, y: 0.7 },
+          colors: colors
+        })
+
+        if (Date.now() < end) {
+          requestAnimationFrame(frame)
+        }
+      }
+
+      // Initial burst
+      confetti({
+        particleCount: 100,
+        spread: 100,
+        origin: { y: 0.6 },
+        colors: colors
+      })
+
+      // Continuous confetti
+      frame()
+    }
+  }, [loading, tierDetails])
+
   useEffect(() => {
     const fetchSessionDetails = async () => {
       if (!sessionId) {
@@ -25,32 +69,32 @@ function CheckoutSuccessContent() {
       }
 
       try {
-        // In a real implementation, you'd fetch from your API
-        // For now, we'll derive from the URL or use a placeholder
-        // The webhook should have already created the subscription
-
         // Wait a moment for webhook to process
         await new Promise(resolve => setTimeout(resolve, 2000))
 
         // Get plan from URL or default to premium
         const plan = searchParams.get("plan") || "premium"
 
+        // Clean up the plan name (remove _monthly or _annual suffix)
+        const cleanPlan = plan.replace(/_monthly|_annual/g, "")
+
         setTierDetails({
-          tier: plan as "premium" | "business",
+          tier: cleanPlan as "premium" | "business",
           features:
-            plan === "business"
+            cleanPlan === "business"
               ? [
                   "100 property reports per month",
-                  "5,000 GPT-4.5-mini messages + unlimited GPT-4o",
-                  "250 web searches per month",
-                  "Full agent library access",
+                  "5,000 chat messages per month",
+                  "Unlimited web searches",
+                  "Exclusive Business Agent Library",
                   "Priority support"
                 ]
               : [
                   "20 property reports per month",
-                  "1,000 GPT-4.5-mini messages + unlimited GPT-4o",
+                  "1,000 chat messages per month",
                   "50 web searches per month",
-                  "Full agent library access"
+                  "Premium Agent Library",
+                  "Advanced AI models"
                 ]
         })
       } catch (error) {
@@ -63,14 +107,26 @@ function CheckoutSuccessContent() {
     fetchSessionDetails()
   }, [sessionId, router, searchParams])
 
+  const handleGetStarted = async () => {
+    // Get home workspace and redirect to chat
+    const { getHomeWorkspaceByUserId } = await import("@/db/workspaces")
+    const { supabase } = await import("@/lib/supabase/browser-client")
+
+    const session = (await supabase.auth.getSession()).data.session
+    if (session) {
+      const homeWorkspaceId = await getHomeWorkspaceByUserId(session.user.id)
+      router.push(`/${homeWorkspaceId}/chat`)
+    } else {
+      router.push("/")
+    }
+  }
+
   if (loading) {
     return (
-      <div className="bg-background flex min-h-screen items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-white">
         <div className="text-center">
-          <Loader2 className="text-primary mx-auto mb-4 size-12 animate-spin" />
-          <p className="text-muted-foreground">
-            Setting up your subscription...
-          </p>
+          <Loader2 className="mx-auto mb-4 size-12 animate-spin text-cyan-500" />
+          <p className="text-gray-600">Setting up your subscription...</p>
         </div>
       </div>
     )
@@ -84,57 +140,48 @@ function CheckoutSuccessContent() {
     tierDetails.tier.charAt(0).toUpperCase() + tierDetails.tier.slice(1)
 
   return (
-    <div className="bg-background min-h-screen">
+    <div className="min-h-screen bg-white">
       <div className="mx-auto max-w-4xl px-4 py-16 text-center">
-        {/* Success Icon */}
-        <div className="mb-6 inline-flex size-20 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
-          <Check className="size-12 text-green-600 dark:text-green-400" />
+        {/* Rooftops Icon */}
+        <div className="mb-6 inline-flex size-24 items-center justify-center">
+          <RooftopsSVG className="size-24" />
         </div>
 
         {/* Welcome Message */}
-        <h1 className="mb-4 text-4xl font-bold">
+        <h1 className="mb-4 text-4xl font-bold text-gray-900">
           Welcome to Rooftops AI {tierName}!
         </h1>
-        <p className="text-muted-foreground mb-12 text-xl">
+        <p className="mb-12 text-xl text-gray-600">
           Your subscription is now active. Here&apos;s what you can do:
         </p>
 
         {/* Features List */}
-        <div className="bg-card mb-12 rounded-lg border p-8 text-left">
-          <h2 className="mb-6 text-center text-2xl font-bold">
+        <div className="mb-12 rounded-xl border border-gray-200 bg-white p-8 text-left shadow-sm">
+          <h2 className="mb-6 text-center text-2xl font-bold text-gray-900">
             Your {tierName} Features
           </h2>
           <div className="grid gap-4 sm:grid-cols-2">
             {tierDetails.features.map((feature, index) => (
               <div key={index} className="flex items-start gap-3">
-                <Check className="mt-0.5 size-5 shrink-0 text-green-500" />
-                <span>{feature}</span>
+                <div className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-green-100">
+                  <Check className="size-3 text-green-600" strokeWidth={3} />
+                </div>
+                <span className="text-gray-700">{feature}</span>
               </div>
             ))}
           </div>
         </div>
 
-        {/* CTA Buttons */}
-        <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
-          <Button
-            size="lg"
-            onClick={() => router.push("/explore")}
-            className="px-8"
-          >
-            Start Analyzing Properties
-          </Button>
-          <Button
-            size="lg"
-            variant="outline"
-            onClick={() => router.push("/chat")}
-            className="px-8"
-          >
-            Try AI Chat
-          </Button>
-        </div>
+        {/* Single CTA Button */}
+        <button
+          onClick={handleGetStarted}
+          className="rounded-lg bg-gradient-to-r from-cyan-500 to-green-500 px-12 py-4 text-lg font-semibold text-white shadow-lg transition-all hover:from-cyan-600 hover:to-green-600 hover:shadow-xl"
+        >
+          Let&apos;s get to work
+        </button>
 
         {/* Additional Info */}
-        <div className="text-muted-foreground mt-12 space-y-2 text-sm">
+        <div className="mt-12 space-y-2 text-sm text-gray-500">
           <p>
             You can manage your subscription anytime from your account settings.
           </p>
@@ -142,7 +189,7 @@ function CheckoutSuccessContent() {
             Need help getting started?{" "}
             <a
               href="mailto:support@rooftopsgpt.com"
-              className="text-primary hover:underline"
+              className="font-medium text-cyan-600 hover:underline"
             >
               Contact our support team
             </a>
@@ -157,8 +204,8 @@ export default function CheckoutSuccessPage() {
   return (
     <Suspense
       fallback={
-        <div className="bg-background flex min-h-screen items-center justify-center">
-          <Loader2 className="text-primary size-12 animate-spin" />
+        <div className="flex min-h-screen items-center justify-center bg-white">
+          <Loader2 className="size-12 animate-spin text-cyan-500" />
         </div>
       }
     >

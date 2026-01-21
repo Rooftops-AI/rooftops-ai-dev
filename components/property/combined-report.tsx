@@ -673,7 +673,13 @@ const CombinedReport: FC<CombinedReportProps> = ({
   const getPropertyAddress = () => {
     // First try from the multi-agent report address at top level
     const topLevelAddress = safeExtract(analysisData, "address", "")
-    if (topLevelAddress) return topLevelAddress
+    if (topLevelAddress && topLevelAddress !== "Property Address")
+      return topLevelAddress
+
+    // Try from metadata.address
+    const metadataAddress = safeExtract(analysisData, "metadata.address", "")
+    if (metadataAddress && metadataAddress !== "Property Address")
+      return metadataAddress
 
     // Try from the standard paths from reportData
     if (reportData && reportData.jsonData) {
@@ -1241,80 +1247,23 @@ Be realistic and professional. Show actual calculations.`
       ref={reportRef}
       className="mx-auto w-full max-w-5xl overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md dark:border-gray-700 dark:bg-gray-800"
     >
-      {/* Sticky header with download button */}
+      {/* Compact sticky header */}
       <div className="sticky top-0 z-10 border-b border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-        <div className="flex items-center justify-between p-4">
-          <div className="flex items-center space-x-2">
-            <h2 className="hidden text-xl font-semibold text-gray-800 sm:block dark:text-gray-100">
-              {getPropertyAddress()}
-            </h2>
-          </div>
-
-          {/* Temporarily hidden until Share and Download PDF features are fixed */}
-          {false && (
-            <div className="flex gap-2">
-              <Button
-                onClick={handleShare}
-                disabled={isSharing}
-                size="sm"
-                variant="outline"
-                className="border-gray-300 dark:border-gray-600"
-              >
-                {isSharing ? (
-                  <>
-                    <IconLoader2 className="size-4 animate-spin sm:mr-2" />
-                    <span className="hidden sm:inline">Sharing...</span>
-                  </>
-                ) : (
-                  <>
-                    <svg
-                      className="size-4 sm:mr-2"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
-                      />
-                    </svg>
-                    <span className="hidden sm:inline">Share</span>
-                  </>
-                )}
-              </Button>
-
-              <Button
-                onClick={downloadAsPDF}
-                disabled={isDownloading}
-                size="sm"
-                className="bg-blue-600 text-white hover:bg-blue-700"
-              >
-                {isDownloading ? (
-                  <>
-                    <IconLoader2 className="size-4 animate-spin sm:mr-2" />
-                    <span className="hidden sm:inline">Generating...</span>
-                  </>
-                ) : (
-                  <>
-                    <IconDownload className="size-4 sm:mr-2" />
-                    <span className="hidden sm:inline">Download PDF</span>
-                  </>
-                )}
-              </Button>
-            </div>
-          )}
-        </div>
-
-        {/* Mobile view address */}
-        <div className="px-4 pb-2 sm:hidden">
-          <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+        {/* Desktop header */}
+        <div className="hidden items-center justify-between p-4 sm:flex">
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
             {getPropertyAddress()}
           </h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Generated on {getGeneratedDate()}
-          </p>
+        </div>
+
+        {/* Mobile header - compact single line */}
+        <div className="flex items-center justify-between px-3 py-2 sm:hidden">
+          <h2 className="truncate text-sm font-semibold text-gray-800 dark:text-gray-100">
+            {getPropertyAddress()}
+          </h2>
+          <span className="ml-2 shrink-0 text-xs text-gray-400">
+            {getGeneratedDate()}
+          </span>
         </div>
       </div>
 
@@ -1604,20 +1553,37 @@ Be realistic and professional. Show actual calculations.`
               {(() => {
                 // Extract facet data from multiple possible locations
                 const facets =
-                  safeExtract(reportData?.jsonData, "roofDetails.facets", null) ||
-                  safeExtract(reportData?.jsonData, "solarData.roofDetails.facets", null) ||
-                  safeExtract(analysisData, "solarData.roofDetails.facets", null) ||
+                  safeExtract(
+                    reportData?.jsonData,
+                    "roofDetails.facets",
+                    null
+                  ) ||
+                  safeExtract(
+                    reportData?.jsonData,
+                    "solarData.roofDetails.facets",
+                    null
+                  ) ||
+                  safeExtract(
+                    analysisData,
+                    "solarData.roofDetails.facets",
+                    null
+                  ) ||
                   []
 
                 // Debug logging
-                console.log("🔍 Facet Debug - reportData?.jsonData:", reportData?.jsonData)
+                console.log(
+                  "🔍 Facet Debug - reportData?.jsonData:",
+                  reportData?.jsonData
+                )
                 console.log("🔍 Facet Debug - analysisData:", analysisData)
                 console.log("🔍 Facet Debug - facets found:", facets)
 
                 if (!facets || facets.length === 0) return null
 
                 // Sort facets by area (largest first)
-                const sortedFacets = [...facets].sort((a: any, b: any) => b.area - a.area)
+                const sortedFacets = [...facets].sort(
+                  (a: any, b: any) => b.area - a.area
+                )
 
                 return (
                   <div className="mt-6 overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">

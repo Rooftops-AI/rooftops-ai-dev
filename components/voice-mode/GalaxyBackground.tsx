@@ -21,7 +21,7 @@ export function GalaxyBackground() {
       {stars.map((star, i) => (
         <div
           key={i}
-          className="absolute rounded-full bg-white animate-galaxy-drift"
+          className="animate-galaxy-drift absolute rounded-full bg-white"
           style={{
             left: `${star.x}%`,
             top: `${star.y}%`,

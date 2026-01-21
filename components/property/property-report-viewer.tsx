@@ -241,7 +241,10 @@ const PropertyReportViewer: React.FC<PropertyReportViewerProps> = ({
       estimate: (() => {
         // Helper function to calculate estimate based on roof area and material
         const calculateEstimate = () => {
-          const roofSquares = Math.ceil((measurements.roofArea || measurements.totalArea?.sqft || 1800) / 100)
+          const roofSquares = Math.ceil(
+            (measurements.roofArea || measurements.totalArea?.sqft || 1800) /
+              100
+          )
           const material = condition.material || "Asphalt Shingles"
 
           // Cost per square by material type (2025 pricing - includes materials + labor + tearoff)
@@ -252,13 +255,13 @@ const PropertyReportViewer: React.FC<PropertyReportViewerProps> = ({
             "Metal Roofing": 950,
             "Standing Seam Metal": 1050,
             "Metal Shingles": 750,
-            "Tile": 950,
+            Tile: 950,
             "Concrete Tile": 950,
             "Clay Tile": 1400,
-            "Slate": 1900,
+            Slate: 1900,
             "Wood Shakes": 750,
-            "TPO": 550,
-            "EPDM": 500,
+            TPO: 550,
+            EPDM: 500,
             "Modified Bitumen": 500
           }
 
@@ -275,7 +278,8 @@ const PropertyReportViewer: React.FC<PropertyReportViewerProps> = ({
         }
 
         const calculatedBase = calculateEstimate()
-        const baseEstimate = estimate.totalCost || estimate.total || calculatedBase
+        const baseEstimate =
+          estimate.totalCost || estimate.total || calculatedBase
 
         return {
           base: baseEstimate,

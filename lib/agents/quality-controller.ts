@@ -6,10 +6,9 @@
 // ═══════════════════════════════════════════════════════════════════
 const MODEL_CONFIG = {
   provider: "openai" as "openai" | "anthropic", // Switch between "openai" or "anthropic"
-  model:
-    "gpt-5.1-2025-11-13" as
-      | "gpt-5.1-2025-11-13"
-      | "claude-opus-4-5-20251101",
+  model: "gpt-5.1-2025-11-13" as
+    | "gpt-5.1-2025-11-13"
+    | "claude-opus-4-5-20251101",
   temperature: 0.2, // Very low temperature for precise validation
   maxTokens: 2500 // Reduced from 6000 - optimized for focused synthesis
 }

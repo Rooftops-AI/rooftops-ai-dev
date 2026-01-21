@@ -37,7 +37,11 @@ export const toolSchemas: Record<string, ToolSchema> = {
           "Objection response email"
         ]
       },
-      { name: "companyLogo", label: "Your Company Logo (optional)", type: "logo" },
+      {
+        name: "companyLogo",
+        label: "Your Company Logo (optional)",
+        type: "logo"
+      },
       { name: "leadName", label: "Customer/Lead Name", type: "text" },
       { name: "propertyAddress", label: "Property Address", type: "text" },
       {
@@ -51,7 +55,14 @@ export const toolSchemas: Record<string, ToolSchema> = {
         type: "number"
       }
     ],
-    buildPrompt: ({ taskType, companyLogo, leadName, propertyAddress, contextInfo, estimatedValue }) => {
+    buildPrompt: ({
+      taskType,
+      companyLogo,
+      leadName,
+      propertyAddress,
+      contextInfo,
+      estimatedValue
+    }) => {
       const basePrompt = `You are Marcus, an expert roofing sales specialist with 15 years of experience closing deals and building long-term customer relationships.
 
 Your expertise includes:
@@ -71,7 +82,7 @@ Project Value: $${estimatedValue || "TBD"}
 
 CONTEXT & NOTES:
 ${contextInfo}
-`;
+`
 
       const taskInstructions = {
         "Follow-up email after estimate": `
@@ -152,7 +163,12 @@ Write a thoughtful response to a customer objection:
 Based on the context, identify the likely objection and address it professionally.`
       }
 
-      return basePrompt + "\n" + (taskInstructions[taskType as keyof typeof taskInstructions] || taskInstructions["Follow-up email after estimate"]) + `
+      return (
+        basePrompt +
+        "\n" +
+        (taskInstructions[taskType as keyof typeof taskInstructions] ||
+          taskInstructions["Follow-up email after estimate"]) +
+        `
 
 OUTPUT FORMAT:
 - For emails: Professional email format with subject line
@@ -166,7 +182,8 @@ STYLE GUIDELINES:
 - Build trust and credibility
 - Include specific details about their property/situation
 - Roofing industry terminology where appropriate
-- End with clear next steps`;
+- End with clear next steps`
+      )
     }
   },
 
@@ -581,25 +598,54 @@ Make it thorough, professional, and suitable for customer records and company do
           "Change order estimate"
         ]
       },
-      { name: "roofType", label: "Roof Type", type: "select", options: [
-        "Asphalt Shingles",
-        "Metal Roofing",
-        "Tile",
-        "Slate",
-        "Flat/TPO/EPDM",
-        "Wood Shake"
-      ]},
-      { name: "roofArea", label: "Total Roof Area (square feet)", type: "number" },
-      { name: "roofPitch", label: "Roof Pitch (e.g., 6/12, 8/12)", type: "text" },
-      { name: "complexity", label: "Complexity Level", type: "select", options: [
-        "Simple (1-2 planes, minimal penetrations)",
-        "Moderate (3-4 planes, some valleys/hips)",
-        "Complex (5+ planes, many penetrations, steep pitch)",
-        "Very Complex (multiple stories, dormers, custom work)"
-      ]},
-      { name: "projectDetails", label: "Additional Project Details", type: "textarea" }
+      {
+        name: "roofType",
+        label: "Roof Type",
+        type: "select",
+        options: [
+          "Asphalt Shingles",
+          "Metal Roofing",
+          "Tile",
+          "Slate",
+          "Flat/TPO/EPDM",
+          "Wood Shake"
+        ]
+      },
+      {
+        name: "roofArea",
+        label: "Total Roof Area (square feet)",
+        type: "number"
+      },
+      {
+        name: "roofPitch",
+        label: "Roof Pitch (e.g., 6/12, 8/12)",
+        type: "text"
+      },
+      {
+        name: "complexity",
+        label: "Complexity Level",
+        type: "select",
+        options: [
+          "Simple (1-2 planes, minimal penetrations)",
+          "Moderate (3-4 planes, some valleys/hips)",
+          "Complex (5+ planes, many penetrations, steep pitch)",
+          "Very Complex (multiple stories, dormers, custom work)"
+        ]
+      },
+      {
+        name: "projectDetails",
+        label: "Additional Project Details",
+        type: "textarea"
+      }
     ],
-    buildPrompt: ({ taskType, roofType, roofArea, roofPitch, complexity, projectDetails }) => {
+    buildPrompt: ({
+      taskType,
+      roofType,
+      roofArea,
+      roofPitch,
+      complexity,
+      projectDetails
+    }) => {
       const basePrompt = `You are Elena, an expert roofing estimator with 12 years of experience in accurate material calculations, labor estimates, and competitive bidding.
 
 Your expertise includes:
@@ -619,7 +665,7 @@ PROJECT SPECIFICATIONS:
 
 ADDITIONAL DETAILS:
 ${projectDetails}
-`;
+`
 
       const taskInstructions = {
         "Material quantity calculation": `
@@ -679,9 +725,14 @@ Calculate change order pricing for:
 5. Updated timeline impact
 
 Provide clear justification for cost differences.`
-      };
+      }
 
-      return basePrompt + "\n" + (taskInstructions[taskType as keyof typeof taskInstructions] || taskInstructions["Material quantity calculation"]) + `
+      return (
+        basePrompt +
+        "\n" +
+        (taskInstructions[taskType as keyof typeof taskInstructions] ||
+          taskInstructions["Material quantity calculation"]) +
+        `
 
 OUTPUT FORMAT:
 - Use clear markdown formatting with tables where appropriate
@@ -694,7 +745,8 @@ STYLE GUIDELINES:
 - Include industry-standard waste factors
 - Reference current material costs (2025)
 - Note any assumptions or items needing on-site verification
-- Professional estimating terminology`;
+- Professional estimating terminology`
+      )
     }
   },
 
@@ -719,12 +771,33 @@ STYLE GUIDELINES:
       { name: "projectName", label: "Project/Customer Name", type: "text" },
       { name: "projectAddress", label: "Project Address", type: "text" },
       { name: "startDate", label: "Scheduled Start Date", type: "date" },
-      { name: "estimatedDuration", label: "Estimated Duration (days)", type: "number" },
+      {
+        name: "estimatedDuration",
+        label: "Estimated Duration (days)",
+        type: "number"
+      },
       { name: "crewSize", label: "Crew Size", type: "number" },
-      { name: "projectScope", label: "Project Scope Summary", type: "textarea" },
-      { name: "specialConsiderations", label: "Special Considerations/Constraints", type: "textarea" }
+      {
+        name: "projectScope",
+        label: "Project Scope Summary",
+        type: "textarea"
+      },
+      {
+        name: "specialConsiderations",
+        label: "Special Considerations/Constraints",
+        type: "textarea"
+      }
     ],
-    buildPrompt: ({ taskType, projectName, projectAddress, startDate, estimatedDuration, crewSize, projectScope, specialConsiderations }) => {
+    buildPrompt: ({
+      taskType,
+      projectName,
+      projectAddress,
+      startDate,
+      estimatedDuration,
+      crewSize,
+      projectScope,
+      specialConsiderations
+    }) => {
       const basePrompt = `You are Jordan, an experienced roofing project coordinator with expertise in scheduling, crew management, and clear communication.
 
 Your expertise includes:
@@ -749,7 +822,7 @@ ${projectScope}
 
 SPECIAL CONSIDERATIONS:
 ${specialConsiderations}
-`;
+`
 
       const taskInstructions = {
         "Project schedule creation": `
@@ -821,9 +894,14 @@ Create timeline adjustment plan that:
 6. Communicates changes to stakeholders
 
 Format as revised project plan with justification.`
-      };
+      }
 
-      return basePrompt + "\n" + (taskInstructions[taskType as keyof typeof taskInstructions] || taskInstructions["Project schedule creation"]) + `
+      return (
+        basePrompt +
+        "\n" +
+        (taskInstructions[taskType as keyof typeof taskInstructions] ||
+          taskInstructions["Project schedule creation"]) +
+        `
 
 OUTPUT FORMAT:
 - Use clear sections and bullet points
@@ -835,7 +913,8 @@ STYLE GUIDELINES:
 - Organized and methodical
 - Clear accountability
 - Proactive problem-solving
-- Customer-focused communication`;
+- Customer-focused communication`
+      )
     }
   },
 
@@ -858,16 +937,35 @@ STYLE GUIDELINES:
         ]
       },
       { name: "customerName", label: "Customer Name", type: "text" },
-      { name: "situationDetails", label: "Situation Details", type: "textarea" },
-      { name: "urgencyLevel", label: "Urgency Level", type: "select", options: [
-        "Low - General inquiry",
-        "Medium - Needs attention",
-        "High - Urgent issue",
-        "Critical - Emergency"
-      ]},
-      { name: "previousInteractions", label: "Previous Interactions/Context", type: "textarea" }
+      {
+        name: "situationDetails",
+        label: "Situation Details",
+        type: "textarea"
+      },
+      {
+        name: "urgencyLevel",
+        label: "Urgency Level",
+        type: "select",
+        options: [
+          "Low - General inquiry",
+          "Medium - Needs attention",
+          "High - Urgent issue",
+          "Critical - Emergency"
+        ]
+      },
+      {
+        name: "previousInteractions",
+        label: "Previous Interactions/Context",
+        type: "textarea"
+      }
     ],
-    buildPrompt: ({ taskType, customerName, situationDetails, urgencyLevel, previousInteractions }) => {
+    buildPrompt: ({
+      taskType,
+      customerName,
+      situationDetails,
+      urgencyLevel,
+      previousInteractions
+    }) => {
       const basePrompt = `You are Sophia, an expert customer service representative with exceptional communication skills and a gift for de-escalation and problem-solving.
 
 Your expertise includes:
@@ -888,7 +986,7 @@ ${situationDetails}
 
 PREVIOUS CONTEXT:
 ${previousInteractions}
-`;
+`
 
       const taskInstructions = {
         "Respond to customer inquiry": `
@@ -960,9 +1058,14 @@ Explain warranty that:
 7. Offers to answer questions
 
 Tone: Clear, trustworthy, confident.`
-      };
+      }
 
-      return basePrompt + "\n" + (taskInstructions[taskType as keyof typeof taskInstructions] || taskInstructions["Respond to customer inquiry"]) + `
+      return (
+        basePrompt +
+        "\n" +
+        (taskInstructions[taskType as keyof typeof taskInstructions] ||
+          taskInstructions["Respond to customer inquiry"]) +
+        `
 
 OUTPUT FORMAT:
 - Conversational, professional tone
@@ -975,7 +1078,8 @@ STYLE GUIDELINES:
 - Solution-oriented
 - Avoids jargon
 - Builds trust and confidence
-- Makes customer feel heard and valued`;
+- Makes customer feel heard and valued`
+      )
     }
   },
 
@@ -997,25 +1101,49 @@ STYLE GUIDELINES:
           "Xactimate line item justification"
         ]
       },
-      { name: "companyLogo", label: "Your Company Logo (optional)", type: "logo" },
+      {
+        name: "companyLogo",
+        label: "Your Company Logo (optional)",
+        type: "logo"
+      },
       { name: "propertyOwner", label: "Property Owner Name", type: "text" },
       { name: "propertyAddress", label: "Property Address", type: "text" },
       { name: "insuranceCompany", label: "Insurance Company", type: "text" },
       { name: "claimNumber", label: "Claim Number", type: "text" },
       { name: "dateOfLoss", label: "Date of Loss", type: "date" },
-      { name: "damageType", label: "Type of Damage", type: "select", options: [
-        "Hail Damage",
-        "Wind Damage",
-        "Storm Damage (Combined)",
-        "Tree Damage",
-        "Water Damage/Leak",
-        "Fire Damage",
-        "Ice Dam"
-      ]},
-      { name: "damageDetails", label: "Detailed Damage Description", type: "textarea" },
+      {
+        name: "damageType",
+        label: "Type of Damage",
+        type: "select",
+        options: [
+          "Hail Damage",
+          "Wind Damage",
+          "Storm Damage (Combined)",
+          "Tree Damage",
+          "Water Damage/Leak",
+          "Fire Damage",
+          "Ice Dam"
+        ]
+      },
+      {
+        name: "damageDetails",
+        label: "Detailed Damage Description",
+        type: "textarea"
+      },
       { name: "estimatedCost", label: "Estimated Repair Cost", type: "number" }
     ],
-    buildPrompt: ({ taskType, companyLogo, propertyOwner, propertyAddress, insuranceCompany, claimNumber, dateOfLoss, damageType, damageDetails, estimatedCost }) => {
+    buildPrompt: ({
+      taskType,
+      companyLogo,
+      propertyOwner,
+      propertyAddress,
+      insuranceCompany,
+      claimNumber,
+      dateOfLoss,
+      damageType,
+      damageDetails,
+      estimatedCost
+    }) => {
       const basePrompt = `You are Ryan, an expert insurance claims specialist with deep knowledge of policy coverage, claim procedures, and effective adjuster communication.
 
 Your expertise includes:
@@ -1039,7 +1167,7 @@ DAMAGE DETAILS:
 ${damageDetails}
 
 TASK: ${taskType}
-`;
+`
 
       const taskInstructions = {
         "Initial claim documentation": `
@@ -1131,9 +1259,14 @@ Write line item justification that:
 9. Proposes resolution
 
 Professional, factual, and specific.`
-      };
+      }
 
-      return basePrompt + "\n" + (taskInstructions[taskType as keyof typeof taskInstructions] || taskInstructions["Initial claim documentation"]) + `
+      return (
+        basePrompt +
+        "\n" +
+        (taskInstructions[taskType as keyof typeof taskInstructions] ||
+          taskInstructions["Initial claim documentation"]) +
+        `
 
 OUTPUT FORMAT:
 - Professional business documentation style
@@ -1147,7 +1280,8 @@ STYLE GUIDELINES:
 - Insurance industry terminology
 - Non-adversarial but firm
 - Evidence-based arguments
-- Professional throughout`;
+- Professional throughout`
+      )
     }
   },
 
@@ -1170,23 +1304,48 @@ STYLE GUIDELINES:
         ]
       },
       { name: "companyName", label: "Your Company Name", type: "text" },
-      { name: "projectDetails", label: "Project/Topic Details", type: "textarea" },
-      { name: "targetAudience", label: "Target Audience", type: "select", options: [
-        "Homeowners (residential)",
-        "Business owners (commercial)",
-        "Property managers",
-        "Real estate agents",
-        "General public"
-      ]},
-      { name: "tone", label: "Desired Tone", type: "select", options: [
-        "Professional & trustworthy",
-        "Friendly & approachable",
-        "Educational & helpful",
-        "Promotional & exciting"
-      ]},
-      { name: "specificPoints", label: "Key Points to Include", type: "textarea" }
+      {
+        name: "projectDetails",
+        label: "Project/Topic Details",
+        type: "textarea"
+      },
+      {
+        name: "targetAudience",
+        label: "Target Audience",
+        type: "select",
+        options: [
+          "Homeowners (residential)",
+          "Business owners (commercial)",
+          "Property managers",
+          "Real estate agents",
+          "General public"
+        ]
+      },
+      {
+        name: "tone",
+        label: "Desired Tone",
+        type: "select",
+        options: [
+          "Professional & trustworthy",
+          "Friendly & approachable",
+          "Educational & helpful",
+          "Promotional & exciting"
+        ]
+      },
+      {
+        name: "specificPoints",
+        label: "Key Points to Include",
+        type: "textarea"
+      }
     ],
-    buildPrompt: ({ taskType, companyName, projectDetails, targetAudience, tone, specificPoints }) => {
+    buildPrompt: ({
+      taskType,
+      companyName,
+      projectDetails,
+      targetAudience,
+      tone,
+      specificPoints
+    }) => {
       const basePrompt = `You are Aisha, an experienced marketing manager specializing in roofing industry content that engages audiences and drives business results.
 
 Your expertise includes:
@@ -1209,7 +1368,7 @@ KEY POINTS TO INCLUDE:
 ${specificPoints}
 
 TASK: ${taskType}
-`;
+`
 
       const taskInstructions = {
         "Social media post (Facebook/Instagram)": `
@@ -1296,9 +1455,14 @@ Write compelling before/after caption that:
 9. Tag location if applicable
 
 Make viewers stop scrolling and engage.`
-      };
+      }
 
-      return basePrompt + "\n" + (taskInstructions[taskType as keyof typeof taskInstructions] || taskInstructions["Social media post (Facebook/Instagram)"]) + `
+      return (
+        basePrompt +
+        "\n" +
+        (taskInstructions[taskType as keyof typeof taskInstructions] ||
+          taskInstructions["Social media post (Facebook/Instagram)"]) +
+        `
 
 OUTPUT FORMAT:
 - Platform-appropriate formatting
@@ -1312,7 +1476,8 @@ STYLE GUIDELINES:
 - Brand consistency
 - Professional yet personable
 - Include specific, vivid details
-- Focus on benefits to audience`;
+- Focus on benefits to audience`
+      )
     }
   },
 
@@ -1334,14 +1499,30 @@ STYLE GUIDELINES:
           "Safety meeting agenda"
         ]
       },
-      { name: "companyLogo", label: "Your Company Logo (optional)", type: "logo" },
+      {
+        name: "companyLogo",
+        label: "Your Company Logo (optional)",
+        type: "logo"
+      },
       { name: "projectLocation", label: "Project Location/Site", type: "text" },
       { name: "crewSize", label: "Crew Size", type: "number" },
-      { name: "specificConcerns", label: "Specific Safety Concerns or Incidents", type: "textarea" },
+      {
+        name: "specificConcerns",
+        label: "Specific Safety Concerns or Incidents",
+        type: "textarea"
+      },
       { name: "roofHeight", label: "Roof Height/Stories", type: "text" },
       { name: "weatherConditions", label: "Weather Conditions", type: "text" }
     ],
-    buildPrompt: ({ taskType, companyLogo, projectLocation, crewSize, specificConcerns, roofHeight, weatherConditions }) => {
+    buildPrompt: ({
+      taskType,
+      companyLogo,
+      projectLocation,
+      crewSize,
+      specificConcerns,
+      roofHeight,
+      weatherConditions
+    }) => {
       const basePrompt = `You are Derek, a certified safety professional specializing in roofing industry safety, OSHA compliance, and risk management.
 
 Your expertise includes:
@@ -1363,7 +1544,7 @@ SPECIFIC CONCERNS:
 ${specificConcerns}
 
 TASK: ${taskType}
-`;
+`
 
       const taskInstructions = {
         "Daily safety checklist": `
@@ -1459,9 +1640,14 @@ Create safety meeting agenda that includes:
 10. Action items and assignments
 
 Engage crew and reinforce safety culture.`
-      };
+      }
 
-      return basePrompt + "\n" + (taskInstructions[taskType as keyof typeof taskInstructions] || taskInstructions["Daily safety checklist"]) + `
+      return (
+        basePrompt +
+        "\n" +
+        (taskInstructions[taskType as keyof typeof taskInstructions] ||
+          taskInstructions["Daily safety checklist"]) +
+        `
 
 OUTPUT FORMAT:
 - Clear, structured checklists or reports
@@ -1474,7 +1660,8 @@ STYLE GUIDELINES:
 - Clear and unambiguous language
 - Regulatory compliance focused
 - Practical and field-ready
-- Emphasize prevention and awareness`;
+- Emphasize prevention and awareness`
+      )
     }
   },
 
@@ -1496,14 +1683,34 @@ STYLE GUIDELINES:
           "Employment offer letter"
         ]
       },
-      { name: "companyLogo", label: "Your Company Logo (optional)", type: "logo" },
+      {
+        name: "companyLogo",
+        label: "Your Company Logo (optional)",
+        type: "logo"
+      },
       { name: "companyName", label: "Your Company Name", type: "text" },
       { name: "partyName", label: "Customer/Employee Name", type: "text" },
-      { name: "projectAddress", label: "Project Address (if applicable)", type: "text" },
+      {
+        name: "projectAddress",
+        label: "Project Address (if applicable)",
+        type: "text"
+      },
       { name: "amount", label: "Dollar Amount", type: "number" },
-      { name: "specificDetails", label: "Specific Details/Terms", type: "textarea" }
+      {
+        name: "specificDetails",
+        label: "Specific Details/Terms",
+        type: "textarea"
+      }
     ],
-    buildPrompt: ({ taskType, companyLogo, companyName, partyName, projectAddress, amount, specificDetails }) => {
+    buildPrompt: ({
+      taskType,
+      companyLogo,
+      companyName,
+      partyName,
+      projectAddress,
+      amount,
+      specificDetails
+    }) => {
       const basePrompt = `You are Nina, an experienced business manager with expertise in legal documentation, financial management, and professional business communications for roofing companies.
 
 Your expertise includes:
@@ -1526,7 +1733,7 @@ ${specificDetails}
 TASK: ${taskType}
 
 IMPORTANT: This is a template document that should be reviewed by a legal professional before use. Customize for your specific state laws and business needs.
-`;
+`
 
       const taskInstructions = {
         "Roofing contract/agreement": `
@@ -1633,9 +1840,14 @@ Create offer letter that includes:
 12. Next steps
 
 Professional, welcoming, legally compliant.`
-      };
+      }
 
-      return basePrompt + "\n" + (taskInstructions[taskType as keyof typeof taskInstructions] || taskInstructions["Roofing contract/agreement"]) + `
+      return (
+        basePrompt +
+        "\n" +
+        (taskInstructions[taskType as keyof typeof taskInstructions] ||
+          taskInstructions["Roofing contract/agreement"]) +
+        `
 
 OUTPUT FORMAT:
 - Professional business document formatting
@@ -1652,7 +1864,8 @@ STYLE GUIDELINES:
 - Fair and clear to all parties
 - Include standard legal disclaimers
 
-DISCLAIMER: These documents should be reviewed by legal and financial professionals before use. State and local laws vary.`;
+DISCLAIMER: These documents should be reviewed by legal and financial professionals before use. State and local laws vary.`
+      )
     }
   }
 }

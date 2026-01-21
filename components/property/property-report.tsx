@@ -724,7 +724,11 @@ export const PropertyReportMessage: FC<PropertyReportMessageProps> = ({
             const facets =
               safeExtract(data, "roofDetails.facets", null) ||
               safeExtract(data, "solarData.roofDetails.facets", null) ||
-              safeExtract(data, "metadata.solarData.roofDetails.facets", null) ||
+              safeExtract(
+                data,
+                "metadata.solarData.roofDetails.facets",
+                null
+              ) ||
               []
 
             if (!facets || facets.length === 0) return null
@@ -733,7 +737,7 @@ export const PropertyReportMessage: FC<PropertyReportMessageProps> = ({
             const sortedFacets = [...facets].sort((a, b) => b.area - a.area)
 
             return (
-              <div className="rounded-lg bg-white border border-gray-200 p-4">
+              <div className="rounded-lg border border-gray-200 bg-white p-4">
                 <h3 className="mb-3 text-lg font-medium text-gray-800">
                   Roof Facet Details
                 </h3>
@@ -777,14 +781,17 @@ export const PropertyReportMessage: FC<PropertyReportMessageProps> = ({
                           <span className="text-gray-600">Pitch:</span>
                           <span className="font-medium">{facet.pitch}</span>
                         </div>
-                        {facet.orientation && facet.orientation !== "Unknown" && (
-                          <div className="flex justify-between">
-                            <span className="text-gray-600">Orientation:</span>
-                            <span className="font-medium">
-                              {facet.orientation}
-                            </span>
-                          </div>
-                        )}
+                        {facet.orientation &&
+                          facet.orientation !== "Unknown" && (
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">
+                                Orientation:
+                              </span>
+                              <span className="font-medium">
+                                {facet.orientation}
+                              </span>
+                            </div>
+                          )}
                         {facet.percentageOfRoof && (
                           <div className="flex justify-between">
                             <span className="text-gray-600">% of Roof:</span>

@@ -71,7 +71,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
 
         /* Shimmer border effect */
         .sonner-toast-custom::before {
-          content: '';
+          content: "";
           position: absolute;
           inset: -2px;
           border-radius: 9999px;
@@ -83,7 +83,9 @@ const Toaster = ({ ...props }: ToasterProps) => {
             rgba(59, 130, 246, 0.3)
           );
           background-size: 200% 100%;
-          -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+          -webkit-mask:
+            linear-gradient(#fff 0 0) content-box,
+            linear-gradient(#fff 0 0);
           -webkit-mask-composite: xor;
           mask-composite: exclude;
           animation: shimmer 3s linear infinite;
@@ -186,10 +188,10 @@ const Toaster = ({ ...props }: ToasterProps) => {
           unstyled: true,
           style: {},
           classNames: {
-            toast: 'sonner-toast-custom',
-            title: 'sonner-title-custom',
-            description: 'sonner-description-custom',
-            icon: 'sonner-icon-custom'
+            toast: "sonner-toast-custom",
+            title: "sonner-title-custom",
+            description: "sonner-description-custom",
+            icon: "sonner-icon-custom"
           }
         }}
         {...props}
