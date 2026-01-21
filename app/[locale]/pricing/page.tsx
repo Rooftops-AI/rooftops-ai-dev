@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, Suspense } from "react"
+import { useState, useEffect, useRef, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Check, X } from "lucide-react"
 import { toast } from "sonner"
@@ -23,9 +23,13 @@ function PricingContent() {
   const currentTier =
     userSubscription?.tier || userSubscription?.plan_type || "free"
 
+  // Track if cancellation toast has been shown (prevents double toast in StrictMode)
+  const cancelToastShown = useRef(false)
+
   // Show cancellation message if user canceled checkout
   useEffect(() => {
-    if (canceled) {
+    if (canceled && !cancelToastShown.current) {
+      cancelToastShown.current = true
       toast.info("Checkout canceled. You can subscribe anytime!")
       // Clean up URL
       router.replace(window.location.pathname)
