@@ -309,7 +309,6 @@ export const PipedreamDataSources: FC<PipedreamDataSourcesProps> = ({
   const enabledCount = dataSources.filter(ds => ds.enabled).length
 
   if (!profile) return null
-  }
 
   // Loading state
   if (isLoading) {
