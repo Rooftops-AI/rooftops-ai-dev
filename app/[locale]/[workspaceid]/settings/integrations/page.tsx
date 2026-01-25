@@ -55,10 +55,22 @@ const APP_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
 
 const AVAILABLE_APPS = [
   { slug: "gmail", name: "Gmail", description: "Send and read emails" },
-  { slug: "google_calendar", name: "Google Calendar", description: "Manage events and schedules" },
+  {
+    slug: "google_calendar",
+    name: "Google Calendar",
+    description: "Manage events and schedules"
+  },
   { slug: "slack", name: "Slack", description: "Send messages to channels" },
-  { slug: "google_docs", name: "Google Docs", description: "Create and edit documents" },
-  { slug: "google_sheets", name: "Google Sheets", description: "Work with spreadsheets" }
+  {
+    slug: "google_docs",
+    name: "Google Docs",
+    description: "Create and edit documents"
+  },
+  {
+    slug: "google_sheets",
+    name: "Google Sheets",
+    description: "Work with spreadsheets"
+  }
 ]
 
 export default function IntegrationsPage() {
@@ -125,7 +137,11 @@ export default function IntegrationsPage() {
       const connectUrl = data.connectLinkUrl
       if (connectUrl) {
         // URL already includes app param from server
-        const popup = window.open(connectUrl, "_blank", "width=600,height=700,scrollbars=yes")
+        const popup = window.open(
+          connectUrl,
+          "_blank",
+          "width=600,height=700,scrollbars=yes"
+        )
 
         if (popup) {
           toast.info("Complete the connection in the popup window")
@@ -219,8 +235,9 @@ export default function IntegrationsPage() {
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground">
-              Pipedream integration is not configured for this instance. Please contact
-              your administrator to set up the required environment variables:
+              Pipedream integration is not configured for this instance. Please
+              contact your administrator to set up the required environment
+              variables:
             </p>
             <ul className="text-muted-foreground mt-4 list-inside list-disc space-y-1 text-sm">
               <li>PIPEDREAM_CLIENT_ID</li>
@@ -237,11 +254,7 @@ export default function IntegrationsPage() {
     <div className="mx-auto max-w-4xl space-y-6 p-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => router.back()}
-        >
+        <Button variant="ghost" size="icon" onClick={() => router.back()}>
           <IconArrowLeft className="size-5" />
         </Button>
         <div>
@@ -288,7 +301,9 @@ export default function IntegrationsPage() {
             <div className="space-y-4">
               {accounts.map(account => {
                 const Icon = APP_ICONS[account.appSlug] || IconPlugConnected
-                const source = dataSources.find(s => s.app_slug === account.appSlug)
+                const source = dataSources.find(
+                  s => s.app_slug === account.appSlug
+                )
                 const isEnabled = source?.enabled ?? true
 
                 return (
@@ -325,7 +340,8 @@ export default function IntegrationsPage() {
                         )}
                         {account.createdAt && (
                           <p className="text-muted-foreground text-xs">
-                            Connected {new Date(account.createdAt).toLocaleDateString()}
+                            Connected{" "}
+                            {new Date(account.createdAt).toLocaleDateString()}
                           </p>
                         )}
                       </div>
@@ -335,7 +351,9 @@ export default function IntegrationsPage() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleToggleEnabled(source.id, !isEnabled)}
+                          onClick={() =>
+                            handleToggleEnabled(source.id, !isEnabled)
+                          }
                         >
                           {isEnabled ? "Disable" : "Enable"}
                         </Button>

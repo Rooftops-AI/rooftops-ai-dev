@@ -351,7 +351,11 @@ async function handleReviewRequest(
 
     const customer = job.customer
     const reviewUrl = getReviewUrl(data.platform, data.workspaceId)
-    const template = getReviewRequestTemplate(customer.name, data.platform, reviewUrl)
+    const template = getReviewRequestTemplate(
+      customer.name,
+      data.platform,
+      reviewUrl
+    )
 
     // Send SMS review request
     if (customer.phone) {
@@ -387,9 +391,7 @@ async function handleReviewRequest(
 }
 
 // Handle speed-to-lead response
-async function handleSpeedToLead(
-  data: SpeedToLeadJobData
-): Promise<JobResult> {
+async function handleSpeedToLead(data: SpeedToLeadJobData): Promise<JobResult> {
   const supabase = getServiceClient()
 
   try {
@@ -407,7 +409,11 @@ async function handleSpeedToLead(
     const template = getSpeedToLeadTemplate(customer.name, data.leadSource)
 
     // Try SMS first
-    if (data.channels.includes("sms") && customer.phone && !customer.do_not_text) {
+    if (
+      data.channels.includes("sms") &&
+      customer.phone &&
+      !customer.do_not_text
+    ) {
       const result = await sendSms(
         data.workspaceId,
         customer.phone,
@@ -427,7 +433,11 @@ async function handleSpeedToLead(
     }
 
     // Fallback to email
-    if (data.channels.includes("email") && customer.email && !customer.do_not_email) {
+    if (
+      data.channels.includes("email") &&
+      customer.email &&
+      !customer.do_not_email
+    ) {
       const result = await sendEmail(
         data.workspaceId,
         customer.email,
@@ -485,7 +495,13 @@ async function handleStatusUpdate(
     )
 
     if (data.channel === "sms" && customer.phone) {
-      return sendSms(data.workspaceId, customer.phone, template, customer, data.jobId)
+      return sendSms(
+        data.workspaceId,
+        customer.phone,
+        template,
+        customer,
+        data.jobId
+      )
     } else if (data.channel === "email" && customer.email) {
       return sendEmail(
         data.workspaceId,
@@ -545,7 +561,13 @@ async function handleCrewNotification(
     )
 
     if (crew.phone) {
-      return sendSms(data.workspaceId, crew.phone, template, { name: crew.name }, data.jobId)
+      return sendSms(
+        data.workspaceId,
+        crew.phone,
+        template,
+        { name: crew.name },
+        data.jobId
+      )
     }
 
     return { success: false, error: "Crew has no phone number" }

@@ -48,7 +48,10 @@ export function AgentWeatherCard({ data }: AgentWeatherCardProps) {
     if (conditionLower.includes("snow") || conditionLower.includes("ice")) {
       return IconSnowflake
     }
-    if (conditionLower.includes("cloud") || conditionLower.includes("overcast")) {
+    if (
+      conditionLower.includes("cloud") ||
+      conditionLower.includes("overcast")
+    ) {
       return IconCloud
     }
     if (conditionLower.includes("wind")) {
@@ -65,7 +68,10 @@ export function AgentWeatherCard({ data }: AgentWeatherCardProps) {
     if (conditionLower.includes("snow") || conditionLower.includes("ice")) {
       return "from-blue-400 to-blue-600"
     }
-    if (conditionLower.includes("cloud") || conditionLower.includes("overcast")) {
+    if (
+      conditionLower.includes("cloud") ||
+      conditionLower.includes("overcast")
+    ) {
       return "from-gray-500 to-gray-700"
     }
     return "from-yellow-500 to-orange-500"
@@ -81,8 +87,12 @@ export function AgentWeatherCard({ data }: AgentWeatherCardProps) {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm font-medium text-white/80">{data.location}</p>
-            <p className="text-4xl font-bold text-white">{data.current.temp_f}°F</p>
-            <p className="text-lg font-light text-white/90">{data.current.condition}</p>
+            <p className="text-4xl font-bold text-white">
+              {data.current.temp_f}°F
+            </p>
+            <p className="text-lg font-light text-white/90">
+              {data.current.condition}
+            </p>
           </div>
           <WeatherIcon className="size-16 text-white/80" />
         </div>
@@ -115,19 +125,30 @@ export function AgentWeatherCard({ data }: AgentWeatherCardProps) {
                       : "border-blue-500/10 bg-gradient-to-br from-blue-500/5 to-purple-500/5"
                   )}
                 >
-                  <span className="text-xs font-light text-muted-foreground">
-                    {new Date(day.date).toLocaleDateString("en-US", { weekday: "short" })}
+                  <span className="text-muted-foreground text-xs font-light">
+                    {new Date(day.date).toLocaleDateString("en-US", {
+                      weekday: "short"
+                    })}
                   </span>
-                  <DayIcon className={cn(
-                    "my-1 size-6",
-                    isRainy ? "text-blue-400" : "text-muted-foreground"
-                  )} />
+                  <DayIcon
+                    className={cn(
+                      "my-1 size-6",
+                      isRainy ? "text-blue-400" : "text-muted-foreground"
+                    )}
+                  />
                   <div className="text-sm">
-                    <span className="font-medium text-foreground">{day.high_f}°</span>
-                    <span className="font-light text-muted-foreground"> / {day.low_f}°</span>
+                    <span className="text-foreground font-medium">
+                      {day.high_f}°
+                    </span>
+                    <span className="text-muted-foreground font-light">
+                      {" "}
+                      / {day.low_f}°
+                    </span>
                   </div>
                   {isRainy && (
-                    <span className="text-xs font-light text-blue-400">{day.chance_of_rain}% rain</span>
+                    <span className="text-xs font-light text-blue-400">
+                      {day.chance_of_rain}% rain
+                    </span>
                   )}
                 </div>
               )
@@ -138,13 +159,17 @@ export function AgentWeatherCard({ data }: AgentWeatherCardProps) {
 
       {/* Roofing Advisory */}
       {data.roofing_advisory && (
-        <div className={cn(
-          "border-t border-blue-500/15 px-4 py-2 text-sm font-light",
-          data.roofing_advisory.includes("Rain") || data.roofing_advisory.includes("rain")
-            ? "bg-gradient-to-r from-amber-500/10 to-orange-500/10 text-amber-400"
-            : "bg-gradient-to-r from-green-500/10 to-emerald-500/10 text-green-400"
-        )}>
-          <span className="font-medium">Roofing Advisory:</span> {data.roofing_advisory}
+        <div
+          className={cn(
+            "border-t border-blue-500/15 px-4 py-2 text-sm font-light",
+            data.roofing_advisory.includes("Rain") ||
+              data.roofing_advisory.includes("rain")
+              ? "bg-gradient-to-r from-amber-500/10 to-orange-500/10 text-amber-400"
+              : "bg-gradient-to-r from-green-500/10 to-emerald-500/10 text-green-400"
+          )}
+        >
+          <span className="font-medium">Roofing Advisory:</span>{" "}
+          {data.roofing_advisory}
         </div>
       )}
     </div>

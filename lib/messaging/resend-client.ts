@@ -6,7 +6,8 @@ import { createClient } from "@supabase/supabase-js"
 
 // Resend credentials
 const RESEND_API_KEY = process.env.RESEND_API_KEY
-const DEFAULT_FROM_EMAIL = process.env.DEFAULT_FROM_EMAIL || "noreply@rooftopsgpt.com"
+const DEFAULT_FROM_EMAIL =
+  process.env.DEFAULT_FROM_EMAIL || "noreply@rooftopsgpt.com"
 
 // Check if Resend is configured
 export function isResendConfigured(): boolean {
@@ -71,13 +72,16 @@ async function getWorkspaceEmailSettings(
     .single()
 
   const fromName = workspace?.name || "Rooftops AI"
-  const fromEmail = (workspace?.metadata as any)?.fromEmail || DEFAULT_FROM_EMAIL
+  const fromEmail =
+    (workspace?.metadata as any)?.fromEmail || DEFAULT_FROM_EMAIL
 
   return { fromEmail, fromName }
 }
 
 // Send email via Resend
-export async function sendEmail(options: SendEmailOptions): Promise<SendEmailResult> {
+export async function sendEmail(
+  options: SendEmailOptions
+): Promise<SendEmailResult> {
   const {
     to,
     subject,
@@ -132,7 +136,10 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
       // Convert plain text to simple HTML
       requestBody.html = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          ${body.split("\n").map(line => `<p style="margin: 0 0 10px 0;">${line}</p>`).join("")}
+          ${body
+            .split("\n")
+            .map(line => `<p style="margin: 0 0 10px 0;">${line}</p>`)
+            .join("")}
         </div>
       `
     }

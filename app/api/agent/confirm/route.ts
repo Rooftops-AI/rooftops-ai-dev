@@ -6,7 +6,10 @@ import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { cookies } from "next/headers"
 import { checkAgentAccess } from "@/lib/entitlements"
-import { MCPSessionManager, isPipedreamConfigured } from "@/lib/pipedream/mcp-session"
+import {
+  MCPSessionManager,
+  isPipedreamConfigured
+} from "@/lib/pipedream/mcp-session"
 
 export const runtime = "nodejs"
 export const maxDuration = 60
@@ -27,14 +30,16 @@ async function executeConfirmedBuiltinTool(
       // This will be handled by MCP if available
       return {
         status: "info",
-        message: "Email sending requires a connected email service. Please connect Gmail or Outlook in your settings.",
+        message:
+          "Email sending requires a connected email service. Please connect Gmail or Outlook in your settings.",
         action_needed: "connect_email_service"
       }
 
     case "schedule_appointment":
       return {
         status: "info",
-        message: "Calendar scheduling requires a connected calendar service. Please connect Google Calendar or Outlook in your settings.",
+        message:
+          "Calendar scheduling requires a connected calendar service. Please connect Google Calendar or Outlook in your settings.",
         action_needed: "connect_calendar_service"
       }
 
@@ -196,7 +201,8 @@ export async function POST(request: NextRequest) {
           result = {
             status: "error",
             source: "pipedream",
-            message: mcpError.message || "Failed to execute connected app action"
+            message:
+              mcpError.message || "Failed to execute connected app action"
           }
         }
       } else {
@@ -241,9 +247,10 @@ export async function POST(request: NextRequest) {
         action: "confirmed",
         tool_name: toolName,
         result,
-        message: result.status === "success"
-          ? "Action confirmed and executed successfully"
-          : result.message
+        message:
+          result.status === "success"
+            ? "Action confirmed and executed successfully"
+            : result.message
       })
     }
 

@@ -35,7 +35,9 @@ export function AgentChatMessages() {
           <div className="rounded-xl border border-blue-500/20 bg-gradient-to-br from-blue-500/10 to-purple-500/10 p-3 backdrop-blur-md">
             <IconLoader2 className="size-6 animate-spin text-blue-500" />
           </div>
-          <span className="text-sm font-light text-muted-foreground">Loading messages...</span>
+          <span className="text-muted-foreground text-sm font-light">
+            Loading messages...
+          </span>
         </div>
       </div>
     )
@@ -48,12 +50,12 @@ export function AgentChatMessages() {
           <IconSparkles className="size-10 text-purple-400" />
         </div>
         <div>
-          <h2 className="text-2xl font-semibold text-foreground">
+          <h2 className="text-foreground text-2xl font-semibold">
             Rooftops AI Agent
           </h2>
-          <p className="mt-2 max-w-md font-light text-muted-foreground">
-            Your intelligent assistant for roofing business tasks. I can help with
-            research, reports, customer management, scheduling, and more.
+          <p className="text-muted-foreground mt-2 max-w-md font-light">
+            Your intelligent assistant for roofing business tasks. I can help
+            with research, reports, customer management, scheduling, and more.
           </p>
         </div>
         <div className="mt-4 grid max-w-2xl gap-3 sm:grid-cols-2">
@@ -96,7 +98,7 @@ export function AgentChatMessages() {
 
         {/* Generating indicator */}
         {isGenerating && (
-          <div className="mx-4 my-4 flex gap-4 rounded-xl border border-blue-500/15 bg-gradient-to-br from-blue-500/5 to-purple-500/5 px-4 py-4 backdrop-blur-md">
+          <div className="m-4 flex gap-4 rounded-xl border border-blue-500/15 bg-gradient-to-br from-blue-500/5 to-purple-500/5 p-4 backdrop-blur-md">
             <div className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-purple-500/30 bg-gradient-to-br from-purple-500/15 to-blue-500/15">
               <IconSparkles className="size-5 text-purple-400" />
             </div>
@@ -106,7 +108,9 @@ export function AgentChatMessages() {
                 <span className="size-2 animate-bounce rounded-full bg-blue-500 shadow-sm shadow-blue-500/50 [animation-delay:-0.15s]" />
                 <span className="size-2 animate-bounce rounded-full bg-blue-500 shadow-sm shadow-blue-500/50" />
               </div>
-              <span className="font-light text-muted-foreground">Processing your request...</span>
+              <span className="text-muted-foreground font-light">
+                Processing your request...
+              </span>
             </div>
           </div>
         )}
@@ -123,7 +127,11 @@ interface SuggestionCardProps {
   description: string
 }
 
-function SuggestionCard({ icon: Icon, title, description }: SuggestionCardProps) {
+function SuggestionCard({
+  icon: Icon,
+  title,
+  description
+}: SuggestionCardProps) {
   const { sendMessage } = useAgent()
 
   return (
@@ -135,8 +143,10 @@ function SuggestionCard({ icon: Icon, title, description }: SuggestionCardProps)
         <Icon className="size-5 text-blue-400" />
       </div>
       <div className="flex-1">
-        <span className="font-medium text-foreground">{title}</span>
-        <p className="mt-0.5 text-sm font-light text-muted-foreground">{description}</p>
+        <span className="text-foreground font-medium">{title}</span>
+        <p className="text-muted-foreground mt-0.5 text-sm font-light">
+          {description}
+        </p>
       </div>
     </button>
   )

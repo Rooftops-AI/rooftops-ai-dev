@@ -52,7 +52,10 @@ export const getAgentSessionsByUserId = async (
   }
 
   if (options?.offset) {
-    query = query.range(options.offset, options.offset + (options.limit || 10) - 1)
+    query = query.range(
+      options.offset,
+      options.offset + (options.limit || 10) - 1
+    )
   }
 
   const { data: sessions, error } = await query
@@ -119,7 +122,9 @@ export const updateAgentSession = async (
   return updatedSession as AgentSession
 }
 
-export const deleteAgentSession = async (sessionId: string): Promise<boolean> => {
+export const deleteAgentSession = async (
+  sessionId: string
+): Promise<boolean> => {
   const { error } = await supabase
     .from("agent_sessions")
     .delete()
@@ -136,10 +141,13 @@ export const incrementSessionTokens = async (
   sessionId: string,
   tokensUsed: number
 ): Promise<void> => {
-  const { error } = await (supabase.rpc as any)("increment_agent_session_tokens", {
-    p_session_id: sessionId,
-    p_tokens: tokensUsed
-  })
+  const { error } = await (supabase.rpc as any)(
+    "increment_agent_session_tokens",
+    {
+      p_session_id: sessionId,
+      p_tokens: tokensUsed
+    }
+  )
 
   // If RPC doesn't exist, fall back to manual update
   if (error) {

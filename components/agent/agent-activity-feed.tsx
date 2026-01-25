@@ -34,7 +34,9 @@ export function AgentActivityFeed() {
       session_paused: <IconPlayerStop className="size-4 text-yellow-400" />,
       session_completed: <IconCircleCheck className="size-4 text-green-400" />,
       message_sent: <IconSend className="size-4 text-blue-400" />,
-      message_received: <IconMessageCircle className="size-4 text-purple-400" />,
+      message_received: (
+        <IconMessageCircle className="size-4 text-purple-400" />
+      ),
       task_created: <IconChecklist className="size-4 text-blue-400" />,
       task_started: <IconPlayerPlay className="size-4 text-yellow-400" />,
       task_completed: <IconCircleCheck className="size-4 text-green-400" />,
@@ -48,7 +50,9 @@ export function AgentActivityFeed() {
       warning: <IconAlertTriangle className="size-4 text-yellow-400" />,
       info: <IconInfoCircle className="size-4 text-blue-400" />
     }
-    return icons[actionType] || <IconInfoCircle className="size-4 text-gray-400" />
+    return (
+      icons[actionType] || <IconInfoCircle className="size-4 text-gray-400" />
+    )
   }
 
   const getActivityColor = (actionType: AgentActivityActionType) => {
@@ -81,7 +85,7 @@ export function AgentActivityFeed() {
       <div className="border-b border-gray-800 p-4">
         <h3 className="font-semibold text-white">Activity</h3>
         {currentSession && (
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="mt-1 text-xs text-gray-500">
             Session: {currentSession.name}
           </p>
         )}
@@ -105,22 +109,22 @@ export function AgentActivityFeed() {
               <div
                 key={activity.id}
                 className={cn(
-                  "border-l-2 pl-3 py-2 rounded-r-lg hover:bg-gray-800/30",
+                  "rounded-r-lg border-l-2 py-2 pl-3 hover:bg-gray-800/30",
                   getActivityColor(activity.action_type)
                 )}
               >
                 <div className="flex items-start gap-2">
                   {getActivityIcon(activity.action_type)}
-                  <div className="flex-1 min-w-0">
+                  <div className="min-w-0 flex-1">
                     <div className="text-sm font-medium text-gray-200">
                       {activity.title}
                     </div>
                     {activity.description && (
-                      <div className="text-xs text-gray-500 truncate">
+                      <div className="truncate text-xs text-gray-500">
                         {activity.description}
                       </div>
                     )}
-                    <div className="text-xs text-gray-600 mt-1">
+                    <div className="mt-1 text-xs text-gray-600">
                       {formatDistanceToNow(new Date(activity.created_at), {
                         addSuffix: true
                       })}

@@ -197,10 +197,7 @@ export const cancelAgentTask = async (taskId: string): Promise<AgentTask> => {
 }
 
 export const deleteAgentTask = async (taskId: string): Promise<boolean> => {
-  const { error } = await supabase
-    .from("agent_tasks")
-    .delete()
-    .eq("id", taskId)
+  const { error } = await supabase.from("agent_tasks").delete().eq("id", taskId)
 
   if (error) {
     throw new Error(`Failed to delete agent task: ${error.message}`)

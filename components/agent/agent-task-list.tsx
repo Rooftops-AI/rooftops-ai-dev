@@ -63,7 +63,7 @@ export function AgentTaskList() {
       <div className="border-b border-gray-800 p-4">
         <h3 className="font-semibold text-white">Tasks</h3>
         {currentSession && (
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="mt-1 text-xs text-gray-500">
             Session: {currentSession.name}
           </p>
         )}
@@ -78,13 +78,13 @@ export function AgentTaskList() {
               onChange={e => setNewTaskTitle(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Add a task..."
-              className="h-9 bg-gray-800 border-gray-700"
+              className="h-9 border-gray-700 bg-gray-800"
             />
             <Button
               onClick={handleCreateTask}
               disabled={!newTaskTitle.trim() || isCreating}
               size="sm"
-              className="h-9 px-3 bg-blue-600 hover:bg-blue-700"
+              className="h-9 bg-blue-600 px-3 hover:bg-blue-700"
             >
               {isCreating ? (
                 <IconLoader2 className="size-4 animate-spin" />
@@ -179,7 +179,7 @@ function TaskSection({
     <div>
       <button
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className="flex w-full items-center gap-2 text-xs font-medium text-gray-400 mb-2 hover:text-gray-300"
+        className="mb-2 flex w-full items-center gap-2 text-xs font-medium text-gray-400 hover:text-gray-300"
       >
         {icon}
         <span>{title}</span>
@@ -240,12 +240,15 @@ function TaskItem({ task, onStatusChange }: TaskItemProps) {
             nextStatus[task.status as keyof typeof nextStatus]
           )
         }
-        className={cn("mt-0.5 shrink-0", statusColors[task.status as keyof typeof statusColors])}
+        className={cn(
+          "mt-0.5 shrink-0",
+          statusColors[task.status as keyof typeof statusColors]
+        )}
       >
         {statusIcons[task.status as keyof typeof statusIcons]}
       </button>
 
-      <div className="flex-1 min-w-0">
+      <div className="min-w-0 flex-1">
         <div
           className={cn(
             "text-sm",
@@ -257,11 +260,11 @@ function TaskItem({ task, onStatusChange }: TaskItemProps) {
           {task.title}
         </div>
         {task.description && (
-          <div className="text-xs text-gray-500 truncate">
+          <div className="truncate text-xs text-gray-500">
             {task.description}
           </div>
         )}
-        <div className="text-xs text-gray-600 mt-1">
+        <div className="mt-1 text-xs text-gray-600">
           {formatDistanceToNow(new Date(task.created_at), { addSuffix: true })}
         </div>
       </div>

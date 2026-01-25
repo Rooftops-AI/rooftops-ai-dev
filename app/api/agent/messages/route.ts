@@ -43,10 +43,7 @@ export async function GET(request: NextRequest) {
       .single()
 
     if (!session || session.user_id !== user.id) {
-      return NextResponse.json(
-        { error: "Session not found" },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: "Session not found" }, { status: 404 })
     }
 
     const { data: messages, error } = await supabase
@@ -107,10 +104,7 @@ export async function DELETE(request: NextRequest) {
       .single()
 
     if (!session || session.user_id !== user.id) {
-      return NextResponse.json(
-        { error: "Session not found" },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: "Session not found" }, { status: 404 })
     }
 
     const { error } = await supabase

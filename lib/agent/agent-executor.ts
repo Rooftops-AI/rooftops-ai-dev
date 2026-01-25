@@ -81,7 +81,8 @@ export class AgentExecutor {
         this.conversationHistory.push({
           role: "assistant",
           content: msg.content || null,
-          tool_calls: msg.tool_calls as unknown as OpenAI.Chat.Completions.ChatCompletionMessageToolCall[]
+          tool_calls:
+            msg.tool_calls as unknown as OpenAI.Chat.Completions.ChatCompletionMessageToolCall[]
         })
       } else {
         this.conversationHistory.push({

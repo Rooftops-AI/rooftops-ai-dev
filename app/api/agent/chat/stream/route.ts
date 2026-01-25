@@ -7,14 +7,20 @@ import { createClient } from "@/lib/supabase/server"
 import { cookies } from "next/headers"
 import { checkAgentAccess } from "@/lib/entitlements"
 import OpenAI from "openai"
-import { getAgentSystemPrompt, getDynamicSystemPrompt } from "@/lib/agent/agent-system-prompt"
+import {
+  getAgentSystemPrompt,
+  getDynamicSystemPrompt
+} from "@/lib/agent/agent-system-prompt"
 import {
   BUILTIN_AGENT_TOOLS,
   convertToOpenAITools,
   toolRequiresConfirmation
 } from "@/lib/agent/agent-tools"
 import { GLOBAL_API_KEYS } from "@/lib/api-keys"
-import { MCPSessionManager, isPipedreamConfigured } from "@/lib/pipedream/mcp-session"
+import {
+  MCPSessionManager,
+  isPipedreamConfigured
+} from "@/lib/pipedream/mcp-session"
 import { requiresConfirmation as mcpRequiresConfirmation } from "@/lib/pipedream/action-rules"
 
 export const runtime = "nodejs"
@@ -41,21 +47,41 @@ function generateSessionName(message: string): string {
   // Common patterns to extract meaningful titles
   const patterns = [
     // Property/address related
-    { regex: /(?:property|report|roof|analysis)\s+(?:for|at|on)\s+(.{10,50})/i, prefix: "" },
-    { regex: /(\d+\s+[A-Za-z]+(?:\s+[A-Za-z]+)?(?:\s+(?:st|street|ave|avenue|rd|road|dr|drive|ln|lane|blvd|way|ct|court))?)/i, prefix: "Property: " },
+    {
+      regex: /(?:property|report|roof|analysis)\s+(?:for|at|on)\s+(.{10,50})/i,
+      prefix: ""
+    },
+    {
+      regex:
+        /(\d+\s+[A-Za-z]+(?:\s+[A-Za-z]+)?(?:\s+(?:st|street|ave|avenue|rd|road|dr|drive|ln|lane|blvd|way|ct|court))?)/i,
+      prefix: "Property: "
+    },
 
     // Weather related
     { regex: /weather\s+(?:for|in|at)\s+([A-Za-z\s,]+)/i, prefix: "Weather: " },
-    { regex: /forecast\s+(?:for|in|at)\s+([A-Za-z\s,]+)/i, prefix: "Forecast: " },
+    {
+      regex: /forecast\s+(?:for|in|at)\s+([A-Za-z\s,]+)/i,
+      prefix: "Forecast: "
+    },
 
     // Email related
-    { regex: /(?:draft|write|send)\s+(?:an?\s+)?email\s+(?:to|about|for)\s+(.{5,40})/i, prefix: "Email: " },
+    {
+      regex:
+        /(?:draft|write|send)\s+(?:an?\s+)?email\s+(?:to|about|for)\s+(.{5,40})/i,
+      prefix: "Email: "
+    },
 
     // Search related
-    { regex: /(?:search|find|look\s+up|research)\s+(?:for\s+)?(.{5,40})/i, prefix: "Search: " },
+    {
+      regex: /(?:search|find|look\s+up|research)\s+(?:for\s+)?(.{5,40})/i,
+      prefix: "Search: "
+    },
 
     // Material/pricing related
-    { regex: /(?:price|cost|pricing)\s+(?:for|of)\s+(.{5,40})/i, prefix: "Pricing: " },
+    {
+      regex: /(?:price|cost|pricing)\s+(?:for|of)\s+(.{5,40})/i,
+      prefix: "Pricing: "
+    },
     { regex: /(.{5,30})\s+(?:price|cost|pricing)/i, prefix: "Pricing: " },
 
     // Customer related
@@ -65,10 +91,16 @@ function generateSessionName(message: string): string {
     { regex: /(?:job|project)\s+(?:for|at|on)\s+(.{5,40})/i, prefix: "Job: " },
 
     // Schedule related
-    { regex: /(?:schedule|appointment|meeting)\s+(?:for|with)\s+(.{5,40})/i, prefix: "Schedule: " },
+    {
+      regex: /(?:schedule|appointment|meeting)\s+(?:for|with)\s+(.{5,40})/i,
+      prefix: "Schedule: "
+    },
 
     // Estimate related
-    { regex: /(?:estimate|quote)\s+(?:for|on)\s+(.{5,40})/i, prefix: "Estimate: " },
+    {
+      regex: /(?:estimate|quote)\s+(?:for|on)\s+(.{5,40})/i,
+      prefix: "Estimate: "
+    }
   ]
 
   // Try to match patterns
@@ -79,7 +111,8 @@ function generateSessionName(message: string): string {
       // Capitalize first letter and clean up
       const title = extracted.charAt(0).toUpperCase() + extracted.slice(1)
       // Truncate if too long
-      const truncated = title.length > 40 ? title.substring(0, 37) + "..." : title
+      const truncated =
+        title.length > 40 ? title.substring(0, 37) + "..." : title
       return prefix + truncated
     }
   }
@@ -87,7 +120,10 @@ function generateSessionName(message: string): string {
   // Fallback: Use first part of message as title
   // Remove common starting words
   let title = cleaned
-    .replace(/^(hey|hi|hello|please|can you|could you|i need|i want|help me)\s+/i, "")
+    .replace(
+      /^(hey|hi|hello|please|can you|could you|i need|i want|help me)\s+/i,
+      ""
+    )
     .replace(/^(to|with|for|about)\s+/i, "")
 
   // Capitalize first letter
@@ -109,7 +145,10 @@ function generateSessionName(message: string): string {
 }
 
 // Helper to get or create MCP session for a user
-async function getMCPSession(userId: string, sessionId: string): Promise<MCPSessionManager | null> {
+async function getMCPSession(
+  userId: string,
+  sessionId: string
+): Promise<MCPSessionManager | null> {
   if (!isPipedreamConfigured()) {
     return null
   }
@@ -132,7 +171,9 @@ async function getMCPSession(userId: string, sessionId: string): Promise<MCPSess
 }
 
 // Convert MCP tools to OpenAI format
-function convertMCPToolsToOpenAI(mcpTools: any[]): OpenAI.Chat.Completions.ChatCompletionTool[] {
+function convertMCPToolsToOpenAI(
+  mcpTools: any[]
+): OpenAI.Chat.Completions.ChatCompletionTool[] {
   return mcpTools.map(tool => ({
     type: "function" as const,
     function: {
@@ -149,7 +190,10 @@ function isMCPTool(toolName: string, mcpToolNames: Set<string>): boolean {
 }
 
 // Check if any tool requires confirmation (built-in or MCP)
-function checkToolRequiresConfirmation(toolName: string, isMCP: boolean): boolean {
+function checkToolRequiresConfirmation(
+  toolName: string,
+  isMCP: boolean
+): boolean {
   if (isMCP) {
     return mcpRequiresConfirmation(toolName)
   }
@@ -188,7 +232,9 @@ export async function POST(request: NextRequest) {
       // Check agent access
       const hasAccess = await checkAgentAccess(user.id)
       if (!hasAccess) {
-        await sendEvent("error", { message: "Agent feature requires Premium or Business subscription" })
+        await sendEvent("error", {
+          message: "Agent feature requires Premium or Business subscription"
+        })
         await writer.close()
         return
       }
@@ -197,7 +243,9 @@ export async function POST(request: NextRequest) {
       const { session_id, message, config } = body
 
       if (!session_id || !message) {
-        await sendEvent("error", { message: "session_id and message are required" })
+        await sendEvent("error", {
+          message: "session_id and message are required"
+        })
         await writer.close()
         return
       }
@@ -235,13 +283,16 @@ export async function POST(request: NextRequest) {
           .from("agent_sessions")
           .update({ name: intelligentName })
           .eq("id", session_id)
-        console.log(`[Agent Stream] Generated session name: "${intelligentName}" for session ${session_id}`)
+        console.log(
+          `[Agent Stream] Generated session name: "${intelligentName}" for session ${session_id}`
+        )
         // Notify client of name change
         await sendEvent("session_renamed", { name: intelligentName })
       }
 
       // Build conversation history - system prompt will be added after MCP tools are loaded
-      const conversationHistory: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = []
+      const conversationHistory: OpenAI.Chat.Completions.ChatCompletionMessageParam[] =
+        []
 
       // Add existing messages
       if (existingMessages) {
@@ -253,15 +304,20 @@ export async function POST(request: NextRequest) {
               tool_call_id: msg.tool_call_id
             })
           } else if (msg.role === "assistant" && msg.tool_calls) {
-            const toolCallsArray = Array.isArray(msg.tool_calls) ? msg.tool_calls : []
+            const toolCallsArray = Array.isArray(msg.tool_calls)
+              ? msg.tool_calls
+              : []
             const formattedToolCalls = toolCallsArray.map((tc: any) => ({
               id: tc.id,
               type: "function" as const,
               function: {
                 name: tc.name || tc.function?.name,
-                arguments: typeof tc.arguments === "string"
-                  ? tc.arguments
-                  : JSON.stringify(tc.arguments || tc.function?.arguments || {})
+                arguments:
+                  typeof tc.arguments === "string"
+                    ? tc.arguments
+                    : JSON.stringify(
+                        tc.arguments || tc.function?.arguments || {}
+                      )
               }
             }))
             conversationHistory.push({
@@ -332,7 +388,9 @@ export async function POST(request: NextRequest) {
 
           if (dataSources && dataSources.length > 0) {
             const enabledApps = dataSources.map(ds => ds.app_slug)
-            connectedAppNames = dataSources.map(ds => ds.app_name || ds.app_slug)
+            connectedAppNames = dataSources.map(
+              ds => ds.app_name || ds.app_slug
+            )
             console.log("[Agent Stream] Enabled apps:", enabledApps)
 
             try {
@@ -342,29 +400,43 @@ export async function POST(request: NextRequest) {
               // Filter out configuration tools - only include executable tools
               // Tools starting with "begin_configuration_" require OAuth setup and aren't ready to use
               mcpTools = allMcpTools.filter((tool: any) => {
-                const isConfigTool = tool.name.startsWith("begin_configuration_") ||
-                                     tool.name.includes("_configure_") ||
-                                     tool.name === "select_apps"
+                const isConfigTool =
+                  tool.name.startsWith("begin_configuration_") ||
+                  tool.name.includes("_configure_") ||
+                  tool.name === "select_apps"
                 if (isConfigTool) {
-                  console.log(`[Agent Stream] Skipping config tool: ${tool.name}`)
+                  console.log(
+                    `[Agent Stream] Skipping config tool: ${tool.name}`
+                  )
                 }
                 return !isConfigTool
               })
 
               mcpTools.forEach(tool => mcpToolNames.add(tool.name))
-              console.log("[Agent Stream] Available MCP tools:", Array.from(mcpToolNames))
+              console.log(
+                "[Agent Stream] Available MCP tools:",
+                Array.from(mcpToolNames)
+              )
 
               // If we have no usable tools after filtering, log a warning
               if (mcpTools.length === 0 && allMcpTools.length > 0) {
-                console.log("[Agent Stream] Warning: All MCP tools require configuration. User needs to complete OAuth setup in Pipedream.")
+                console.log(
+                  "[Agent Stream] Warning: All MCP tools require configuration. User needs to complete OAuth setup in Pipedream."
+                )
               }
             } catch (mcpError: any) {
-              console.error("[Agent Stream] Error loading MCP tools:", mcpError?.message || mcpError)
+              console.error(
+                "[Agent Stream] Error loading MCP tools:",
+                mcpError?.message || mcpError
+              )
             }
           }
         }
       } catch (error: any) {
-        console.error("[Agent Stream] MCP initialization error:", error?.message || error)
+        console.error(
+          "[Agent Stream] MCP initialization error:",
+          error?.message || error
+        )
       }
 
       // Combine built-in tools with MCP tools
@@ -372,7 +444,9 @@ export async function POST(request: NextRequest) {
       const allTools = [...builtinTools, ...mcpToolsOpenAI]
 
       // Now add the system prompt with knowledge of available tools
-      const mcpToolDescriptions = mcpTools.map((t: any) => `- ${t.name}: ${t.description || "No description"}`).join("\n")
+      const mcpToolDescriptions = mcpTools
+        .map((t: any) => `- ${t.name}: ${t.description || "No description"}`)
+        .join("\n")
       const systemPrompt = getDynamicSystemPrompt({
         customInstructions: session.system_prompt,
         connectedApps: connectedAppNames,
@@ -438,7 +512,8 @@ export async function POST(request: NextRequest) {
                 currentToolCalls[index].function.name += tcDelta.function.name
               }
               if (tcDelta.function?.arguments) {
-                currentToolCalls[index].function.arguments += tcDelta.function.arguments
+                currentToolCalls[index].function.arguments +=
+                  tcDelta.function.arguments
               }
             }
           }
@@ -469,7 +544,10 @@ export async function POST(request: NextRequest) {
             const toolName = tc.function.name
             const toolArgs = JSON.parse(tc.function.arguments || "{}")
             const isToolMCP = isMCPTool(toolName, mcpToolNames)
-            const needsConfirmation = checkToolRequiresConfirmation(toolName, isToolMCP)
+            const needsConfirmation = checkToolRequiresConfirmation(
+              toolName,
+              isToolMCP
+            )
 
             await sendEvent("tool_start", {
               id: tc.id,
@@ -512,17 +590,25 @@ export async function POST(request: NextRequest) {
 
               if (isToolMCP && mcpSession) {
                 try {
-                  console.log(`[Agent Stream] Executing MCP tool: ${toolName}`, toolArgs)
-                  const mcpResult = await mcpSession.callTool(toolName, toolArgs)
+                  console.log(
+                    `[Agent Stream] Executing MCP tool: ${toolName}`,
+                    toolArgs
+                  )
+                  const mcpResult = await mcpSession.callTool(
+                    toolName,
+                    toolArgs
+                  )
 
                   // Parse the MCP result content
                   let resultData = mcpResult.content || mcpResult
                   if (Array.isArray(resultData)) {
                     // Extract text from content array
-                    resultData = resultData.map((item: any) => {
-                      if (item.type === "text") return item.text
-                      return JSON.stringify(item)
-                    }).join("\n")
+                    resultData = resultData
+                      .map((item: any) => {
+                        if (item.type === "text") return item.text
+                        return JSON.stringify(item)
+                      })
+                      .join("\n")
                   }
 
                   result = {
@@ -530,28 +616,49 @@ export async function POST(request: NextRequest) {
                     source: "pipedream",
                     data: resultData
                   }
-                  console.log(`[Agent Stream] MCP tool ${toolName} completed successfully`)
+                  console.log(
+                    `[Agent Stream] MCP tool ${toolName} completed successfully`
+                  )
                 } catch (mcpError: any) {
-                  console.error(`[Agent Stream] MCP tool ${toolName} failed:`, mcpError?.message || mcpError)
+                  console.error(
+                    `[Agent Stream] MCP tool ${toolName} failed:`,
+                    mcpError?.message || mcpError
+                  )
 
                   // Provide helpful error messages
-                  let errorMessage = mcpError?.message || "Failed to execute connected app action"
+                  let errorMessage =
+                    mcpError?.message ||
+                    "Failed to execute connected app action"
                   let suggestion = ""
 
                   // Check for common error patterns
-                  if (errorMessage.includes("not found") || errorMessage.includes("-32602")) {
-                    suggestion = "This tool may require additional setup. Please check your Connected Apps settings to ensure the app is properly authorized."
-                  } else if (errorMessage.includes("unauthorized") || errorMessage.includes("401")) {
-                    suggestion = "The app connection may have expired. Please reconnect the app in your Connected Apps settings."
-                  } else if (errorMessage.includes("rate limit") || errorMessage.includes("429")) {
-                    suggestion = "The service is rate limited. Please try again in a moment."
+                  if (
+                    errorMessage.includes("not found") ||
+                    errorMessage.includes("-32602")
+                  ) {
+                    suggestion =
+                      "This tool may require additional setup. Please check your Connected Apps settings to ensure the app is properly authorized."
+                  } else if (
+                    errorMessage.includes("unauthorized") ||
+                    errorMessage.includes("401")
+                  ) {
+                    suggestion =
+                      "The app connection may have expired. Please reconnect the app in your Connected Apps settings."
+                  } else if (
+                    errorMessage.includes("rate limit") ||
+                    errorMessage.includes("429")
+                  ) {
+                    suggestion =
+                      "The service is rate limited. Please try again in a moment."
                   }
 
                   result = {
                     status: "error",
                     source: "pipedream",
                     message: errorMessage,
-                    suggestion: suggestion || "If the issue persists, try disconnecting and reconnecting the app in Connected Apps settings.",
+                    suggestion:
+                      suggestion ||
+                      "If the issue persists, try disconnecting and reconnecting the app in Connected Apps settings.",
                     toolName: toolName
                   }
                 }
@@ -561,7 +668,8 @@ export async function POST(request: NextRequest) {
                   status: "error",
                   source: "pipedream",
                   message: `The tool "${toolName}" requires a connected app that isn't currently available.`,
-                  suggestion: "Please connect the required app in your Connected Apps settings to use this feature."
+                  suggestion:
+                    "Please connect the required app in your Connected Apps settings to use this feature."
                 }
               } else {
                 // Dynamic import to avoid circular deps
@@ -618,7 +726,8 @@ export async function POST(request: NextRequest) {
       await supabase
         .from("agent_sessions")
         .update({
-          total_tokens_used: session.total_tokens_used + totalInputTokens + totalOutputTokens
+          total_tokens_used:
+            session.total_tokens_used + totalInputTokens + totalOutputTokens
         })
         .eq("id", session_id)
 

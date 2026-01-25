@@ -33,7 +33,8 @@ export async function getPipedreamHeaders(
   // Use require to avoid Next.js bundling issues
   const { PipedreamClient } = require("@pipedream/sdk")
 
-  const projectEnvironment = process.env.PIPEDREAM_PROJECT_ENVIRONMENT || "development"
+  const projectEnvironment =
+    process.env.PIPEDREAM_PROJECT_ENVIRONMENT || "development"
 
   const pd = new PipedreamClient({
     clientId,
@@ -135,10 +136,15 @@ export class MCPSessionManager {
         resolve()
       } catch (error) {
         console.error("[MCP] Connection error:", error)
-        this.lastError = error instanceof Error ? error : new Error(String(error))
+        this.lastError =
+          error instanceof Error ? error : new Error(String(error))
         this.isConnected = false
         this.close()
-        reject(new Error(`Failed to establish MCP connection: ${this.lastError.message}`))
+        reject(
+          new Error(
+            `Failed to establish MCP connection: ${this.lastError.message}`
+          )
+        )
       }
     })
 
@@ -220,7 +226,11 @@ export class MCPSessionManager {
     try {
       const mcpTools = await this.client.listTools()
       const toolNames = mcpTools.tools.map((t: any) => t.name)
-      console.log(`[MCP] Available tools (${toolNames.length}):`, toolNames.slice(0, 10).join(", "), toolNames.length > 10 ? "..." : "")
+      console.log(
+        `[MCP] Available tools (${toolNames.length}):`,
+        toolNames.slice(0, 10).join(", "),
+        toolNames.length > 10 ? "..." : ""
+      )
       return mcpTools.tools
     } catch (error) {
       console.error("[MCP] Failed to list tools:", error)
@@ -245,7 +255,10 @@ export class MCPSessionManager {
       throw new Error("MCP client not initialized")
     }
 
-    console.log(`[MCP] Calling tool: ${name}`, JSON.stringify(args).slice(0, 200))
+    console.log(
+      `[MCP] Calling tool: ${name}`,
+      JSON.stringify(args).slice(0, 200)
+    )
 
     try {
       const result = await this.client.callTool({
@@ -314,7 +327,11 @@ export async function getOrCreateMCPSession(
   const now = Date.now()
 
   // Return cached session if healthy and not expired
-  if (cached && cached.session.isHealthy() && now - cached.lastUsed < SESSION_TTL_MS) {
+  if (
+    cached &&
+    cached.session.isHealthy() &&
+    now - cached.lastUsed < SESSION_TTL_MS
+  ) {
     cached.lastUsed = now
     return cached.session
   }

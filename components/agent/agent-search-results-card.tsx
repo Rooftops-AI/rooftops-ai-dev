@@ -1,10 +1,6 @@
 "use client"
 
-import {
-  IconExternalLink,
-  IconSearch,
-  IconWorld
-} from "@tabler/icons-react"
+import { IconExternalLink, IconSearch, IconWorld } from "@tabler/icons-react"
 
 interface SearchResult {
   title: string
@@ -42,7 +38,7 @@ export function AgentSearchResultsCard({ data }: AgentSearchResultsCardProps) {
       {/* Header */}
       <div className="flex items-center gap-2 border-b border-blue-500/15 bg-gradient-to-r from-blue-500/10 to-purple-500/10 px-4 py-2">
         <IconSearch className="size-4 text-blue-400" />
-        <span className="text-sm font-light text-foreground">
+        <span className="text-foreground text-sm font-light">
           Found {data.result_count} results for &quot;{data.query}&quot;
         </span>
       </div>
@@ -66,10 +62,12 @@ export function AgentSearchResultsCard({ data }: AgentSearchResultsCardProps) {
                   <h4 className="truncate text-sm font-medium text-blue-400 hover:underline">
                     {result.title}
                   </h4>
-                  <IconExternalLink className="size-3 shrink-0 text-muted-foreground" />
+                  <IconExternalLink className="text-muted-foreground size-3 shrink-0" />
                 </div>
-                <p className="mt-0.5 text-xs font-light text-green-400">{getDomain(result.url)}</p>
-                <p className="mt-1 line-clamp-2 text-sm font-light text-muted-foreground">
+                <p className="mt-0.5 text-xs font-light text-green-400">
+                  {getDomain(result.url)}
+                </p>
+                <p className="text-muted-foreground mt-1 line-clamp-2 text-sm font-light">
                   {result.description}
                 </p>
               </div>
@@ -80,7 +78,7 @@ export function AgentSearchResultsCard({ data }: AgentSearchResultsCardProps) {
 
       {/* Footer */}
       {data.results.length > 5 && (
-        <div className="border-t border-blue-500/15 bg-gradient-to-r from-blue-500/10 to-purple-500/10 px-4 py-2 text-center text-xs font-light text-muted-foreground">
+        <div className="text-muted-foreground border-t border-blue-500/15 bg-gradient-to-r from-blue-500/10 to-purple-500/10 px-4 py-2 text-center text-xs font-light">
           Showing top 5 of {data.results.length} results
         </div>
       )}

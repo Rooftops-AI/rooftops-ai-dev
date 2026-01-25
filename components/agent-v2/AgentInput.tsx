@@ -55,9 +55,9 @@ export function AgentInput({
         disabled={isDisabled}
         rows={1}
         className={cn(
-          "w-full resize-none rounded-lg border border-input bg-background px-4 py-3 pr-12 font-light text-foreground",
+          "border-input bg-background text-foreground w-full resize-none rounded-lg border px-4 py-3 pr-12 font-light",
           "placeholder:text-muted-foreground",
-          "focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/20",
+          "focus:border-primary focus:ring-primary/20 focus:outline-none focus:ring-1",
           "disabled:cursor-not-allowed disabled:opacity-50"
         )}
       />

@@ -48,9 +48,13 @@ interface AgentPropertyReportCardProps {
   data: PropertyReportData
 }
 
-export function AgentPropertyReportCard({ data }: AgentPropertyReportCardProps) {
+export function AgentPropertyReportCard({
+  data
+}: AgentPropertyReportCardProps) {
   const [isExpanded, setIsExpanded] = useState(false)
-  const [activeTab, setActiveTab] = useState<"overview" | "roof" | "solar">("overview")
+  const [activeTab, setActiveTab] = useState<"overview" | "roof" | "solar">(
+    "overview"
+  )
 
   if (data.status !== "success" || !data.roof) {
     return null
@@ -89,16 +93,20 @@ export function AgentPropertyReportCard({ data }: AgentPropertyReportCardProps) 
             <IconHome className="size-5 text-blue-400" />
           </div>
           <div>
-            <h3 className="font-semibold text-foreground">Property Report</h3>
-            <p className="text-sm font-light text-muted-foreground">{data.address}</p>
+            <h3 className="text-foreground font-semibold">Property Report</h3>
+            <p className="text-muted-foreground text-sm font-light">
+              {data.address}
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
           {data.solar?.suitability && (
-            <span className={cn(
-              "rounded-xl border px-3 py-1 text-xs font-medium shadow-sm",
-              getSuitabilityColor(data.solar.suitability)
-            )}>
+            <span
+              className={cn(
+                "rounded-xl border px-3 py-1 text-xs font-medium shadow-sm",
+                getSuitabilityColor(data.solar.suitability)
+              )}
+            >
               {data.solar.suitability}
             </span>
           )}
@@ -125,7 +133,9 @@ export function AgentPropertyReportCard({ data }: AgentPropertyReportCardProps) 
         <StatItem
           icon={IconCurrencyDollar}
           label="20yr Savings"
-          value={data.solar ? formatCurrency(data.solar.netSavings20Years) : "N/A"}
+          value={
+            data.solar ? formatCurrency(data.solar.netSavings20Years) : "N/A"
+          }
         />
       </div>
 
@@ -159,36 +169,63 @@ export function AgentPropertyReportCard({ data }: AgentPropertyReportCardProps) 
             {activeTab === "overview" && (
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="rounded-xl border border-blue-500/15 bg-gradient-to-br from-blue-500/5 to-purple-500/5 p-4">
-                  <h4 className="mb-2 font-medium text-foreground">Property</h4>
+                  <h4 className="text-foreground mb-2 font-medium">Property</h4>
                   <dl className="space-y-1 text-sm">
                     <div className="flex justify-between">
-                      <dt className="font-light text-muted-foreground">Type</dt>
-                      <dd className="font-light text-foreground">{data.property?.type || "Residential"}</dd>
+                      <dt className="text-muted-foreground font-light">Type</dt>
+                      <dd className="text-foreground font-light">
+                        {data.property?.type || "Residential"}
+                      </dd>
                     </div>
                     <div className="flex justify-between">
-                      <dt className="font-light text-muted-foreground">Ground Area</dt>
-                      <dd className="font-light text-foreground">{data.property?.groundArea ? `${formatNumber(data.property.groundArea)} sq ft` : "N/A"}</dd>
+                      <dt className="text-muted-foreground font-light">
+                        Ground Area
+                      </dt>
+                      <dd className="text-foreground font-light">
+                        {data.property?.groundArea
+                          ? `${formatNumber(data.property.groundArea)} sq ft`
+                          : "N/A"}
+                      </dd>
                     </div>
                     <div className="flex justify-between">
-                      <dt className="font-light text-muted-foreground">Imagery Quality</dt>
-                      <dd className="font-light text-foreground">{data.imageryQuality || "Standard"}</dd>
+                      <dt className="text-muted-foreground font-light">
+                        Imagery Quality
+                      </dt>
+                      <dd className="text-foreground font-light">
+                        {data.imageryQuality || "Standard"}
+                      </dd>
                     </div>
                   </dl>
                 </div>
                 <div className="rounded-xl border border-blue-500/15 bg-gradient-to-br from-blue-500/5 to-purple-500/5 p-4">
-                  <h4 className="mb-2 font-medium text-foreground">Roof Summary</h4>
+                  <h4 className="text-foreground mb-2 font-medium">
+                    Roof Summary
+                  </h4>
                   <dl className="space-y-1 text-sm">
                     <div className="flex justify-between">
-                      <dt className="font-light text-muted-foreground">Total Area</dt>
-                      <dd className="font-light text-foreground">{formatNumber(data.roof.totalArea)} sq ft</dd>
+                      <dt className="text-muted-foreground font-light">
+                        Total Area
+                      </dt>
+                      <dd className="text-foreground font-light">
+                        {formatNumber(data.roof.totalArea)} sq ft
+                      </dd>
                     </div>
                     <div className="flex justify-between">
-                      <dt className="font-light text-muted-foreground">Roofing Squares</dt>
-                      <dd className="font-light text-foreground">{data.roof.totalSquares || Math.ceil(data.roof.totalArea / 100)}</dd>
+                      <dt className="text-muted-foreground font-light">
+                        Roofing Squares
+                      </dt>
+                      <dd className="text-foreground font-light">
+                        {data.roof.totalSquares ||
+                          Math.ceil(data.roof.totalArea / 100)}
+                      </dd>
                     </div>
                     <div className="flex justify-between">
-                      <dt className="font-light text-muted-foreground">Main Pitch</dt>
-                      <dd className="font-light text-foreground">{data.roof.mainPitch}</dd>
+                      <dt className="text-muted-foreground font-light">
+                        Main Pitch
+                      </dt>
+                      <dd className="text-foreground font-light">
+                        {data.roof.mainPitch}
+                      </dd>
                     </div>
                   </dl>
                 </div>
@@ -197,22 +234,37 @@ export function AgentPropertyReportCard({ data }: AgentPropertyReportCardProps) 
 
             {activeTab === "roof" && data.roof.facets && (
               <div>
-                <h4 className="mb-3 font-medium text-foreground">Roof Facets</h4>
+                <h4 className="text-foreground mb-3 font-medium">
+                  Roof Facets
+                </h4>
                 <div className="overflow-x-auto rounded-xl border border-blue-500/15">
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b border-blue-500/15 bg-gradient-to-r from-blue-500/10 to-purple-500/10 text-left">
-                        <th className="px-4 py-2 font-medium text-muted-foreground">#</th>
-                        <th className="px-4 py-2 font-medium text-muted-foreground">Area</th>
-                        <th className="px-4 py-2 font-medium text-muted-foreground">Pitch</th>
-                        <th className="px-4 py-2 font-medium text-muted-foreground">Orientation</th>
+                        <th className="text-muted-foreground px-4 py-2 font-medium">
+                          #
+                        </th>
+                        <th className="text-muted-foreground px-4 py-2 font-medium">
+                          Area
+                        </th>
+                        <th className="text-muted-foreground px-4 py-2 font-medium">
+                          Pitch
+                        </th>
+                        <th className="text-muted-foreground px-4 py-2 font-medium">
+                          Orientation
+                        </th>
                       </tr>
                     </thead>
-                    <tbody className="font-light text-foreground">
+                    <tbody className="text-foreground font-light">
                       {data.roof.facets.map((facet, index) => (
-                        <tr key={index} className="border-b border-blue-500/10 last:border-0">
+                        <tr
+                          key={index}
+                          className="border-b border-blue-500/10 last:border-0"
+                        >
                           <td className="px-4 py-2">{index + 1}</td>
-                          <td className="px-4 py-2">{formatNumber(facet.area)} sq ft</td>
+                          <td className="px-4 py-2">
+                            {formatNumber(facet.area)} sq ft
+                          </td>
                           <td className="px-4 py-2">{facet.pitch}</td>
                           <td className="px-4 py-2">{facet.orientation}</td>
                         </tr>
@@ -226,39 +278,72 @@ export function AgentPropertyReportCard({ data }: AgentPropertyReportCardProps) 
             {activeTab === "solar" && data.solar && (
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="rounded-xl border border-blue-500/15 bg-gradient-to-br from-blue-500/5 to-purple-500/5 p-4">
-                  <h4 className="mb-2 font-medium text-foreground">Solar Potential</h4>
+                  <h4 className="text-foreground mb-2 font-medium">
+                    Solar Potential
+                  </h4>
                   <dl className="space-y-1 text-sm">
                     <div className="flex justify-between">
-                      <dt className="font-light text-muted-foreground">Max Panels</dt>
-                      <dd className="font-light text-foreground">{data.solar.maxPanels}</dd>
+                      <dt className="text-muted-foreground font-light">
+                        Max Panels
+                      </dt>
+                      <dd className="text-foreground font-light">
+                        {data.solar.maxPanels}
+                      </dd>
                     </div>
                     <div className="flex justify-between">
-                      <dt className="font-light text-muted-foreground">Yearly Production</dt>
-                      <dd className="font-light text-foreground">{formatNumber(data.solar.yearlyEnergyKwh)} kWh</dd>
+                      <dt className="text-muted-foreground font-light">
+                        Yearly Production
+                      </dt>
+                      <dd className="text-foreground font-light">
+                        {formatNumber(data.solar.yearlyEnergyKwh)} kWh
+                      </dd>
                     </div>
                     <div className="flex justify-between">
-                      <dt className="font-light text-muted-foreground">Suitability</dt>
-                      <dd className={cn("font-medium", data.solar.suitability === "Great Fit" ? "text-green-400" : "text-blue-400")}>
+                      <dt className="text-muted-foreground font-light">
+                        Suitability
+                      </dt>
+                      <dd
+                        className={cn(
+                          "font-medium",
+                          data.solar.suitability === "Great Fit"
+                            ? "text-green-400"
+                            : "text-blue-400"
+                        )}
+                      >
                         {data.solar.suitability || "N/A"}
                       </dd>
                     </div>
                   </dl>
                 </div>
                 <div className="rounded-xl border border-blue-500/15 bg-gradient-to-br from-blue-500/5 to-purple-500/5 p-4">
-                  <h4 className="mb-2 font-medium text-foreground">Financial Analysis</h4>
+                  <h4 className="text-foreground mb-2 font-medium">
+                    Financial Analysis
+                  </h4>
                   <dl className="space-y-1 text-sm">
                     <div className="flex justify-between">
-                      <dt className="font-light text-muted-foreground">Installation Cost</dt>
-                      <dd className="font-light text-foreground">{formatCurrency(data.solar.installationCost)}</dd>
+                      <dt className="text-muted-foreground font-light">
+                        Installation Cost
+                      </dt>
+                      <dd className="text-foreground font-light">
+                        {formatCurrency(data.solar.installationCost)}
+                      </dd>
                     </div>
                     <div className="flex justify-between">
-                      <dt className="font-light text-muted-foreground">20-Year Savings</dt>
-                      <dd className="font-medium text-green-400">{formatCurrency(data.solar.netSavings20Years)}</dd>
+                      <dt className="text-muted-foreground font-light">
+                        20-Year Savings
+                      </dt>
+                      <dd className="font-medium text-green-400">
+                        {formatCurrency(data.solar.netSavings20Years)}
+                      </dd>
                     </div>
                     {data.solar.paybackYears && (
                       <div className="flex justify-between">
-                        <dt className="font-light text-muted-foreground">Payback Period</dt>
-                        <dd className="font-light text-foreground">{data.solar.paybackYears} years</dd>
+                        <dt className="text-muted-foreground font-light">
+                          Payback Period
+                        </dt>
+                        <dd className="text-foreground font-light">
+                          {data.solar.paybackYears} years
+                        </dd>
                       </div>
                     )}
                   </dl>
@@ -273,7 +358,7 @@ export function AgentPropertyReportCard({ data }: AgentPropertyReportCardProps) 
       <div className="flex items-center justify-between px-4 py-2">
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="flex items-center gap-1 text-sm font-light text-muted-foreground transition-colors hover:text-foreground"
+          className="text-muted-foreground hover:text-foreground flex items-center gap-1 text-sm font-light transition-colors"
         >
           {isExpanded ? (
             <>
@@ -288,11 +373,11 @@ export function AgentPropertyReportCard({ data }: AgentPropertyReportCardProps) 
           )}
         </button>
         <div className="flex items-center gap-2">
-          <button className="flex items-center gap-1 rounded-xl border border-transparent px-2.5 py-1.5 text-sm font-light text-muted-foreground transition-all hover:border-blue-500/20 hover:bg-blue-500/10 hover:text-foreground">
+          <button className="text-muted-foreground hover:text-foreground flex items-center gap-1 rounded-xl border border-transparent px-2.5 py-1.5 text-sm font-light transition-all hover:border-blue-500/20 hover:bg-blue-500/10">
             <IconDownload className="size-4" />
             Export
           </button>
-          <button className="flex items-center gap-1 rounded-xl border border-transparent px-2.5 py-1.5 text-sm font-light text-muted-foreground transition-all hover:border-blue-500/20 hover:bg-blue-500/10 hover:text-foreground">
+          <button className="text-muted-foreground hover:text-foreground flex items-center gap-1 rounded-xl border border-transparent px-2.5 py-1.5 text-sm font-light transition-all hover:border-blue-500/20 hover:bg-blue-500/10">
             <IconShare className="size-4" />
             Share
           </button>
@@ -314,8 +399,8 @@ function StatItem({
   return (
     <div className="flex flex-col items-center gap-1 px-4 py-3">
       <Icon className="size-5 text-blue-400" />
-      <span className="text-lg font-semibold text-foreground">{value}</span>
-      <span className="text-xs font-light text-muted-foreground">{label}</span>
+      <span className="text-foreground text-lg font-semibold">{value}</span>
+      <span className="text-muted-foreground text-xs font-light">{label}</span>
     </div>
   )
 }

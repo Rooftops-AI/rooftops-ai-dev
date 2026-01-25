@@ -60,7 +60,9 @@ export default function WorkspacePage() {
       if (!workspaceId) return
 
       const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user }
+      } = await supabase.auth.getUser()
 
       if (!user) return
 
@@ -68,7 +70,9 @@ export default function WorkspacePage() {
 
       try {
         // Fetch recent property reports
-        const reportsResponse = await fetch(`/api/property-reports?workspace_id=${workspaceId}`)
+        const reportsResponse = await fetch(
+          `/api/property-reports?workspace_id=${workspaceId}`
+        )
         if (reportsResponse.ok) {
           const reports = await reportsResponse.json()
           setRecentReports(reports.slice(0, 5))
@@ -105,7 +109,9 @@ export default function WorkspacePage() {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
     const now = new Date()
-    const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24))
+    const diffDays = Math.floor(
+      (now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24)
+    )
 
     if (diffDays === 0) return "Today"
     if (diffDays === 1) return "Yesterday"
@@ -114,16 +120,20 @@ export default function WorkspacePage() {
   }
 
   const tier = userSubscription?.tier || "free"
-  const tierName = tier === "free" ? "Starter" : tier === "premium" ? "Pro" : "Business"
+  const tierName =
+    tier === "free" ? "Starter" : tier === "premium" ? "Pro" : "Business"
 
   return (
-    <div className="flex h-full w-full flex-col overflow-y-auto bg-gray-50 dark:bg-zinc-900">
+    <div className="flex size-full flex-col overflow-y-auto bg-gray-50 dark:bg-zinc-900">
       {/* Header */}
-      <div className="border-b border-gray-200 bg-white px-6 py-6 dark:border-zinc-700 dark:bg-zinc-800">
+      <div className="border-b border-gray-200 bg-white p-6 dark:border-zinc-700 dark:bg-zinc-800">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              Welcome back{profile?.display_name ? `, ${profile.display_name.split(" ")[0]}` : ""}
+              Welcome back
+              {profile?.display_name
+                ? `, ${profile.display_name.split(" ")[0]}`
+                : ""}
             </h1>
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
               {selectedWorkspace?.name || "Your workspace"} · {tierName} Plan
@@ -157,8 +167,12 @@ export default function WorkspacePage() {
                   <IconMap className="size-6" />
                 </div>
                 <div className="text-center">
-                  <div className="font-semibold text-gray-900 dark:text-white">Roof Report</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">Analyze any address</div>
+                  <div className="font-semibold text-gray-900 dark:text-white">
+                    Roof Report
+                  </div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                    Analyze any address
+                  </div>
                 </div>
               </button>
 
@@ -170,8 +184,12 @@ export default function WorkspacePage() {
                   <IconMessageCircle className="size-6" />
                 </div>
                 <div className="text-center">
-                  <div className="font-semibold text-gray-900 dark:text-white">AI Chat</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">Ask anything</div>
+                  <div className="font-semibold text-gray-900 dark:text-white">
+                    AI Chat
+                  </div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                    Ask anything
+                  </div>
                 </div>
               </button>
 
@@ -183,8 +201,12 @@ export default function WorkspacePage() {
                   <IconRobot className="size-6" />
                 </div>
                 <div className="text-center">
-                  <div className="font-semibold text-gray-900 dark:text-white">AI Agent</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">Automate tasks</div>
+                  <div className="font-semibold text-gray-900 dark:text-white">
+                    AI Agent
+                  </div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                    Automate tasks
+                  </div>
                 </div>
               </button>
 
@@ -196,8 +218,12 @@ export default function WorkspacePage() {
                   <IconFileText className="size-6" />
                 </div>
                 <div className="text-center">
-                  <div className="font-semibold text-gray-900 dark:text-white">Documents</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">Your files</div>
+                  <div className="font-semibold text-gray-900 dark:text-white">
+                    Documents
+                  </div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                    Your files
+                  </div>
                 </div>
               </button>
             </div>
@@ -227,7 +253,9 @@ export default function WorkspacePage() {
                   <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-gray-100 dark:bg-zinc-700">
                     <div
                       className="h-full rounded-full bg-[#24BDEB] transition-all"
-                      style={{ width: `${Math.min(100, (usageStats.reports_generated / usageStats.reports_limit) * 100)}%` }}
+                      style={{
+                        width: `${Math.min(100, (usageStats.reports_generated / usageStats.reports_limit) * 100)}%`
+                      }}
                     />
                   </div>
                 </div>
@@ -249,7 +277,9 @@ export default function WorkspacePage() {
                   <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-gray-100 dark:bg-zinc-700">
                     <div
                       className="h-full rounded-full bg-[#4FEBBC] transition-all"
-                      style={{ width: `${Math.min(100, (usageStats.messages_sent / usageStats.messages_limit) * 100)}%` }}
+                      style={{
+                        width: `${Math.min(100, (usageStats.messages_sent / usageStats.messages_limit) * 100)}%`
+                      }}
                     />
                   </div>
                 </div>
@@ -261,7 +291,14 @@ export default function WorkspacePage() {
                     </div>
                     <div>
                       <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                        {recentReports.length > 0 ? Math.round(recentReports.reduce((acc, r) => acc + (r.roof_area || 0), 0)).toLocaleString() : 0}
+                        {recentReports.length > 0
+                          ? Math.round(
+                              recentReports.reduce(
+                                (acc, r) => acc + (r.roof_area || 0),
+                                0
+                              )
+                            ).toLocaleString()
+                          : 0}
                       </div>
                       <div className="text-xs text-gray-500 dark:text-gray-400">
                         sq ft analyzed
@@ -294,7 +331,9 @@ export default function WorkspacePage() {
             {/* Recent Reports */}
             <div className="rounded-xl border border-gray-200 bg-white dark:border-zinc-700 dark:bg-zinc-800">
               <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4 dark:border-zinc-700">
-                <h3 className="font-semibold text-gray-900 dark:text-white">Recent Roof Reports</h3>
+                <h3 className="font-semibold text-gray-900 dark:text-white">
+                  Recent Roof Reports
+                </h3>
                 <button
                   onClick={() => router.push(`/${workspaceId}/explore`)}
                   className="flex items-center gap-1 text-sm font-medium text-[#24BDEB] hover:underline"
@@ -311,7 +350,9 @@ export default function WorkspacePage() {
                 ) : recentReports.length === 0 ? (
                   <div className="py-8 text-center">
                     <IconMap className="mx-auto size-8 text-gray-300 dark:text-zinc-600" />
-                    <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">No reports yet</p>
+                    <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                      No reports yet
+                    </p>
                     <button
                       onClick={() => router.push(`/${workspaceId}/explore`)}
                       className="mt-3 text-sm font-medium text-[#24BDEB] hover:underline"
@@ -323,7 +364,11 @@ export default function WorkspacePage() {
                   recentReports.map(report => (
                     <button
                       key={report.id}
-                      onClick={() => router.push(`/${workspaceId}/explore?report=${report.id}`)}
+                      onClick={() =>
+                        router.push(
+                          `/${workspaceId}/explore?report=${report.id}`
+                        )
+                      }
                       className="flex w-full items-center gap-4 px-5 py-3 text-left transition-colors hover:bg-gray-50 dark:hover:bg-zinc-700/50"
                     >
                       <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-[#24BDEB]/10">
@@ -338,7 +383,10 @@ export default function WorkspacePage() {
                           {report.roof_area && (
                             <>
                               <span>·</span>
-                              <span>{Math.round(report.roof_area).toLocaleString()} sq ft</span>
+                              <span>
+                                {Math.round(report.roof_area).toLocaleString()}{" "}
+                                sq ft
+                              </span>
                             </>
                           )}
                           {report.facet_count && (
@@ -359,7 +407,9 @@ export default function WorkspacePage() {
             {/* Recent Agent Sessions */}
             <div className="rounded-xl border border-gray-200 bg-white dark:border-zinc-700 dark:bg-zinc-800">
               <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4 dark:border-zinc-700">
-                <h3 className="font-semibold text-gray-900 dark:text-white">Recent Agent Sessions</h3>
+                <h3 className="font-semibold text-gray-900 dark:text-white">
+                  Recent Agent Sessions
+                </h3>
                 <button
                   onClick={() => router.push(`/${workspaceId}/agent`)}
                   className="flex items-center gap-1 text-sm font-medium text-[#4FEBBC] hover:underline"
@@ -376,7 +426,9 @@ export default function WorkspacePage() {
                 ) : recentSessions.length === 0 ? (
                   <div className="py-8 text-center">
                     <IconRobot className="mx-auto size-8 text-gray-300 dark:text-zinc-600" />
-                    <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">No agent sessions yet</p>
+                    <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                      No agent sessions yet
+                    </p>
                     <button
                       onClick={() => router.push(`/${workspaceId}/agent`)}
                       className="mt-3 text-sm font-medium text-[#4FEBBC] hover:underline"
@@ -388,7 +440,11 @@ export default function WorkspacePage() {
                   recentSessions.map(session => (
                     <button
                       key={session.id}
-                      onClick={() => router.push(`/${workspaceId}/agent?session=${session.id}`)}
+                      onClick={() =>
+                        router.push(
+                          `/${workspaceId}/agent?session=${session.id}`
+                        )
+                      }
                       className="flex w-full items-center gap-4 px-5 py-3 text-left transition-colors hover:bg-gray-50 dark:hover:bg-zinc-700/50"
                     >
                       <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-[#4FEBBC]/10">
@@ -401,13 +457,18 @@ export default function WorkspacePage() {
                         <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                           <span>{formatDate(session.updated_at)}</span>
                           <span>·</span>
-                          <span className={`capitalize ${session.status === "active" ? "text-green-500" : ""}`}>
+                          <span
+                            className={`capitalize ${session.status === "active" ? "text-green-500" : ""}`}
+                          >
                             {session.status}
                           </span>
                           {session.total_tokens_used > 0 && (
                             <>
                               <span>·</span>
-                              <span>{session.total_tokens_used.toLocaleString()} tokens</span>
+                              <span>
+                                {session.total_tokens_used.toLocaleString()}{" "}
+                                tokens
+                              </span>
                             </>
                           )}
                         </div>
@@ -427,7 +488,8 @@ export default function WorkspacePage() {
                 <div>
                   <h3 className="text-lg font-bold">Unlock More Reports</h3>
                   <p className="mt-1 text-sm text-gray-300">
-                    Upgrade to Pro for 20 roof reports/month, AI estimates, and more.
+                    Upgrade to Pro for 20 roof reports/month, AI estimates, and
+                    more.
                   </p>
                 </div>
                 <button

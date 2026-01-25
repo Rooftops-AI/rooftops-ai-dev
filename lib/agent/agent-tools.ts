@@ -160,8 +160,7 @@ export const BUILTIN_AGENT_TOOLS: AgentTool[] = [
   // Communication Tools
   {
     name: "draft_email",
-    description:
-      "Draft an email. Returns the draft for review before sending.",
+    description: "Draft an email. Returns the draft for review before sending.",
     category: "communication",
     parameters: {
       type: "object",
@@ -276,13 +275,7 @@ export const BUILTIN_AGENT_TOOLS: AgentTool[] = [
         },
         status: {
           type: "string",
-          enum: [
-            "scheduled",
-            "in_progress",
-            "completed",
-            "cancelled",
-            "all"
-          ],
+          enum: ["scheduled", "in_progress", "completed", "cancelled", "all"],
           default: "all",
           description: "Filter by job status"
         },
@@ -311,7 +304,8 @@ export const BUILTIN_AGENT_TOOLS: AgentTool[] = [
       properties: {
         address: {
           type: "string",
-          description: "Full property address (e.g., '123 Main St, Memphis, TN 38103')"
+          description:
+            "Full property address (e.g., '123 Main St, Memphis, TN 38103')"
         },
         include_solar: {
           type: "boolean",
@@ -335,7 +329,14 @@ export const BUILTIN_AGENT_TOOLS: AgentTool[] = [
       properties: {
         artifact_type: {
           type: "string",
-          enum: ["business_card", "flyer", "door_hanger", "postcard", "email_template", "social_post"],
+          enum: [
+            "business_card",
+            "flyer",
+            "door_hanger",
+            "postcard",
+            "email_template",
+            "social_post"
+          ],
           description: "Type of artifact to generate"
         },
         title: {
@@ -367,7 +368,8 @@ export const BUILTIN_AGENT_TOOLS: AgentTool[] = [
         },
         offer: {
           type: "string",
-          description: "Special offer or call-to-action (e.g., 'Free Inspection', '10% Off')"
+          description:
+            "Special offer or call-to-action (e.g., 'Free Inspection', '10% Off')"
         },
         style: {
           type: "string",
@@ -412,8 +414,7 @@ export const BUILTIN_AGENT_TOOLS: AgentTool[] = [
   },
   {
     name: "schedule_appointment",
-    description:
-      "Schedule an appointment or job. Requires user confirmation.",
+    description: "Schedule an appointment or job. Requires user confirmation.",
     category: "scheduling",
     parameters: {
       type: "object",
@@ -492,9 +493,7 @@ export function toolRequiresConfirmation(toolName: string): boolean {
     "submit",
     "post"
   ]
-  return writeKeywords.some(keyword =>
-    toolName.toLowerCase().includes(keyword)
-  )
+  return writeKeywords.some(keyword => toolName.toLowerCase().includes(keyword))
 }
 
 // Get tools by category

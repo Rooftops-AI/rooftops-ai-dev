@@ -24,7 +24,7 @@ import remarkGfm from "remark-gfm"
 // Markdown components for consistent rendering
 const markdownComponents = {
   p: ({ children }: { children: React.ReactNode }) => (
-    <p className="mb-3 last:mb-0 leading-relaxed">{children}</p>
+    <p className="mb-3 leading-relaxed last:mb-0">{children}</p>
   ),
   h1: ({ children }: { children: React.ReactNode }) => (
     <h1 className="mb-4 mt-6 text-xl font-semibold first:mt-0">{children}</h1>
@@ -53,20 +53,26 @@ const markdownComponents = {
   em: ({ children }: { children: React.ReactNode }) => (
     <em className="italic">{children}</em>
   ),
-  code: ({ children, className }: { children: React.ReactNode; className?: string }) => {
+  code: ({
+    children,
+    className
+  }: {
+    children: React.ReactNode
+    className?: string
+  }) => {
     const isInline = !className
     return isInline ? (
-      <code className="rounded border border-border bg-muted px-1.5 py-0.5 text-sm font-mono">
+      <code className="border-border bg-muted rounded border px-1.5 py-0.5 font-mono text-sm">
         {children}
       </code>
     ) : (
-      <code className="block overflow-x-auto rounded-lg border border-border bg-muted p-3 text-sm font-mono">
+      <code className="border-border bg-muted block overflow-x-auto rounded-lg border p-3 font-mono text-sm">
         {children}
       </code>
     )
   },
   pre: ({ children }: { children: React.ReactNode }) => (
-    <pre className="mb-3 overflow-x-auto rounded-lg border border-border bg-muted p-3">
+    <pre className="border-border bg-muted mb-3 overflow-x-auto rounded-lg border p-3">
       {children}
     </pre>
   ),
@@ -75,20 +81,20 @@ const markdownComponents = {
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="text-primary underline decoration-primary/30 underline-offset-2 hover:decoration-primary"
+      className="text-primary decoration-primary/30 hover:decoration-primary underline underline-offset-2"
     >
       {children}
     </a>
   ),
   blockquote: ({ children }: { children: React.ReactNode }) => (
-    <blockquote className="mb-3 border-l-4 border-primary/30 pl-4 italic text-muted-foreground">
+    <blockquote className="border-primary/30 text-muted-foreground mb-3 border-l-4 pl-4 italic">
       {children}
     </blockquote>
   ),
-  hr: () => <hr className="my-4 border-border" />,
+  hr: () => <hr className="border-border my-4" />,
   table: ({ children }: { children: React.ReactNode }) => (
-    <div className="mb-3 overflow-x-auto rounded-lg border border-border">
-      <table className="min-w-full divide-y divide-border">{children}</table>
+    <div className="border-border mb-3 overflow-x-auto rounded-lg border">
+      <table className="divide-border min-w-full divide-y">{children}</table>
     </div>
   ),
   thead: ({ children }: { children: React.ReactNode }) => (
@@ -101,7 +107,7 @@ const markdownComponents = {
     <td className="px-3 py-2 text-sm">{children}</td>
   ),
   tr: ({ children }: { children: React.ReactNode }) => (
-    <tr className="border-b border-border last:border-0">{children}</tr>
+    <tr className="border-border border-b last:border-0">{children}</tr>
   )
 }
 
@@ -109,7 +115,12 @@ export interface TaskStep {
   id: string
   description: string
   toolName: string | null
-  status: "pending" | "running" | "completed" | "failed" | "awaiting_confirmation"
+  status:
+    | "pending"
+    | "running"
+    | "completed"
+    | "failed"
+    | "awaiting_confirmation"
   result?: any
   error?: string
   preview?: any
@@ -154,19 +165,19 @@ export function AgentTaskView({
   return (
     <div className="flex flex-1 flex-col overflow-auto">
       {/* Task Header */}
-      <div className="sticky top-0 z-10 border-b border-border bg-background/95 px-6 py-4 backdrop-blur-sm">
+      <div className="border-border bg-background/95 sticky top-0 z-10 border-b px-6 py-4 backdrop-blur-sm">
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <div className="flex items-center gap-2">
               <TaskStatusBadge status={task.status} />
               {task.totalDurationMs && isComplete && (
-                <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                <span className="text-muted-foreground flex items-center gap-1 text-xs">
                   <IconClock className="size-3" />
                   {formatDuration(task.totalDurationMs)}
                 </span>
               )}
             </div>
-            <h2 className="mt-2 text-lg font-medium text-foreground">
+            <h2 className="text-foreground mt-2 text-lg font-medium">
               {task.goal}
             </h2>
           </div>
@@ -176,7 +187,7 @@ export function AgentTaskView({
             {task.status === "running" && (
               <button
                 onClick={onCancelTask}
-                className="flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                className="border-border bg-background text-muted-foreground hover:bg-muted hover:text-foreground flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm transition-colors"
                 title="Stop task (Esc)"
               >
                 <IconPlayerStop className="size-4" />
@@ -189,7 +200,7 @@ export function AgentTaskView({
                 {onCopy && task.response && (
                   <button
                     onClick={() => onCopy(task.response)}
-                    className="flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                    className="border-border bg-background text-muted-foreground hover:bg-muted hover:text-foreground flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm transition-colors"
                     title="Copy result"
                   >
                     <IconCopy className="size-4" />
@@ -199,7 +210,7 @@ export function AgentTaskView({
                 {onShare && (
                   <button
                     onClick={onShare}
-                    className="flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                    className="border-border bg-background text-muted-foreground hover:bg-muted hover:text-foreground flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm transition-colors"
                     title="Share result"
                   >
                     <IconShare className="size-4" />
@@ -209,7 +220,7 @@ export function AgentTaskView({
                 {onNewTask && (
                   <button
                     onClick={onNewTask}
-                    className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors"
                     title="New task (Cmd+K)"
                   >
                     <IconPlus className="size-4" />
@@ -238,19 +249,19 @@ export function AgentTaskView({
           {task.streamingContent && task.status === "running" && (
             <div className="flex gap-3">
               <div className="flex flex-col items-center">
-                <IconLoader2 className="size-5 animate-spin text-primary" />
-                <div className="mt-1 w-0.5 flex-1 bg-border" />
+                <IconLoader2 className="text-primary size-5 animate-spin" />
+                <div className="bg-border mt-1 w-0.5 flex-1" />
               </div>
               <div className="flex-1 pb-4">
-                <div className="rounded-lg border border-primary/20 bg-primary/5 p-4">
-                  <div className="prose prose-sm dark:prose-invert max-w-none text-foreground">
+                <div className="border-primary/20 bg-primary/5 rounded-lg border p-4">
+                  <div className="prose prose-sm dark:prose-invert text-foreground max-w-none">
                     <ReactMarkdown
                       remarkPlugins={[remarkGfm]}
                       components={markdownComponents}
                     >
                       {task.streamingContent}
                     </ReactMarkdown>
-                    <span className="ml-1 inline-block h-4 w-1 animate-pulse bg-primary" />
+                    <span className="bg-primary ml-1 inline-block h-4 w-1 animate-pulse" />
                   </div>
                 </div>
               </div>
@@ -258,24 +269,33 @@ export function AgentTaskView({
           )}
 
           {/* Running indicator (when no steps yet) */}
-          {task.status === "running" && task.steps.length === 0 && !task.streamingContent && (
-            <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/30 p-4">
-              <IconLoader2 className="size-5 animate-spin text-primary" />
-              <span className="text-sm text-muted-foreground">Thinking...</span>
-            </div>
-          )}
+          {task.status === "running" &&
+            task.steps.length === 0 &&
+            !task.streamingContent && (
+              <div className="border-border bg-muted/30 flex items-center gap-3 rounded-lg border p-4">
+                <IconLoader2 className="text-primary size-5 animate-spin" />
+                <span className="text-muted-foreground text-sm">
+                  Thinking...
+                </span>
+              </div>
+            )}
 
           {/* Running indicator after steps */}
-          {task.status === "running" && task.steps.length > 0 && !task.streamingContent && !pendingConfirmation && (
-            <div className="flex gap-3">
-              <div className="flex flex-col items-center">
-                <IconLoader2 className="size-5 animate-spin text-primary" />
+          {task.status === "running" &&
+            task.steps.length > 0 &&
+            !task.streamingContent &&
+            !pendingConfirmation && (
+              <div className="flex gap-3">
+                <div className="flex flex-col items-center">
+                  <IconLoader2 className="text-primary size-5 animate-spin" />
+                </div>
+                <div className="flex-1">
+                  <span className="text-muted-foreground text-sm">
+                    Processing...
+                  </span>
+                </div>
               </div>
-              <div className="flex-1">
-                <span className="text-sm text-muted-foreground">Processing...</span>
-              </div>
-            </div>
-          )}
+            )}
         </div>
 
         {/* Confirmation Panel */}
@@ -294,7 +314,7 @@ export function AgentTaskView({
           <div className="mt-6">
             <div className="rounded-lg border border-green-500/30 bg-green-500/5 p-4">
               <div className="flex items-start justify-between gap-4">
-                <div className="prose prose-sm dark:prose-invert max-w-none flex-1 text-foreground">
+                <div className="prose prose-sm dark:prose-invert text-foreground max-w-none flex-1">
                   <ReactMarkdown
                     remarkPlugins={[remarkGfm]}
                     components={markdownComponents}
@@ -305,7 +325,7 @@ export function AgentTaskView({
                 {onCopy && (
                   <button
                     onClick={() => onCopy(task.response)}
-                    className="shrink-0 rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-green-500/10 hover:text-foreground"
+                    className="text-muted-foreground hover:text-foreground shrink-0 rounded-lg p-1.5 transition-colors hover:bg-green-500/10"
                     title="Copy response"
                   >
                     <IconCopy className="size-4" />
@@ -315,10 +335,14 @@ export function AgentTaskView({
 
               {/* Token count */}
               {task.tokenCount && (
-                <div className="mt-3 flex items-center gap-4 border-t border-green-500/20 pt-3 text-xs text-muted-foreground">
-                  <span>{task.tokenCount.total.toLocaleString()} tokens used</span>
+                <div className="text-muted-foreground mt-3 flex items-center gap-4 border-t border-green-500/20 pt-3 text-xs">
+                  <span>
+                    {task.tokenCount.total.toLocaleString()} tokens used
+                  </span>
                   {task.totalDurationMs && (
-                    <span>Completed in {formatDuration(task.totalDurationMs)}</span>
+                    <span>
+                      Completed in {formatDuration(task.totalDurationMs)}
+                    </span>
                   )}
                 </div>
               )}
@@ -329,16 +353,20 @@ export function AgentTaskView({
         {/* Error */}
         {task.error && task.status === "failed" && (
           <div className="mt-6">
-            <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4">
+            <div className="border-destructive/30 bg-destructive/5 rounded-lg border p-4">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="text-sm font-medium text-destructive">Task Failed</p>
-                  <p className="mt-1 text-sm text-muted-foreground">{task.error}</p>
+                  <p className="text-destructive text-sm font-medium">
+                    Task Failed
+                  </p>
+                  <p className="text-muted-foreground mt-1 text-sm">
+                    {task.error}
+                  </p>
                 </div>
                 {onNewTask && (
                   <button
                     onClick={onNewTask}
-                    className="flex shrink-0 items-center gap-1.5 rounded-lg bg-destructive/10 px-3 py-1.5 text-sm text-destructive transition-colors hover:bg-destructive/20"
+                    className="bg-destructive/10 text-destructive hover:bg-destructive/20 flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm transition-colors"
                   >
                     <IconRefresh className="size-4" />
                     Try Again
@@ -390,11 +418,7 @@ function TaskStatusBadge({ status }: { status: AgentTask["status"] }) {
         className
       )}
     >
-      {Icon && (
-        <Icon
-          className={cn("size-3", animate && "animate-spin")}
-        />
-      )}
+      {Icon && <Icon className={cn("size-3", animate && "animate-spin")} />}
       {label}
     </span>
   )
@@ -412,15 +436,15 @@ function TaskStepItem({
   const [isExpanded, setIsExpanded] = useState(false)
 
   const statusIcon = {
-    pending: <div className="size-5 rounded-full border-2 border-muted" />,
-    running: <IconLoader2 className="size-5 animate-spin text-primary" />,
+    pending: <div className="border-muted size-5 rounded-full border-2" />,
+    running: <IconLoader2 className="text-primary size-5 animate-spin" />,
     completed: (
       <div className="flex size-5 items-center justify-center rounded-full bg-green-500">
         <IconCheck className="size-3 text-white" />
       </div>
     ),
     failed: (
-      <div className="flex size-5 items-center justify-center rounded-full bg-destructive">
+      <div className="bg-destructive flex size-5 items-center justify-center rounded-full">
         <IconX className="size-3 text-white" />
       </div>
     ),
@@ -460,7 +484,7 @@ function TaskStepItem({
 
           {/* Duration badge */}
           {step.durationMs && step.status === "completed" && (
-            <span className="shrink-0 text-xs text-muted-foreground">
+            <span className="text-muted-foreground shrink-0 text-xs">
               {formatDuration(step.durationMs)}
             </span>
           )}
@@ -469,12 +493,14 @@ function TaskStepItem({
           {step.status === "failed" && onRetry && (
             <button
               onClick={() => onRetry(step.id)}
-              className="flex shrink-0 items-center gap-1 rounded px-2 py-1 text-xs text-destructive transition-colors hover:bg-destructive/10"
+              className="text-destructive hover:bg-destructive/10 flex shrink-0 items-center gap-1 rounded px-2 py-1 text-xs transition-colors"
             >
               <IconRefresh className="size-3" />
               Retry
               {step.retryCount && step.retryCount > 0 && (
-                <span className="text-muted-foreground">({step.retryCount})</span>
+                <span className="text-muted-foreground">
+                  ({step.retryCount})
+                </span>
               )}
             </button>
           )}
@@ -485,15 +511,15 @@ function TaskStepItem({
           <div className="mt-2">
             <button
               onClick={() => setIsExpanded(!isExpanded)}
-              className="flex w-full items-center justify-between rounded-lg border border-border bg-muted/30 px-3 py-2 text-left text-sm transition-colors hover:bg-muted/50"
+              className="border-border bg-muted/30 hover:bg-muted/50 flex w-full items-center justify-between rounded-lg border px-3 py-2 text-left text-sm transition-colors"
             >
               <span className="text-muted-foreground">
                 {isExpanded ? "Hide result" : "Show result"}
               </span>
               {isExpanded ? (
-                <IconChevronUp className="size-4 text-muted-foreground" />
+                <IconChevronUp className="text-muted-foreground size-4" />
               ) : (
-                <IconChevronDown className="size-4 text-muted-foreground" />
+                <IconChevronDown className="text-muted-foreground size-4" />
               )}
             </button>
             {isExpanded && (
@@ -510,17 +536,19 @@ function TaskStepItem({
 
         {/* Running tool indicator */}
         {step.status === "running" && (
-          <div className="mt-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2">
+          <div className="border-primary/20 bg-primary/5 mt-2 rounded-lg border px-3 py-2">
             <div className="flex items-center gap-2">
-              <IconLoader2 className="size-4 animate-spin text-primary" />
-              <span className="text-sm text-muted-foreground">Executing...</span>
+              <IconLoader2 className="text-primary size-4 animate-spin" />
+              <span className="text-muted-foreground text-sm">
+                Executing...
+              </span>
             </div>
           </div>
         )}
 
         {/* Error */}
         {step.error && (
-          <p className="mt-1 text-sm text-destructive">{step.error}</p>
+          <p className="text-destructive mt-1 text-sm">{step.error}</p>
         )}
       </div>
     </div>

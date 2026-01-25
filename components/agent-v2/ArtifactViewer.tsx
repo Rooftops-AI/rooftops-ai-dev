@@ -65,24 +65,24 @@ export function ArtifactViewer({
   return (
     <div
       className={cn(
-        "rounded-xl border border-border bg-background overflow-hidden",
+        "border-border bg-background overflow-hidden rounded-xl border",
         isFullscreen && "fixed inset-4 z-50 shadow-2xl"
       )}
     >
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-border bg-muted/30 px-4 py-3">
+      <div className="border-border bg-muted/30 flex items-center justify-between border-b px-4 py-3">
         <div className="flex items-center gap-3">
-          <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10">
-            <span className="text-sm font-semibold text-primary">
+          <div className="bg-primary/10 flex size-8 items-center justify-center rounded-lg">
+            <span className="text-primary text-sm font-semibold">
               {artifactType.charAt(0).toUpperCase()}
             </span>
           </div>
           <div>
-            <h3 className="font-medium text-foreground">
+            <h3 className="text-foreground font-medium">
               {formatArtifactType(artifactType)}
             </h3>
             {companyName && (
-              <p className="text-xs text-muted-foreground">{companyName}</p>
+              <p className="text-muted-foreground text-xs">{companyName}</p>
             )}
           </div>
         </div>
@@ -90,7 +90,7 @@ export function ArtifactViewer({
         <div className="flex items-center gap-1">
           <button
             onClick={handleCopy}
-            className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            className="text-muted-foreground hover:bg-muted hover:text-foreground flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm transition-colors"
             title="Copy HTML"
           >
             {copied ? (
@@ -108,7 +108,7 @@ export function ArtifactViewer({
 
           <button
             onClick={handleDownload}
-            className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            className="text-muted-foreground hover:bg-muted hover:text-foreground flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm transition-colors"
             title="Download HTML"
           >
             <IconDownload className="size-4" />
@@ -117,7 +117,7 @@ export function ArtifactViewer({
 
           <button
             onClick={handleOpenInNewTab}
-            className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            className="text-muted-foreground hover:bg-muted hover:text-foreground flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm transition-colors"
             title="Open in new tab"
           >
             <IconExternalLink className="size-4" />
@@ -125,7 +125,7 @@ export function ArtifactViewer({
 
           <button
             onClick={() => setIsFullscreen(!isFullscreen)}
-            className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            className="text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg p-1.5 transition-colors"
             title={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
           >
             <IconMaximize className="size-4" />
@@ -134,7 +134,7 @@ export function ArtifactViewer({
           {onClose && (
             <button
               onClick={onClose}
-              className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              className="text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg p-1.5 transition-colors"
               title="Close"
             >
               <IconX className="size-4" />
@@ -146,7 +146,7 @@ export function ArtifactViewer({
       {/* Preview */}
       <div
         className={cn(
-          "relative bg-[#f0f0f0] p-6 overflow-auto",
+          "relative overflow-auto bg-[#f0f0f0] p-6",
           isFullscreen ? "h-[calc(100%-60px)]" : "max-h-[500px]"
         )}
       >
@@ -158,8 +158,14 @@ export function ArtifactViewer({
             style={{
               width: artifactType === "business_card" ? "3.5in" : "100%",
               height: artifactType === "business_card" ? "2in" : "auto",
-              minHeight: artifactType === "flyer" || artifactType === "door_hanger" ? "600px" : "200px",
-              maxWidth: artifactType === "flyer" || artifactType === "door_hanger" ? "8.5in" : "100%"
+              minHeight:
+                artifactType === "flyer" || artifactType === "door_hanger"
+                  ? "600px"
+                  : "200px",
+              maxWidth:
+                artifactType === "flyer" || artifactType === "door_hanger"
+                  ? "8.5in"
+                  : "100%"
             }}
             sandbox="allow-same-origin"
             title="Artifact Preview"
@@ -168,9 +174,10 @@ export function ArtifactViewer({
       </div>
 
       {/* Footer with tips */}
-      <div className="border-t border-border bg-muted/20 px-4 py-2">
-        <p className="text-xs text-muted-foreground">
-          Tip: Download the HTML file and open it in a browser to print, or copy the HTML to embed in your website.
+      <div className="border-border bg-muted/20 border-t px-4 py-2">
+        <p className="text-muted-foreground text-xs">
+          Tip: Download the HTML file and open it in a browser to print, or copy
+          the HTML to embed in your website.
         </p>
       </div>
     </div>
@@ -207,7 +214,7 @@ export function InlineArtifactPreview({ result }: InlineArtifactPreviewProps) {
       ) : (
         <button
           onClick={() => setShowFull(true)}
-          className="inline-flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/10"
+          className="border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition-colors"
         >
           <IconExternalLink className="size-4" />
           View {result.artifact_type?.replace("_", " ") || "artifact"}

@@ -7,14 +7,20 @@ import { createClient } from "@/lib/supabase/server"
 import { cookies } from "next/headers"
 import { checkAgentAccess } from "@/lib/entitlements"
 import OpenAI from "openai"
-import { getAgentSystemPrompt, getDynamicSystemPrompt } from "@/lib/agent/agent-system-prompt"
+import {
+  getAgentSystemPrompt,
+  getDynamicSystemPrompt
+} from "@/lib/agent/agent-system-prompt"
 import {
   BUILTIN_AGENT_TOOLS,
   convertToOpenAITools,
   toolRequiresConfirmation
 } from "@/lib/agent/agent-tools"
 import { GLOBAL_API_KEYS } from "@/lib/api-keys"
-import { MCPSessionManager, isPipedreamConfigured } from "@/lib/pipedream/mcp-session"
+import {
+  MCPSessionManager,
+  isPipedreamConfigured
+} from "@/lib/pipedream/mcp-session"
 import { requiresConfirmation as mcpRequiresConfirmation } from "@/lib/pipedream/action-rules"
 
 export const runtime = "nodejs"
@@ -31,21 +37,41 @@ function generateSessionName(message: string): string {
   // Common patterns to extract meaningful titles
   const patterns = [
     // Property/address related
-    { regex: /(?:property|report|roof|analysis)\s+(?:for|at|on)\s+(.{10,50})/i, prefix: "" },
-    { regex: /(\d+\s+[A-Za-z]+(?:\s+[A-Za-z]+)?(?:\s+(?:st|street|ave|avenue|rd|road|dr|drive|ln|lane|blvd|way|ct|court))?)/i, prefix: "Property: " },
+    {
+      regex: /(?:property|report|roof|analysis)\s+(?:for|at|on)\s+(.{10,50})/i,
+      prefix: ""
+    },
+    {
+      regex:
+        /(\d+\s+[A-Za-z]+(?:\s+[A-Za-z]+)?(?:\s+(?:st|street|ave|avenue|rd|road|dr|drive|ln|lane|blvd|way|ct|court))?)/i,
+      prefix: "Property: "
+    },
 
     // Weather related
     { regex: /weather\s+(?:for|in|at)\s+([A-Za-z\s,]+)/i, prefix: "Weather: " },
-    { regex: /forecast\s+(?:for|in|at)\s+([A-Za-z\s,]+)/i, prefix: "Forecast: " },
+    {
+      regex: /forecast\s+(?:for|in|at)\s+([A-Za-z\s,]+)/i,
+      prefix: "Forecast: "
+    },
 
     // Email related
-    { regex: /(?:draft|write|send)\s+(?:an?\s+)?email\s+(?:to|about|for)\s+(.{5,40})/i, prefix: "Email: " },
+    {
+      regex:
+        /(?:draft|write|send)\s+(?:an?\s+)?email\s+(?:to|about|for)\s+(.{5,40})/i,
+      prefix: "Email: "
+    },
 
     // Search related
-    { regex: /(?:search|find|look\s+up|research)\s+(?:for\s+)?(.{5,40})/i, prefix: "Search: " },
+    {
+      regex: /(?:search|find|look\s+up|research)\s+(?:for\s+)?(.{5,40})/i,
+      prefix: "Search: "
+    },
 
     // Material/pricing related
-    { regex: /(?:price|cost|pricing)\s+(?:for|of)\s+(.{5,40})/i, prefix: "Pricing: " },
+    {
+      regex: /(?:price|cost|pricing)\s+(?:for|of)\s+(.{5,40})/i,
+      prefix: "Pricing: "
+    },
     { regex: /(.{5,30})\s+(?:price|cost|pricing)/i, prefix: "Pricing: " },
 
     // Customer related
@@ -55,10 +81,16 @@ function generateSessionName(message: string): string {
     { regex: /(?:job|project)\s+(?:for|at|on)\s+(.{5,40})/i, prefix: "Job: " },
 
     // Schedule related
-    { regex: /(?:schedule|appointment|meeting)\s+(?:for|with)\s+(.{5,40})/i, prefix: "Schedule: " },
+    {
+      regex: /(?:schedule|appointment|meeting)\s+(?:for|with)\s+(.{5,40})/i,
+      prefix: "Schedule: "
+    },
 
     // Estimate related
-    { regex: /(?:estimate|quote)\s+(?:for|on)\s+(.{5,40})/i, prefix: "Estimate: " },
+    {
+      regex: /(?:estimate|quote)\s+(?:for|on)\s+(.{5,40})/i,
+      prefix: "Estimate: "
+    }
   ]
 
   // Try to match patterns
@@ -69,7 +101,8 @@ function generateSessionName(message: string): string {
       // Capitalize first letter and clean up
       const title = extracted.charAt(0).toUpperCase() + extracted.slice(1)
       // Truncate if too long
-      const truncated = title.length > 40 ? title.substring(0, 37) + "..." : title
+      const truncated =
+        title.length > 40 ? title.substring(0, 37) + "..." : title
       return prefix + truncated
     }
   }
@@ -77,7 +110,10 @@ function generateSessionName(message: string): string {
   // Fallback: Use first part of message as title
   // Remove common starting words
   let title = cleaned
-    .replace(/^(hey|hi|hello|please|can you|could you|i need|i want|help me)\s+/i, "")
+    .replace(
+      /^(hey|hi|hello|please|can you|could you|i need|i want|help me)\s+/i,
+      ""
+    )
     .replace(/^(to|with|for|about)\s+/i, "")
 
   // Capitalize first letter
@@ -109,7 +145,10 @@ interface ChatRequest {
 }
 
 // Helper to get or create MCP session for a user
-async function getMCPSession(userId: string, sessionId: string): Promise<MCPSessionManager | null> {
+async function getMCPSession(
+  userId: string,
+  sessionId: string
+): Promise<MCPSessionManager | null> {
   if (!isPipedreamConfigured()) {
     console.log("[Agent] Pipedream not configured, skipping MCP integration")
     return null
@@ -133,7 +172,9 @@ async function getMCPSession(userId: string, sessionId: string): Promise<MCPSess
 }
 
 // Convert MCP tools to OpenAI format
-function convertMCPToolsToOpenAI(mcpTools: any[]): OpenAI.Chat.Completions.ChatCompletionTool[] {
+function convertMCPToolsToOpenAI(
+  mcpTools: any[]
+): OpenAI.Chat.Completions.ChatCompletionTool[] {
   return mcpTools.map(tool => ({
     type: "function" as const,
     function: {
@@ -150,7 +191,10 @@ function isMCPTool(toolName: string, mcpToolNames: Set<string>): boolean {
 }
 
 // Check if any tool requires confirmation (built-in or MCP)
-function checkToolRequiresConfirmation(toolName: string, isMCP: boolean): boolean {
+function checkToolRequiresConfirmation(
+  toolName: string,
+  isMCP: boolean
+): boolean {
   if (isMCP) {
     return mcpRequiresConfirmation(toolName)
   }
@@ -199,10 +243,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (sessionError || !session) {
-      return NextResponse.json(
-        { error: "Session not found" },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: "Session not found" }, { status: 404 })
     }
 
     // Get existing messages for context
@@ -221,11 +262,14 @@ export async function POST(request: NextRequest) {
         .from("agent_sessions")
         .update({ name: intelligentName })
         .eq("id", session_id)
-      console.log(`[Agent] Generated session name: "${intelligentName}" for session ${session_id}`)
+      console.log(
+        `[Agent] Generated session name: "${intelligentName}" for session ${session_id}`
+      )
     }
 
     // Build conversation history - system prompt will be added after MCP tools are loaded
-    const conversationHistory: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = []
+    const conversationHistory: OpenAI.Chat.Completions.ChatCompletionMessageParam[] =
+      []
 
     // Add existing messages
     if (existingMessages) {
@@ -238,15 +282,18 @@ export async function POST(request: NextRequest) {
           })
         } else if (msg.role === "assistant" && msg.tool_calls) {
           // Ensure tool_calls have the required 'type' field for OpenAI API
-          const toolCallsArray = Array.isArray(msg.tool_calls) ? msg.tool_calls : []
+          const toolCallsArray = Array.isArray(msg.tool_calls)
+            ? msg.tool_calls
+            : []
           const formattedToolCalls = toolCallsArray.map((tc: any) => ({
             id: tc.id,
             type: "function" as const,
             function: {
               name: tc.name || tc.function?.name,
-              arguments: typeof tc.arguments === "string"
-                ? tc.arguments
-                : JSON.stringify(tc.arguments || tc.function?.arguments || {})
+              arguments:
+                typeof tc.arguments === "string"
+                  ? tc.arguments
+                  : JSON.stringify(tc.arguments || tc.function?.arguments || {})
             }
           }))
           conversationHistory.push({
@@ -331,9 +378,10 @@ export async function POST(request: NextRequest) {
 
             // Filter out configuration tools - only include executable tools
             mcpTools = allMcpTools.filter((tool: any) => {
-              const isConfigTool = tool.name.startsWith("begin_configuration_") ||
-                                   tool.name.includes("_configure_") ||
-                                   tool.name === "select_apps"
+              const isConfigTool =
+                tool.name.startsWith("begin_configuration_") ||
+                tool.name.includes("_configure_") ||
+                tool.name === "select_apps"
               if (isConfigTool) {
                 console.log(`[Agent] Skipping config tool: ${tool.name}`)
               }
@@ -341,10 +389,16 @@ export async function POST(request: NextRequest) {
             })
 
             mcpTools.forEach(tool => mcpToolNames.add(tool.name))
-            console.log("[Agent] Loaded", mcpTools.length, "usable MCP tools from Pipedream")
+            console.log(
+              "[Agent] Loaded",
+              mcpTools.length,
+              "usable MCP tools from Pipedream"
+            )
 
             if (mcpTools.length === 0 && allMcpTools.length > 0) {
-              console.log("[Agent] Warning: All MCP tools require OAuth configuration")
+              console.log(
+                "[Agent] Warning: All MCP tools require OAuth configuration"
+              )
             }
           } catch (mcpError) {
             console.error("[Agent] Error loading MCP tools:", mcpError)
@@ -358,10 +412,20 @@ export async function POST(request: NextRequest) {
     // Combine built-in tools with MCP tools
     const mcpToolsOpenAI = convertMCPToolsToOpenAI(mcpTools)
     const allTools = [...builtinTools, ...mcpToolsOpenAI]
-    console.log("[Agent] Total tools available:", allTools.length, "(built-in:", builtinTools.length, ", MCP:", mcpToolsOpenAI.length, ")")
+    console.log(
+      "[Agent] Total tools available:",
+      allTools.length,
+      "(built-in:",
+      builtinTools.length,
+      ", MCP:",
+      mcpToolsOpenAI.length,
+      ")"
+    )
 
     // Now add the system prompt with knowledge of available tools
-    const mcpToolDescriptions = mcpTools.map((t: any) => `- ${t.name}: ${t.description || "No description"}`).join("\n")
+    const mcpToolDescriptions = mcpTools
+      .map((t: any) => `- ${t.name}: ${t.description || "No description"}`)
+      .join("\n")
     const systemPrompt = getDynamicSystemPrompt({
       customInstructions: session.system_prompt,
       connectedApps: connectedAppNames,
@@ -403,7 +467,10 @@ export async function POST(request: NextRequest) {
 
       const assistantMessage = response.choices[0].message
 
-      if (assistantMessage.tool_calls && assistantMessage.tool_calls.length > 0) {
+      if (
+        assistantMessage.tool_calls &&
+        assistantMessage.tool_calls.length > 0
+      ) {
         // Add assistant message with tool calls to history
         conversationHistory.push({
           role: "assistant",
@@ -442,7 +509,10 @@ export async function POST(request: NextRequest) {
             name: toolName,
             arguments: toolArgs,
             status: "pending",
-            requiresConfirmation: checkToolRequiresConfirmation(toolName, isToolMCP),
+            requiresConfirmation: checkToolRequiresConfirmation(
+              toolName,
+              isToolMCP
+            ),
             isMCP: isToolMCP
           }
 
@@ -504,7 +574,8 @@ export async function POST(request: NextRequest) {
                 result = {
                   status: "error",
                   source: "pipedream",
-                  message: mcpError.message || "Failed to execute connected app action"
+                  message:
+                    mcpError.message || "Failed to execute connected app action"
                 }
               }
             } else {
@@ -607,7 +678,8 @@ export async function POST(request: NextRequest) {
     await supabase
       .from("agent_sessions")
       .update({
-        total_tokens_used: session.total_tokens_used + totalInputTokens + totalOutputTokens
+        total_tokens_used:
+          session.total_tokens_used + totalInputTokens + totalOutputTokens
       })
       .eq("id", session_id)
 
@@ -701,14 +773,19 @@ function adjustColor(hex: string, percent: number): string {
   const num = parseInt(hex.replace("#", ""), 16)
   const amt = Math.round(2.55 * percent)
   const R = (num >> 16) + amt
-  const G = (num >> 8 & 0x00FF) + amt
-  const B = (num & 0x0000FF) + amt
-  return "#" + (
-    0x1000000 +
-    (R < 255 ? (R < 1 ? 0 : R) : 255) * 0x10000 +
-    (G < 255 ? (G < 1 ? 0 : G) : 255) * 0x100 +
-    (B < 255 ? (B < 1 ? 0 : B) : 255)
-  ).toString(16).slice(1)
+  const G = ((num >> 8) & 0x00ff) + amt
+  const B = (num & 0x0000ff) + amt
+  return (
+    "#" +
+    (
+      0x1000000 +
+      (R < 255 ? (R < 1 ? 0 : R) : 255) * 0x10000 +
+      (G < 255 ? (G < 1 ? 0 : G) : 255) * 0x100 +
+      (B < 255 ? (B < 1 ? 0 : B) : 255)
+    )
+      .toString(16)
+      .slice(1)
+  )
 }
 
 // Execute built-in tools - exported for streaming route
@@ -726,11 +803,13 @@ export async function executeBuiltinTool(
         }
 
         try {
-          const braveApiKey = process.env.BRAVE_SEARCH_API_KEY || process.env.BRAVE_AI_API_KEY
+          const braveApiKey =
+            process.env.BRAVE_SEARCH_API_KEY || process.env.BRAVE_AI_API_KEY
           if (!braveApiKey) {
             return {
               status: "error",
-              message: "Web search is not configured. Please ask your administrator to set up the Brave Search API."
+              message:
+                "Web search is not configured. Please ask your administrator to set up the Brave Search API."
             }
           }
 
@@ -749,11 +828,14 @@ export async function executeBuiltinTool(
           }
 
           const data = await response.json()
-          const results = data.web?.results?.map((result: any) => ({
-            title: result.title,
-            description: result.description,
-            url: result.url
-          })).slice(0, 5) || []
+          const results =
+            data.web?.results
+              ?.map((result: any) => ({
+                title: result.title,
+                description: result.description,
+                url: result.url
+              }))
+              .slice(0, 5) || []
 
           return {
             status: "success",
@@ -770,16 +852,18 @@ export async function executeBuiltinTool(
       case "get_material_prices": {
         // Perform a web search for material prices
         const materialType = args.material_type as string
-        const region = args.region as string || "USA"
+        const region = (args.region as string) || "USA"
 
         try {
-          const braveApiKey = process.env.BRAVE_SEARCH_API_KEY || process.env.BRAVE_AI_API_KEY
+          const braveApiKey =
+            process.env.BRAVE_SEARCH_API_KEY || process.env.BRAVE_AI_API_KEY
           if (!braveApiKey) {
             return {
               status: "partial",
               material: materialType,
               region,
-              message: "Direct pricing lookup unavailable. Consider asking me to do a web search for current prices."
+              message:
+                "Direct pricing lookup unavailable. Consider asking me to do a web search for current prices."
             }
           }
 
@@ -799,16 +883,20 @@ export async function executeBuiltinTool(
               status: "partial",
               material: materialType,
               region,
-              message: "Could not fetch current prices. Try asking me to search the web for pricing."
+              message:
+                "Could not fetch current prices. Try asking me to search the web for pricing."
             }
           }
 
           const data = await response.json()
-          const results = data.web?.results?.map((result: any) => ({
-            title: result.title,
-            snippet: result.description,
-            url: result.url
-          })).slice(0, 3) || []
+          const results =
+            data.web?.results
+              ?.map((result: any) => ({
+                title: result.title,
+                snippet: result.description,
+                url: result.url
+              }))
+              .slice(0, 3) || []
 
           return {
             status: "success",
@@ -822,14 +910,15 @@ export async function executeBuiltinTool(
             status: "partial",
             material: materialType,
             region,
-            message: "Price lookup encountered an error. Ask me to search the web for current pricing."
+            message:
+              "Price lookup encountered an error. Ask me to search the web for current pricing."
           }
         }
       }
 
       case "get_weather_forecast": {
         const location = args.location as string
-        const days = args.days as number || 7
+        const days = (args.days as number) || 7
 
         // Use wttr.in API - handles cities, zip codes, and coordinates
         try {
@@ -850,7 +939,9 @@ export async function executeBuiltinTool(
 
           if (!response.ok) {
             // Try alternative: use Open-Meteo with a geocoding step
-            console.log(`[Weather] wttr.in failed for ${location}, status: ${response.status}`)
+            console.log(
+              `[Weather] wttr.in failed for ${location}, status: ${response.status}`
+            )
             return {
               status: "partial",
               location,
@@ -875,26 +966,32 @@ export async function executeBuiltinTool(
             ? `${nearestArea.areaName?.[0]?.value || ""}, ${nearestArea.region?.[0]?.value || ""}`
             : location
 
-          const forecast = data.weather?.slice(0, Math.min(days, 3)).map((day: any) => ({
-            date: day.date,
-            high_f: day.maxtempF,
-            low_f: day.mintempF,
-            condition: day.hourly?.[4]?.weatherDesc?.[0]?.value || "Unknown",
-            chance_of_rain: day.hourly?.[4]?.chanceofrain || "0"
-          }))
+          const forecast = data.weather
+            ?.slice(0, Math.min(days, 3))
+            .map((day: any) => ({
+              date: day.date,
+              high_f: day.maxtempF,
+              low_f: day.mintempF,
+              condition: day.hourly?.[4]?.weatherDesc?.[0]?.value || "Unknown",
+              chance_of_rain: day.hourly?.[4]?.chanceofrain || "0"
+            }))
 
           return {
             status: "success",
             location: resolvedLocation,
             requested_location: location,
-            current: current ? {
-              temp_f: current.temp_F,
-              condition: current.weatherDesc?.[0]?.value,
-              humidity: current.humidity + "%",
-              wind_mph: current.windspeedMiles
-            } : null,
+            current: current
+              ? {
+                  temp_f: current.temp_F,
+                  condition: current.weatherDesc?.[0]?.value,
+                  humidity: current.humidity + "%",
+                  wind_mph: current.windspeedMiles
+                }
+              : null,
             forecast,
-            roofing_advisory: forecast?.some((d: any) => parseInt(d.chance_of_rain) > 40)
+            roofing_advisory: forecast?.some(
+              (d: any) => parseInt(d.chance_of_rain) > 40
+            )
               ? "Rain expected in the forecast period. Plan roofing work accordingly."
               : "Weather looks favorable for roofing work."
           }
@@ -923,21 +1020,24 @@ export async function executeBuiltinTool(
           status: "info",
           query: args.query,
           results: [],
-          message: "CRM integration is pending. Customer data will be available once connected to your CRM system."
+          message:
+            "CRM integration is pending. Customer data will be available once connected to your CRM system."
         }
 
       case "search_jobs":
         return {
           status: "info",
           results: [],
-          message: "Job management integration is pending. Job data will be available once connected to your job management system."
+          message:
+            "Job management integration is pending. Job data will be available once connected to your job management system."
         }
 
       case "check_calendar":
         return {
           status: "info",
           available_slots: [],
-          message: "Calendar integration is pending. Availability data will be accessible once connected to your calendar."
+          message:
+            "Calendar integration is pending. Availability data will be accessible once connected to your calendar."
         }
 
       case "generate_report": {
@@ -962,8 +1062,12 @@ export async function executeBuiltinTool(
 
         try {
           // Import the property research service dynamically to avoid circular deps
-          const { PropertyResearchService } = await import("@/lib/property/property-service")
-          const { PropertyReportGenerator } = await import("@/lib/property/report-generator")
+          const { PropertyResearchService } = await import(
+            "@/lib/property/property-service"
+          )
+          const { PropertyReportGenerator } = await import(
+            "@/lib/property/report-generator"
+          )
 
           console.log("[Agent] Generating property report for:", address)
 
@@ -980,7 +1084,8 @@ export async function executeBuiltinTool(
 
           // Research the property
           const researchService = new PropertyResearchService()
-          const propertyData = await researchService.researchProperty(detectedAddress)
+          const propertyData =
+            await researchService.researchProperty(detectedAddress)
 
           // Generate the report
           const reportGenerator = new PropertyReportGenerator()
@@ -1008,22 +1113,30 @@ export async function executeBuiltinTool(
             },
             solar: {
               maxPanels: propertyData.solarPotential.maxArrayPanels,
-              yearlyEnergyKwh: Math.round(propertyData.solarPotential.yearlyEnergyDcKwh),
+              yearlyEnergyKwh: Math.round(
+                propertyData.solarPotential.yearlyEnergyDcKwh
+              ),
               suitability: propertyData.solarPotential.suitabilityScore,
-              installationCost: propertyData.solarPotential.costsAndSavings.installationCost,
-              netSavings20Years: propertyData.solarPotential.costsAndSavings.netSavings,
-              paybackYears: propertyData.solarPotential.costsAndSavings.paybackPeriodYears
+              installationCost:
+                propertyData.solarPotential.costsAndSavings.installationCost,
+              netSavings20Years:
+                propertyData.solarPotential.costsAndSavings.netSavings,
+              paybackYears:
+                propertyData.solarPotential.costsAndSavings.paybackPeriodYears
             },
             imageryQuality: propertyData.imageryQuality,
             markdownReport: report.markdown,
-            message: "Property report generated successfully with roof analysis and solar potential."
+            message:
+              "Property report generated successfully with roof analysis and solar potential."
           }
         } catch (propertyError: any) {
           console.error("[Agent] Property report error:", propertyError)
           return {
             status: "error",
             address: address,
-            message: propertyError.message || "Failed to generate property report. The address may not be found or the property data is unavailable."
+            message:
+              propertyError.message ||
+              "Failed to generate property report. The address may not be found or the property data is unavailable."
           }
         }
       }
@@ -1031,25 +1144,33 @@ export async function executeBuiltinTool(
       case "create_estimate":
         return {
           status: "info",
-          message: "Estimate creation requires CRM integration. Once connected, I can create detailed roofing estimates for customers."
+          message:
+            "Estimate creation requires CRM integration. Once connected, I can create detailed roofing estimates for customers."
         }
 
       case "schedule_appointment":
         return {
           status: "info",
-          message: "Appointment scheduling requires calendar integration. Once connected, I can schedule appointments for you."
+          message:
+            "Appointment scheduling requires calendar integration. Once connected, I can schedule appointments for you."
         }
 
       case "generate_artifact": {
         const artifactType = args.artifact_type as string
         const companyName = args.company_name as string
-        const title = args.title as string || ""
-        const tagline = args.tagline as string || ""
-        const contactInfo = args.contact_info as { phone?: string; email?: string; website?: string; address?: string } || {}
-        const keyServices = args.key_services as string[] || []
-        const offer = args.offer as string || ""
-        const style = args.style as string || "professional"
-        const primaryColor = args.primary_color as string || "#24BDEB"
+        const title = (args.title as string) || ""
+        const tagline = (args.tagline as string) || ""
+        const contactInfo =
+          (args.contact_info as {
+            phone?: string
+            email?: string
+            website?: string
+            address?: string
+          }) || {}
+        const keyServices = (args.key_services as string[]) || []
+        const offer = (args.offer as string) || ""
+        const style = (args.style as string) || "professional"
+        const primaryColor = (args.primary_color as string) || "#24BDEB"
 
         // Generate the HTML artifact based on type
         let html = ""
@@ -1215,22 +1336,34 @@ export async function executeBuiltinTool(
                   ${tagline ? `<div class="tagline">${escapeHtml(tagline)}</div>` : ""}
                 </div>
 
-                ${offer ? `
+                ${
+                  offer
+                    ? `
                 <div class="offer-box">
                   <h2>${escapeHtml(offer)}</h2>
                 </div>
-                ` : ""}
+                `
+                    : ""
+                }
 
-                ${keyServices.length > 0 ? `
+                ${
+                  keyServices.length > 0
+                    ? `
                 <div class="services-list">
-                  ${keyServices.map(service => `
+                  ${keyServices
+                    .map(
+                      service => `
                     <div class="service-item">
                       <div class="service-icon"></div>
                       <span>${escapeHtml(service)}</span>
                     </div>
-                  `).join("")}
+                  `
+                    )
+                    .join("")}
                 </div>
-                ` : ""}
+                `
+                    : ""
+                }
 
                 <div class="contact-section">
                   <h3>Contact Us Today!</h3>

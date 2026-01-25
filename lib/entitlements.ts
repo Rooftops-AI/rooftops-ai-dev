@@ -65,7 +65,11 @@ function normalizeTier(tier: string | null | undefined): Tier {
 
   const normalized = tier.toLowerCase()
 
-  if (normalized.startsWith("ai_employee") || normalized.startsWith("ai-employee")) return "ai_employee"
+  if (
+    normalized.startsWith("ai_employee") ||
+    normalized.startsWith("ai-employee")
+  )
+    return "ai_employee"
   if (normalized.startsWith("business")) return "business"
   if (normalized.startsWith("premium")) return "premium"
 
@@ -526,7 +530,14 @@ export async function checkAgentAccess(userId: string): Promise<boolean> {
   try {
     const tier = await getUserTier(userId)
     const limits = TIER_LIMITS[tier]
-    console.log("[checkAgentAccess] User:", userId, "Tier:", tier, "agents:", limits.agents)
+    console.log(
+      "[checkAgentAccess] User:",
+      userId,
+      "Tier:",
+      tier,
+      "agents:",
+      limits.agents
+    )
     return limits.agents
   } catch (error) {
     console.error("[checkAgentAccess] Error checking access:", error)
@@ -665,9 +676,7 @@ export async function checkVoiceMinutesLimit(
 /**
  * Check SMS messages limit
  */
-export async function checkSmsLimit(
-  userId: string
-): Promise<LimitCheckResult> {
+export async function checkSmsLimit(userId: string): Promise<LimitCheckResult> {
   const tier = await getUserTier(userId)
   const limits = TIER_LIMITS[tier]
 
@@ -807,7 +816,9 @@ export async function checkActiveJobLimit(
 /**
  * Check if user has access to crew management
  */
-export async function checkCrewManagementAccess(userId: string): Promise<boolean> {
+export async function checkCrewManagementAccess(
+  userId: string
+): Promise<boolean> {
   const tier = await getUserTier(userId)
   return TIER_LIMITS[tier].crewManagement
 }
@@ -823,7 +834,9 @@ export async function checkInvoiceAccess(userId: string): Promise<boolean> {
 /**
  * Check if user has access to review management
  */
-export async function checkReviewManagementAccess(userId: string): Promise<boolean> {
+export async function checkReviewManagementAccess(
+  userId: string
+): Promise<boolean> {
   const tier = await getUserTier(userId)
   return TIER_LIMITS[tier].reviewManagement
 }
@@ -831,7 +844,9 @@ export async function checkReviewManagementAccess(userId: string): Promise<boole
 /**
  * Check if user has access to two-way conversations
  */
-export async function checkTwoWayConversationsAccess(userId: string): Promise<boolean> {
+export async function checkTwoWayConversationsAccess(
+  userId: string
+): Promise<boolean> {
   const tier = await getUserTier(userId)
   return TIER_LIMITS[tier].twoWayConversations
 }

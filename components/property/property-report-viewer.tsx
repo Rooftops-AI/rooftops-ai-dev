@@ -129,8 +129,7 @@ const PropertyReportViewer: React.FC<PropertyReportViewerProps> = ({
       ? reportData?.agents?.measurement?.roofSegments ||
         reportData?.finalReport?.roofSegments ||
         []
-      : reportData?.roofSegments ||
-        []
+      : reportData?.roofSegments || []
 
     // Log segment source for debugging
     console.log("[PropertyReportViewer] Segment data source:", {
@@ -1764,7 +1763,12 @@ Answer questions about this property clearly and concisely. Use specific numbers
                     : theme.gray100
               }}
             >
-              <div className="p-5" style={{ color: estimateItems.length > 0 ? theme.white : theme.gray900 }}>
+              <div
+                className="p-5"
+                style={{
+                  color: estimateItems.length > 0 ? theme.white : theme.gray900
+                }}
+              >
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="mb-1 flex items-center gap-2 text-xs opacity-90">
@@ -1780,7 +1784,9 @@ Answer questions about this property clearly and concisely. Use specific numbers
                       <div className="text-[20px] font-bold">
                         {estimateItems.length}
                       </div>
-                      <div className="text-[10px] uppercase tracking-wide opacity-80">items</div>
+                      <div className="text-[10px] uppercase tracking-wide opacity-80">
+                        items
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1788,15 +1794,17 @@ Answer questions about this property clearly and concisely. Use specific numbers
                 {/* Roof size reminder */}
                 <div className="mt-3 flex items-center gap-4 text-xs opacity-80">
                   <span>📐 {roofData.measurements.roofingSquares} squares</span>
-                  <span>📏 {roofData.measurements.totalArea?.toLocaleString() || "N/A"} sq ft</span>
+                  <span>
+                    📏{" "}
+                    {roofData.measurements.totalArea?.toLocaleString() || "N/A"}{" "}
+                    sq ft
+                  </span>
                   <span>📊 {roofData.measurements.pitch || "N/A"} pitch</span>
                 </div>
               </div>
 
               {estimateItems.length > 0 && (
-                <div
-                  className="flex gap-2 bg-black/10 p-3"
-                >
+                <div className="flex gap-2 bg-black/10 p-3">
                   <button
                     onClick={() => setEstimateItems([])}
                     className="cursor-pointer rounded-lg px-3 py-2.5 text-[13px] font-semibold transition-all hover:bg-white/10"
@@ -1821,7 +1829,7 @@ Answer questions about this property clearly and concisely. Use specific numbers
                   </button>
                   <button
                     onClick={() => setShowProposalModal(true)}
-                    className="flex-[2] flex cursor-pointer items-center justify-center gap-2 rounded-lg p-2.5 text-[13px] font-bold shadow-md transition-all hover:shadow-lg"
+                    className="flex flex-[2] cursor-pointer items-center justify-center gap-2 rounded-lg p-2.5 text-[13px] font-bold shadow-md transition-all hover:shadow-lg"
                     style={{
                       background: theme.white,
                       color: theme.primary,
@@ -1866,8 +1874,15 @@ Answer questions about this property clearly and concisely. Use specific numbers
                   }}
                 >
                   <span className="text-lg">🏠</span>
-                  <span className="text-xs font-semibold" style={{ color: theme.primary }}>Basic Replacement</span>
-                  <span className="text-[10px] text-gray-500">Tear-off + Install</span>
+                  <span
+                    className="text-xs font-semibold"
+                    style={{ color: theme.primary }}
+                  >
+                    Basic Replacement
+                  </span>
+                  <span className="text-[10px] text-gray-500">
+                    Tear-off + Install
+                  </span>
                 </button>
                 <button
                   onClick={() => {
@@ -1898,8 +1913,15 @@ Answer questions about this property clearly and concisely. Use specific numbers
                   }}
                 >
                   <span className="text-lg">⭐</span>
-                  <span className="text-xs font-semibold" style={{ color: theme.accent }}>Premium Package</span>
-                  <span className="text-[10px] text-gray-500">Full protection</span>
+                  <span
+                    className="text-xs font-semibold"
+                    style={{ color: theme.accent }}
+                  >
+                    Premium Package
+                  </span>
+                  <span className="text-[10px] text-gray-500">
+                    Full protection
+                  </span>
                 </button>
                 <button
                   onClick={() => {
@@ -1915,8 +1937,12 @@ Answer questions about this property clearly and concisely. Use specific numbers
                   }}
                 >
                   <span className="text-lg">📋</span>
-                  <span className="text-xs font-semibold text-gray-700">Complete Job</span>
-                  <span className="text-[10px] text-gray-500">Everything included</span>
+                  <span className="text-xs font-semibold text-gray-700">
+                    Complete Job
+                  </span>
+                  <span className="text-[10px] text-gray-500">
+                    Everything included
+                  </span>
                 </button>
                 <button
                   onClick={() => setEstimateItems([])}
@@ -1927,8 +1953,12 @@ Answer questions about this property clearly and concisely. Use specific numbers
                   }}
                 >
                   <span className="text-lg">✨</span>
-                  <span className="text-xs font-semibold text-gray-600">Custom Build</span>
-                  <span className="text-[10px] text-gray-500">Pick your items</span>
+                  <span className="text-xs font-semibold text-gray-600">
+                    Custom Build
+                  </span>
+                  <span className="text-[10px] text-gray-500">
+                    Pick your items
+                  </span>
                 </button>
               </div>
             </div>
@@ -1939,23 +1969,67 @@ Answer questions about this property clearly and concisely. Use specific numbers
                 <div className="rounded-lg bg-gray-50 p-3 text-center">
                   <div className="text-xs text-gray-500">Materials</div>
                   <div className="text-sm font-bold text-gray-800">
-                    {formatCurrency(estimateItems
-                      .filter(i => ["shingles", "underlayment", "starter", "ridgecap", "icewater", "drip", "vents", "pipeboots", "flashing", "nails"].includes(i.id))
-                      .reduce((sum, i) => sum + getPrice(i.id, i.defaultPrice) * i.qty, 0))}
+                    {formatCurrency(
+                      estimateItems
+                        .filter(i =>
+                          [
+                            "shingles",
+                            "underlayment",
+                            "starter",
+                            "ridgecap",
+                            "icewater",
+                            "drip",
+                            "vents",
+                            "pipeboots",
+                            "flashing",
+                            "nails"
+                          ].includes(i.id)
+                        )
+                        .reduce(
+                          (sum, i) =>
+                            sum + getPrice(i.id, i.defaultPrice) * i.qty,
+                          0
+                        )
+                    )}
                   </div>
                 </div>
                 <div className="rounded-lg bg-gray-50 p-3 text-center">
                   <div className="text-xs text-gray-500">Labor</div>
                   <div className="text-sm font-bold text-gray-800">
-                    {formatCurrency(estimateItems
-                      .filter(i => ["tearoff", "install", "complexity", "steeppitch", "cleanup"].includes(i.id))
-                      .reduce((sum, i) => sum + getPrice(i.id, i.defaultPrice) * i.qty, 0))}
+                    {formatCurrency(
+                      estimateItems
+                        .filter(i =>
+                          [
+                            "tearoff",
+                            "install",
+                            "complexity",
+                            "steeppitch",
+                            "cleanup"
+                          ].includes(i.id)
+                        )
+                        .reduce(
+                          (sum, i) =>
+                            sum + getPrice(i.id, i.defaultPrice) * i.qty,
+                          0
+                        )
+                    )}
                   </div>
                 </div>
-                <div className="rounded-lg p-3 text-center" style={{ background: theme.primaryBg }}>
-                  <div className="text-xs" style={{ color: theme.primary }}>Per Square</div>
-                  <div className="text-sm font-bold" style={{ color: theme.primaryDark }}>
-                    {formatCurrency(calculateEstimateTotal() / (roofData.measurements.roofingSquares || 1))}
+                <div
+                  className="rounded-lg p-3 text-center"
+                  style={{ background: theme.primaryBg }}
+                >
+                  <div className="text-xs" style={{ color: theme.primary }}>
+                    Per Square
+                  </div>
+                  <div
+                    className="text-sm font-bold"
+                    style={{ color: theme.primaryDark }}
+                  >
+                    {formatCurrency(
+                      calculateEstimateTotal() /
+                        (roofData.measurements.roofingSquares || 1)
+                    )}
                   </div>
                 </div>
               </div>
@@ -1964,9 +2038,12 @@ Answer questions about this property clearly and concisely. Use specific numbers
             {/* Categories */}
             {estimateCategories.map((category, catIdx) => {
               const categoryItems = category.items
-              const selectedInCategory = categoryItems.filter(item => isItemSelected(item.id))
+              const selectedInCategory = categoryItems.filter(item =>
+                isItemSelected(item.id)
+              )
               const categoryTotal = selectedInCategory.reduce(
-                (sum, item) => sum + getPrice(item.id, item.defaultPrice) * item.qty,
+                (sum, item) =>
+                  sum + getPrice(item.id, item.defaultPrice) * item.qty,
                 0
               )
 
@@ -1974,29 +2051,46 @@ Answer questions about this property clearly and concisely. Use specific numbers
                 <div
                   key={catIdx}
                   className="mb-4 overflow-hidden rounded-2xl border bg-white shadow-sm transition-all"
-                  style={{ borderColor: selectedInCategory.length > 0 ? theme.primary + "40" : theme.gray100 }}
+                  style={{
+                    borderColor:
+                      selectedInCategory.length > 0
+                        ? theme.primary + "40"
+                        : theme.gray100
+                  }}
                 >
                   {/* Category Header */}
                   <div
                     className="flex items-center justify-between p-4"
                     style={{
-                      background: selectedInCategory.length > 0 ? theme.primaryBg : theme.gray50,
+                      background:
+                        selectedInCategory.length > 0
+                          ? theme.primaryBg
+                          : theme.gray50,
                       borderBottom: `1px solid ${theme.gray100}`
                     }}
                   >
                     <div className="flex items-center gap-2">
                       <span className="text-xl">{category.icon}</span>
                       <div>
-                        <div className="text-sm font-bold text-gray-900">{category.name}</div>
+                        <div className="text-sm font-bold text-gray-900">
+                          {category.name}
+                        </div>
                         <div className="text-[11px] text-gray-500">
-                          {categoryItems.length} items • {selectedInCategory.length} selected
+                          {categoryItems.length} items •{" "}
+                          {selectedInCategory.length} selected
                         </div>
                       </div>
                     </div>
                     {categoryTotal > 0 && (
-                      <div className="rounded-lg px-3 py-1.5" style={{ background: theme.primary + "15" }}>
+                      <div
+                        className="rounded-lg px-3 py-1.5"
+                        style={{ background: theme.primary + "15" }}
+                      >
                         <div className="text-xs text-gray-500">Subtotal</div>
-                        <div className="text-sm font-bold" style={{ color: theme.primary }}>
+                        <div
+                          className="text-sm font-bold"
+                          style={{ color: theme.primary }}
+                        >
                           {formatCurrency(categoryTotal)}
                         </div>
                       </div>
@@ -2017,7 +2111,9 @@ Answer questions about this property clearly and concisely. Use specific numbers
                             className="flex cursor-pointer items-center gap-3 rounded-xl p-3 transition-all hover:bg-gray-50"
                             style={{
                               border: `2px solid ${selected ? theme.primary : "transparent"}`,
-                              background: selected ? theme.primaryBg : "transparent"
+                              background: selected
+                                ? theme.primaryBg
+                                : "transparent"
                             }}
                             onClick={() => toggleEstimateItem(item)}
                           >
@@ -2026,7 +2122,9 @@ Answer questions about this property clearly and concisely. Use specific numbers
                               className="flex size-6 shrink-0 items-center justify-center rounded-full transition-all"
                               style={{
                                 border: `2px solid ${selected ? theme.primary : theme.gray300}`,
-                                background: selected ? theme.primary : theme.white
+                                background: selected
+                                  ? theme.primary
+                                  : theme.white
                               }}
                             >
                               {selected && (
@@ -2054,7 +2152,9 @@ Answer questions about this property clearly and concisely. Use specific numbers
                                   {item.qty} {item.unit}
                                 </span>
                                 <span>×</span>
-                                <span>${price.toFixed(2)}/{item.unit}</span>
+                                <span>
+                                  ${price.toFixed(2)}/{item.unit}
+                                </span>
                               </div>
                             </div>
 
@@ -2063,7 +2163,9 @@ Answer questions about this property clearly and concisely. Use specific numbers
                               <div
                                 className="text-base font-bold"
                                 style={{
-                                  color: selected ? theme.primary : theme.gray700
+                                  color: selected
+                                    ? theme.primary
+                                    : theme.gray700
                                 }}
                               >
                                 {formatCurrency(lineTotal)}
@@ -2091,7 +2193,10 @@ Answer questions about this property clearly and concisely. Use specific numbers
                           {showPriceEditor === item.id && (
                             <div
                               className="mx-3 mb-2 mt-1 rounded-xl p-4"
-                              style={{ background: theme.gray50, border: `1px solid ${theme.gray200}` }}
+                              style={{
+                                background: theme.gray50,
+                                border: `1px solid ${theme.gray200}`
+                              }}
                             >
                               <div className="mb-3 flex items-center justify-between">
                                 <div className="text-sm font-semibold text-gray-800">
@@ -2105,26 +2210,37 @@ Answer questions about this property clearly and concisely. Use specific numbers
                                 </button>
                               </div>
                               <div className="flex items-center gap-3">
-                                <div className="flex flex-1 items-center rounded-lg bg-white" style={{ border: `2px solid ${theme.primary}` }}>
-                                  <span className="px-3 text-lg font-semibold text-gray-400">$</span>
+                                <div
+                                  className="flex flex-1 items-center rounded-lg bg-white"
+                                  style={{
+                                    border: `2px solid ${theme.primary}`
+                                  }}
+                                >
+                                  <span className="px-3 text-lg font-semibold text-gray-400">
+                                    $
+                                  </span>
                                   <input
                                     type="number"
                                     value={getPrice(item.id, item.defaultPrice)}
                                     onChange={e =>
                                       setCustomPrices({
                                         ...customPrices,
-                                        [item.id]: parseFloat(e.target.value) || 0
+                                        [item.id]:
+                                          parseFloat(e.target.value) || 0
                                       })
                                     }
                                     className="w-full rounded-lg p-3 text-lg font-bold outline-none"
                                     style={{ color: theme.primary }}
                                   />
-                                  <span className="px-3 text-sm text-gray-500">/{item.unit}</span>
+                                  <span className="px-3 text-sm text-gray-500">
+                                    /{item.unit}
+                                  </span>
                                 </div>
                               </div>
                               <div className="mt-3 flex items-center justify-between">
                                 <div className="text-xs text-gray-500">
-                                  Default: ${item.defaultPrice.toFixed(2)}/{item.unit}
+                                  Default: ${item.defaultPrice.toFixed(2)}/
+                                  {item.unit}
                                 </div>
                                 <div className="flex gap-2">
                                   {hasCustomPrice && (
@@ -2135,7 +2251,10 @@ Answer questions about this property clearly and concisely. Use specific numbers
                                         setCustomPrices(newPrices)
                                       }}
                                       className="cursor-pointer rounded-lg px-3 py-2 text-xs font-medium text-gray-600 hover:bg-gray-200"
-                                      style={{ background: theme.gray200, border: "none" }}
+                                      style={{
+                                        background: theme.gray200,
+                                        border: "none"
+                                      }}
                                     >
                                       Reset to Default
                                     </button>
@@ -2143,7 +2262,10 @@ Answer questions about this property clearly and concisely. Use specific numbers
                                   <button
                                     onClick={() => setShowPriceEditor(null)}
                                     className="cursor-pointer rounded-lg px-4 py-2 text-xs font-semibold text-white"
-                                    style={{ background: theme.primary, border: "none" }}
+                                    style={{
+                                      background: theme.primary,
+                                      border: "none"
+                                    }}
                                   >
                                     Apply
                                   </button>

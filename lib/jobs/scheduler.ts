@@ -133,7 +133,9 @@ export async function cancelJob(jobId: string): Promise<boolean> {
 }
 
 // Get pending jobs that are ready to run
-export async function getPendingJobs(limit: number = 10): Promise<BackgroundJob[]> {
+export async function getPendingJobs(
+  limit: number = 10
+): Promise<BackgroundJob[]> {
   const supabase = getServiceClient()
 
   const { data, error } = await supabase
@@ -176,13 +178,15 @@ export async function markJobProcessing(jobId: string): Promise<boolean> {
       .eq("id", jobId)
 
     // Increment attempts separately
-    await supabase.rpc("increment_job_attempts", { job_id: jobId }).catch(() => {
-      // Fallback: direct update
-      return supabase
-        .from("background_jobs")
-        .update({ attempts: 1 })
-        .eq("id", jobId)
-    })
+    await supabase
+      .rpc("increment_job_attempts", { job_id: jobId })
+      .catch(() => {
+        // Fallback: direct update
+        return supabase
+          .from("background_jobs")
+          .update({ attempts: 1 })
+          .eq("id", jobId)
+      })
 
     return !updateError
   }
@@ -296,7 +300,9 @@ export async function enrollInSequence(
   const steps = sequence.steps as any[]
   if (steps.length > 0) {
     const firstStep = steps[0]
-    const runAt = new Date(Date.now() + (firstStep.day || 0) * 24 * 60 * 60 * 1000)
+    const runAt = new Date(
+      Date.now() + (firstStep.day || 0) * 24 * 60 * 60 * 1000
+    )
 
     await scheduleSequenceStep(
       {

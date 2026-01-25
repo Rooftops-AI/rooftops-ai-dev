@@ -128,12 +128,8 @@ export function AgentSessionList() {
       {/* Header */}
       <div className="border-b border-blue-500/15 p-3">
         <div className="mb-3 flex items-center justify-between">
-          <h3 className="font-semibold text-foreground">Sessions</h3>
-          <Button
-            onClick={handleNewSession}
-            size="sm"
-            className="h-8 gap-1"
-          >
+          <h3 className="text-foreground font-semibold">Sessions</h3>
+          <Button onClick={handleNewSession} size="sm" className="h-8 gap-1">
             <IconPlus className="size-4" />
             New
           </Button>
@@ -141,7 +137,7 @@ export function AgentSessionList() {
 
         {/* Search */}
         <div className="relative">
-          <IconSearch className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <IconSearch className="text-muted-foreground absolute left-2.5 top-1/2 size-4 -translate-y-1/2" />
           <Input
             type="text"
             placeholder="Search sessions..."
@@ -152,7 +148,7 @@ export function AgentSessionList() {
           {searchQuery && (
             <button
               onClick={() => setSearchQuery("")}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              className="text-muted-foreground hover:text-foreground absolute right-2 top-1/2 -translate-y-1/2"
             >
               <IconX className="size-4" />
             </button>
@@ -189,7 +185,7 @@ export function AgentSessionList() {
             <IconLoader2 className="size-6 animate-spin text-blue-500" />
           </div>
         ) : filteredSessions.length === 0 ? (
-          <div className="py-8 text-center text-sm font-light text-muted-foreground">
+          <div className="text-muted-foreground py-8 text-center text-sm font-light">
             {searchQuery
               ? "No sessions match your search"
               : "No sessions yet. Start a new one!"}
@@ -198,7 +194,7 @@ export function AgentSessionList() {
           <div className="p-2">
             {groupedSessions.map(group => (
               <div key={group.label} className="mb-4">
-                <div className="px-2 py-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                <div className="text-muted-foreground px-2 py-1 text-xs font-medium uppercase tracking-wide">
                   {group.label}
                 </div>
                 <div className="space-y-1">
@@ -220,9 +216,12 @@ export function AgentSessionList() {
 
       {/* Stats footer */}
       {sessions.length > 0 && (
-        <div className="border-t border-blue-500/15 px-4 py-2 text-xs font-light text-muted-foreground">
+        <div className="text-muted-foreground border-t border-blue-500/15 px-4 py-2 text-xs font-light">
           {sessions.length} session{sessions.length !== 1 ? "s" : ""} •{" "}
-          {sessions.reduce((sum, s) => sum + s.total_tokens_used, 0).toLocaleString()} total tokens
+          {sessions
+            .reduce((sum, s) => sum + s.total_tokens_used, 0)
+            .toLocaleString()}{" "}
+          total tokens
         </div>
       )}
     </div>
@@ -244,7 +243,7 @@ function SortButton({ active, onClick, icon, label }: SortButtonProps) {
         "flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-light transition-all",
         active
           ? "border border-blue-500/30 bg-gradient-to-br from-blue-500/15 to-purple-500/15 text-blue-400"
-          : "text-muted-foreground hover:bg-blue-500/10 hover:text-foreground"
+          : "text-muted-foreground hover:text-foreground hover:bg-blue-500/10"
       )}
     >
       {icon}
@@ -282,7 +281,9 @@ function SessionItem({
     failed: "bg-red-500"
   }
 
-  const statusColor = statusColors[session.status as keyof typeof statusColors] || "bg-muted-foreground"
+  const statusColor =
+    statusColors[session.status as keyof typeof statusColors] ||
+    "bg-muted-foreground"
 
   return (
     <div
@@ -295,12 +296,14 @@ function SessionItem({
       onClick={onClick}
     >
       <div className="relative">
-        <div className={cn(
-          "flex size-8 items-center justify-center rounded-lg",
-          isActive
-            ? "bg-gradient-to-br from-blue-500/20 to-purple-500/20"
-            : "bg-blue-500/10"
-        )}>
+        <div
+          className={cn(
+            "flex size-8 items-center justify-center rounded-lg",
+            isActive
+              ? "bg-gradient-to-br from-blue-500/20 to-purple-500/20"
+              : "bg-blue-500/10"
+          )}
+        >
           <IconMessageCircle
             className={cn(
               "size-4",
@@ -310,7 +313,7 @@ function SessionItem({
         </div>
         <div
           className={cn(
-            "absolute -bottom-0.5 -right-0.5 size-2 rounded-full border-2 border-background shadow-sm",
+            "border-background absolute -bottom-0.5 -right-0.5 size-2 rounded-full border-2 shadow-sm",
             statusColor
           )}
         />
@@ -325,7 +328,7 @@ function SessionItem({
         >
           {session.name}
         </div>
-        <div className="flex items-center gap-2 text-xs font-light text-muted-foreground">
+        <div className="text-muted-foreground flex items-center gap-2 text-xs font-light">
           <span title={format(new Date(session.updated_at), "PPpp")}>
             {formatDistanceToNow(new Date(session.updated_at), {
               addSuffix: true
@@ -349,7 +352,7 @@ function SessionItem({
             className="rounded-lg p-1 opacity-0 transition-all hover:bg-blue-500/10 group-hover:opacity-100"
             onClick={e => e.stopPropagation()}
           >
-            <IconDotsVertical className="size-4 text-muted-foreground" />
+            <IconDotsVertical className="text-muted-foreground size-4" />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">

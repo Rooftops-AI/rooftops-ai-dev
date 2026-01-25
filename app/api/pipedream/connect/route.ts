@@ -54,7 +54,8 @@ export async function POST(request: NextRequest) {
     const allowedOrigins = [baseUrl.replace(/\/$/, "")]
 
     // Determine environment
-    const projectEnvironment = process.env.PIPEDREAM_PROJECT_ENVIRONMENT || "development"
+    const projectEnvironment =
+      process.env.PIPEDREAM_PROJECT_ENVIRONMENT || "development"
 
     // Create Pipedream client with correct options
     const pd = new PipedreamClient({

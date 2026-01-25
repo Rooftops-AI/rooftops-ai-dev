@@ -1794,9 +1794,13 @@ ${referenceSection}
       }
 
       // Always log image details for debugging facet counting
-      console.log(`[RoofAnalysis] Sending ${validViews.length} images to ${selectedModel}:`)
+      console.log(
+        `[RoofAnalysis] Sending ${validViews.length} images to ${selectedModel}:`
+      )
       validViews.forEach((view, idx) => {
-        console.log(`  Image ${idx + 1}: ${view.viewName || 'Unknown'} - ${Math.round((view.imageData?.length || 0) / 1024)} KB`)
+        console.log(
+          `  Image ${idx + 1}: ${view.viewName || "Unknown"} - ${Math.round((view.imageData?.length || 0) / 1024)} KB`
+        )
       })
 
       if (isDebugMode) {
@@ -1869,7 +1873,8 @@ ${referenceSection}
                 facetBreakdown: parsed.structuredData?.facetBreakdown,
                 imagesAnalyzed: parsed.structuredData?.imagesAnalyzed,
                 imagesSent: validViews.length,
-                allImagesReviewed: parsed.structuredData?.imagesAnalyzed === validViews.length
+                allImagesReviewed:
+                  parsed.structuredData?.imagesAnalyzed === validViews.length
               })
 
               logDebug("Successfully parsed structured JSON response", {

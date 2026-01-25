@@ -135,7 +135,9 @@ function PricingContent() {
 
         {/* ROI Calculator Banner */}
         <div className="mx-auto mb-10 max-w-3xl rounded-xl bg-gradient-to-r from-cyan-50 via-green-50 to-purple-50 p-6 text-center">
-          <p className="mb-2 text-sm font-medium text-gray-600">Average ROI for AI Employee Pro users:</p>
+          <p className="mb-2 text-sm font-medium text-gray-600">
+            Average ROI for AI Employee Pro users:
+          </p>
           <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-8">
             <div>
               <div className="text-3xl font-bold text-cyan-600">20+ hrs</div>
@@ -208,7 +210,9 @@ function PricingContent() {
                 <div className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-green-100">
                   <Check className="size-3 text-green-600" strokeWidth={3} />
                 </div>
-                <span className="text-sm text-gray-700">1 roof report to test</span>
+                <span className="text-sm text-gray-700">
+                  1 roof report to test
+                </span>
               </div>
               <div className="flex items-start gap-3">
                 <div className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-green-100">
@@ -273,7 +277,9 @@ function PricingContent() {
 
             <div className="mb-6">
               <h3 className="mb-1 text-2xl font-bold text-gray-900">Pro</h3>
-              <p className="mb-2 text-sm text-gray-500">For solo roofers & small crews</p>
+              <p className="mb-2 text-sm text-gray-500">
+                For solo roofers & small crews
+              </p>
               <p className="text-4xl font-bold text-gray-900">
                 {billingPeriod === "annual" ? "$25" : "$29"}
                 <span className="text-base font-normal text-gray-500">
@@ -368,7 +374,9 @@ function PricingContent() {
               <h3 className="mb-1 text-2xl font-bold text-gray-900">
                 Business
               </h3>
-              <p className="mb-2 text-sm text-gray-500">For growing roofing companies</p>
+              <p className="mb-2 text-sm text-gray-500">
+                For growing roofing companies
+              </p>
               <p className="text-4xl font-bold text-gray-900">
                 {billingPeriod === "annual" ? "$84" : "$99"}
                 <span className="text-base font-normal text-gray-500">
@@ -472,7 +480,9 @@ function PricingContent() {
               <h3 className="mb-1 text-2xl font-bold text-gray-900">
                 AI Employee Pro
               </h3>
-              <p className="mb-2 text-sm text-gray-500">Your AI office admin that never sleeps</p>
+              <p className="mb-2 text-sm text-gray-500">
+                Your AI office admin that never sleeps
+              </p>
               <p className="text-4xl font-bold text-gray-900">
                 {billingPeriod === "annual" ? "$169" : "$199"}
                 <span className="text-base font-normal text-gray-500">
@@ -559,7 +569,10 @@ function PricingContent() {
 
             <button
               onClick={() =>
-                handleSubscribe(getPlanType("ai_employee"), getPriceId("ai_employee"))
+                handleSubscribe(
+                  getPlanType("ai_employee"),
+                  getPriceId("ai_employee")
+                )
               }
               disabled={loadingPlan !== null || currentTier === "ai_employee"}
               className="w-full rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 px-6 py-4 text-base font-semibold text-white transition-all hover:from-purple-600 hover:to-pink-600 disabled:cursor-not-allowed disabled:opacity-50"
@@ -620,11 +633,12 @@ function PricingContent() {
                   What is the AI Employee Pro plan?
                 </summary>
                 <p className="mt-2 text-gray-600">
-                  AI Employee Pro gives you a 24/7 AI assistant that answers phone calls,
-                  responds to leads within 60 seconds, sends automated follow-ups, schedules
-                  crews, generates invoices, and requests reviews. It&apos;s like having a
-                  full-time office admin that never takes a day off—for less than the cost of
-                  a part-time employee.
+                  AI Employee Pro gives you a 24/7 AI assistant that answers
+                  phone calls, responds to leads within 60 seconds, sends
+                  automated follow-ups, schedules crews, generates invoices, and
+                  requests reviews. It&apos;s like having a full-time office
+                  admin that never takes a day off—for less than the cost of a
+                  part-time employee.
                 </p>
               </details>
             </div>

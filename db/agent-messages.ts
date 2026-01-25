@@ -90,7 +90,9 @@ export const createAgentMessages = async (
   return createdMessages as AgentMessage[]
 }
 
-export const deleteAgentMessage = async (messageId: string): Promise<boolean> => {
+export const deleteAgentMessage = async (
+  messageId: string
+): Promise<boolean> => {
   const { error } = await supabase
     .from("agent_messages")
     .delete()

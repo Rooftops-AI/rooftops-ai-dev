@@ -55,7 +55,10 @@ export async function POST(request: Request) {
       .single()
 
     // Look up customer by phone number
-    const customerData = await lookupCustomerByPhone(webhookData.From, workspaceId)
+    const customerData = await lookupCustomerByPhone(
+      webhookData.From,
+      workspaceId
+    )
 
     // Log the inbound call
     await supabase.from("communications").insert({
@@ -91,7 +94,8 @@ export async function POST(request: Request) {
     }
 
     // Generate TwiML response
-    const greeting = phoneConfig?.greeting_message ||
+    const greeting =
+      phoneConfig?.greeting_message ||
       "Thank you for calling. How can we help you today?"
 
     const twiml = generateVoiceTwiml(
@@ -141,15 +145,19 @@ function generateVoiceTwiml(
     </Say>
   </Gather>
 
-  ${forwardTo ? `
+  ${
+    forwardTo
+      ? `
   <Say voice="alice">Please hold while we connect you.</Say>
   <Dial timeout="30" callerId="${escapeXml(forwardTo)}">
     <Number>${escapeXml(forwardTo)}</Number>
   </Dial>
-  ` : `
+  `
+      : `
   <Say voice="alice">Please leave a message after the beep and we'll call you back shortly.</Say>
   <Record maxLength="120" transcribe="true" transcribeCallback="${baseUrl}/api/webhooks/twilio/voice/transcription" />
-  `}
+  `
+  }
 
   <Say voice="alice">Thank you for calling. Goodbye!</Say>
 </Response>`

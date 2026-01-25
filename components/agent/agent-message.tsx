@@ -49,7 +49,7 @@ export function AgentMessage({
   return (
     <div
       className={cn(
-        "mx-4 my-3 flex gap-4 rounded-xl border px-4 py-4 backdrop-blur-md",
+        "mx-4 my-3 flex gap-4 rounded-xl border p-4 backdrop-blur-md",
         isUser
           ? "border-blue-500/15 bg-gradient-to-br from-blue-500/5 to-purple-500/5"
           : "border-blue-500/20 bg-gradient-to-br from-blue-500/10 to-purple-500/10"
@@ -74,17 +74,19 @@ export function AgentMessage({
       {/* Content */}
       <div className="flex-1 space-y-3 overflow-hidden">
         {/* Role label */}
-        <div className="text-sm font-medium text-foreground">
+        <div className="text-foreground text-sm font-medium">
           {isUser ? "You" : "Rooftops AI Agent"}
         </div>
 
         {/* Message content */}
         {message.content && (
-          <div className="prose prose-slate dark:prose-invert max-w-none font-light text-foreground/90">
+          <div className="prose prose-slate dark:prose-invert text-foreground/90 max-w-none font-light">
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               components={{
-                p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                p: ({ children }) => (
+                  <p className="mb-2 last:mb-0">{children}</p>
+                ),
                 ul: ({ children }) => (
                   <ul className="mb-2 list-disc pl-4">{children}</ul>
                 ),
@@ -133,27 +135,53 @@ export function AgentMessage({
               const result = toolCall.result as any
 
               // Special rendering for property reports
-              if (toolCall.name === "generate_property_report" && result?.status === "success" && toolCall.status === "completed") {
-                return <AgentPropertyReportCard key={toolCall.id} data={result} />
+              if (
+                toolCall.name === "generate_property_report" &&
+                result?.status === "success" &&
+                toolCall.status === "completed"
+              ) {
+                return (
+                  <AgentPropertyReportCard key={toolCall.id} data={result} />
+                )
               }
 
               // Special rendering for weather forecasts
-              if (toolCall.name === "get_weather_forecast" && result?.status === "success" && toolCall.status === "completed") {
+              if (
+                toolCall.name === "get_weather_forecast" &&
+                result?.status === "success" &&
+                toolCall.status === "completed"
+              ) {
                 return <AgentWeatherCard key={toolCall.id} data={result} />
               }
 
               // Special rendering for web search results
-              if (toolCall.name === "web_search" && result?.status === "success" && toolCall.status === "completed") {
-                return <AgentSearchResultsCard key={toolCall.id} data={result} />
+              if (
+                toolCall.name === "web_search" &&
+                result?.status === "success" &&
+                toolCall.status === "completed"
+              ) {
+                return (
+                  <AgentSearchResultsCard key={toolCall.id} data={result} />
+                )
               }
 
               // Special rendering for material prices
-              if (toolCall.name === "get_material_prices" && result?.status === "success" && toolCall.status === "completed") {
-                return <AgentMaterialPricesCard key={toolCall.id} data={result} />
+              if (
+                toolCall.name === "get_material_prices" &&
+                result?.status === "success" &&
+                toolCall.status === "completed"
+              ) {
+                return (
+                  <AgentMaterialPricesCard key={toolCall.id} data={result} />
+                )
               }
 
               // Special rendering for email drafts
-              if (toolCall.name === "draft_email" && result?.status === "success" && toolCall.status === "completed") {
+              if (
+                toolCall.name === "draft_email" &&
+                result?.status === "success" &&
+                toolCall.status === "completed"
+              ) {
                 return <AgentEmailDraftCard key={toolCall.id} data={result} />
               }
 
@@ -162,12 +190,14 @@ export function AgentMessage({
                   key={toolCall.id}
                   toolCall={toolCall}
                   onConfirm={
-                    toolCall.requiresConfirmation && toolCall.status === "pending"
+                    toolCall.requiresConfirmation &&
+                    toolCall.status === "pending"
                       ? () => onConfirmTool?.(toolCall.id)
                       : undefined
                   }
                   onCancel={
-                    toolCall.requiresConfirmation && toolCall.status === "pending"
+                    toolCall.requiresConfirmation &&
+                    toolCall.status === "pending"
                       ? () => onCancelTool?.(toolCall.id)
                       : undefined
                   }
@@ -179,7 +209,7 @@ export function AgentMessage({
 
         {/* Streaming indicator */}
         {message.isStreaming && (
-          <div className="flex items-center gap-2 text-sm font-light text-muted-foreground">
+          <div className="text-muted-foreground flex items-center gap-2 text-sm font-light">
             <div className="flex gap-1.5">
               <span className="size-2 animate-bounce rounded-full bg-blue-500 shadow-sm shadow-blue-500/50 [animation-delay:-0.3s]" />
               <span className="size-2 animate-bounce rounded-full bg-blue-500 shadow-sm shadow-blue-500/50 [animation-delay:-0.15s]" />
@@ -190,7 +220,7 @@ export function AgentMessage({
         )}
 
         {/* Timestamp */}
-        <div className="text-xs font-light text-muted-foreground/60">
+        <div className="text-muted-foreground/60 text-xs font-light">
           {message.timestamp.toLocaleTimeString([], {
             hour: "2-digit",
             minute: "2-digit"
@@ -229,11 +259,19 @@ function ToolCallCard({ toolCall, onConfirm, onCancel }: ToolCallCardProps) {
     <div
       className={cn(
         "rounded-xl border backdrop-blur-md transition-all",
-        isRunning && "border-blue-500/30 bg-gradient-to-br from-blue-500/10 to-blue-600/10",
-        isPending && needsConfirmation && "border-amber-500/30 bg-gradient-to-br from-amber-500/10 to-orange-500/10",
-        isPending && !needsConfirmation && "border-blue-500/15 bg-gradient-to-br from-blue-500/5 to-purple-500/5",
-        isCompleted && !hasError && "border-green-500/30 bg-gradient-to-br from-green-500/10 to-emerald-500/10",
-        (isFailed || hasError) && "border-red-500/30 bg-gradient-to-br from-red-500/10 to-pink-500/10"
+        isRunning &&
+          "border-blue-500/30 bg-gradient-to-br from-blue-500/10 to-blue-600/10",
+        isPending &&
+          needsConfirmation &&
+          "border-amber-500/30 bg-gradient-to-br from-amber-500/10 to-orange-500/10",
+        isPending &&
+          !needsConfirmation &&
+          "border-blue-500/15 bg-gradient-to-br from-blue-500/5 to-purple-500/5",
+        isCompleted &&
+          !hasError &&
+          "border-green-500/30 bg-gradient-to-br from-green-500/10 to-emerald-500/10",
+        (isFailed || hasError) &&
+          "border-red-500/30 bg-gradient-to-br from-red-500/10 to-pink-500/10"
       )}
     >
       {/* Main card content */}
@@ -242,10 +280,15 @@ function ToolCallCard({ toolCall, onConfirm, onCancel }: ToolCallCardProps) {
         <div
           className={cn(
             "flex size-10 shrink-0 items-center justify-center rounded-xl border shadow-sm",
-            isRunning && "border-blue-500/30 bg-gradient-to-br from-blue-500/20 to-blue-600/20 shadow-blue-500/10",
-            isPending && "border-amber-500/30 bg-gradient-to-br from-amber-500/20 to-orange-500/20 shadow-amber-500/10",
-            isCompleted && !hasError && "border-green-500/30 bg-gradient-to-br from-green-500/20 to-emerald-500/20 shadow-green-500/10",
-            (isFailed || hasError) && "border-red-500/30 bg-gradient-to-br from-red-500/20 to-pink-500/20 shadow-red-500/10"
+            isRunning &&
+              "border-blue-500/30 bg-gradient-to-br from-blue-500/20 to-blue-600/20 shadow-blue-500/10",
+            isPending &&
+              "border-amber-500/30 bg-gradient-to-br from-amber-500/20 to-orange-500/20 shadow-amber-500/10",
+            isCompleted &&
+              !hasError &&
+              "border-green-500/30 bg-gradient-to-br from-green-500/20 to-emerald-500/20 shadow-green-500/10",
+            (isFailed || hasError) &&
+              "border-red-500/30 bg-gradient-to-br from-red-500/20 to-pink-500/20 shadow-red-500/10"
           )}
         >
           {isRunning ? (
@@ -266,7 +309,9 @@ function ToolCallCard({ toolCall, onConfirm, onCancel }: ToolCallCardProps) {
         {/* Content */}
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <span className="font-medium text-foreground">{toolConfig.label}</span>
+            <span className="text-foreground font-medium">
+              {toolConfig.label}
+            </span>
             {isCompleted && !hasError && (
               <IconCheck className="size-4 text-green-500" />
             )}
@@ -274,9 +319,18 @@ function ToolCallCard({ toolCall, onConfirm, onCancel }: ToolCallCardProps) {
               <IconX className="size-4 text-red-500" />
             )}
           </div>
-          <p className={cn("truncate text-sm font-light", hasError ? "text-red-400" : "text-muted-foreground")}>{summary}</p>
+          <p
+            className={cn(
+              "truncate text-sm font-light",
+              hasError ? "text-red-400" : "text-muted-foreground"
+            )}
+          >
+            {summary}
+          </p>
           {hasSuggestion && (
-            <p className="mt-1 text-xs font-light text-amber-400">{result.suggestion}</p>
+            <p className="mt-1 text-xs font-light text-amber-400">
+              {result.suggestion}
+            </p>
           )}
         </div>
 
@@ -293,7 +347,7 @@ function ToolCallCard({ toolCall, onConfirm, onCancel }: ToolCallCardProps) {
               </button>
               <button
                 onClick={onCancel}
-                className="flex items-center gap-1.5 rounded-xl border border-blue-500/20 bg-gradient-to-br from-blue-500/10 to-purple-500/10 px-3 py-1.5 text-sm font-medium text-muted-foreground shadow-sm shadow-blue-500/10 transition-all hover:border-blue-500/30 hover:from-blue-500/15 hover:to-purple-500/15 hover:text-foreground"
+                className="text-muted-foreground hover:text-foreground flex items-center gap-1.5 rounded-xl border border-blue-500/20 bg-gradient-to-br from-blue-500/10 to-purple-500/10 px-3 py-1.5 text-sm font-medium shadow-sm shadow-blue-500/10 transition-all hover:border-blue-500/30 hover:from-blue-500/15 hover:to-purple-500/15"
               >
                 <IconX className="size-4" />
                 Deny
@@ -302,7 +356,7 @@ function ToolCallCard({ toolCall, onConfirm, onCancel }: ToolCallCardProps) {
           ) : (
             <button
               onClick={() => setIsExpanded(!isExpanded)}
-              className="rounded-xl border border-transparent p-1.5 text-muted-foreground transition-all hover:border-blue-500/20 hover:bg-blue-500/10 hover:text-foreground"
+              className="text-muted-foreground hover:text-foreground rounded-xl border border-transparent p-1.5 transition-all hover:border-blue-500/20 hover:bg-blue-500/10"
             >
               {isExpanded ? (
                 <IconChevronUp className="size-5" />
@@ -320,10 +374,10 @@ function ToolCallCard({ toolCall, onConfirm, onCancel }: ToolCallCardProps) {
           {/* Arguments */}
           {Object.keys(toolCall.arguments).length > 0 && (
             <div className="mb-3">
-              <div className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              <div className="text-muted-foreground mb-1 text-xs font-medium uppercase tracking-wide">
                 Input
               </div>
-              <pre className="overflow-x-auto rounded-xl border border-blue-500/15 bg-gradient-to-br from-blue-500/5 to-purple-500/5 p-3 text-xs font-light text-foreground/80">
+              <pre className="text-foreground/80 overflow-x-auto rounded-xl border border-blue-500/15 bg-gradient-to-br from-blue-500/5 to-purple-500/5 p-3 text-xs font-light">
                 {JSON.stringify(toolCall.arguments, null, 2)}
               </pre>
             </div>
@@ -332,10 +386,10 @@ function ToolCallCard({ toolCall, onConfirm, onCancel }: ToolCallCardProps) {
           {/* Result */}
           {toolCall.result && (
             <div>
-              <div className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              <div className="text-muted-foreground mb-1 text-xs font-medium uppercase tracking-wide">
                 Result
               </div>
-              <pre className="max-h-40 overflow-auto rounded-xl border border-blue-500/15 bg-gradient-to-br from-blue-500/5 to-purple-500/5 p-3 text-xs font-light text-foreground/80">
+              <pre className="text-foreground/80 max-h-40 overflow-auto rounded-xl border border-blue-500/15 bg-gradient-to-br from-blue-500/5 to-purple-500/5 p-3 text-xs font-light">
                 {typeof toolCall.result === "string"
                   ? toolCall.result
                   : JSON.stringify(toolCall.result, null, 2)}
@@ -349,7 +403,11 @@ function ToolCallCard({ toolCall, onConfirm, onCancel }: ToolCallCardProps) {
 }
 
 // Tool configuration for icons and labels
-function getToolConfig(toolName: string): { icon: any; label: string; isMCP?: boolean } {
+function getToolConfig(toolName: string): {
+  icon: any
+  label: string
+  isMCP?: boolean
+} {
   // Built-in tools
   const builtinConfigs: Record<string, { icon: any; label: string }> = {
     web_search: { icon: IconSearch, label: "Web Search" },
@@ -386,23 +444,42 @@ function getToolConfig(toolName: string): { icon: any; label: string; isMCP?: bo
 
   // Slack tools
   if (toolNameLower.includes("slack")) {
-    return { icon: IconBrandSlack, label: formatToolName(toolName), isMCP: true }
+    return {
+      icon: IconBrandSlack,
+      label: formatToolName(toolName),
+      isMCP: true
+    }
   }
 
   // Google Sheets/Docs
   if (toolNameLower.includes("sheets") || toolNameLower.includes("google")) {
-    return { icon: IconBrandGoogle, label: formatToolName(toolName), isMCP: true }
+    return {
+      icon: IconBrandGoogle,
+      label: formatToolName(toolName),
+      isMCP: true
+    }
   }
 
   // CRM tools (Salesforce, HubSpot, etc.)
-  if (toolNameLower.includes("salesforce") || toolNameLower.includes("hubspot") || toolNameLower.includes("crm") || toolNameLower.includes("contact") || toolNameLower.includes("lead") || toolNameLower.includes("deal")) {
+  if (
+    toolNameLower.includes("salesforce") ||
+    toolNameLower.includes("hubspot") ||
+    toolNameLower.includes("crm") ||
+    toolNameLower.includes("contact") ||
+    toolNameLower.includes("lead") ||
+    toolNameLower.includes("deal")
+  ) {
     return { icon: IconUsers, label: formatToolName(toolName), isMCP: true }
   }
 
   // Generic connected app tool
   if (toolNameLower.includes("_")) {
     // Most Pipedream tools have underscores like "app_action"
-    return { icon: IconPlugConnected, label: formatToolName(toolName), isMCP: true }
+    return {
+      icon: IconPlugConnected,
+      label: formatToolName(toolName),
+      isMCP: true
+    }
   }
 
   return { icon: IconTool, label: formatToolName(toolName) }
@@ -489,7 +566,12 @@ function getToolSummary(toolCall: AgentToolCall): string {
       if (toolNameLower.includes("create")) {
         return "Creating..."
       }
-      if (toolNameLower.includes("search") || toolNameLower.includes("find") || toolNameLower.includes("get") || toolNameLower.includes("list")) {
+      if (
+        toolNameLower.includes("search") ||
+        toolNameLower.includes("find") ||
+        toolNameLower.includes("get") ||
+        toolNameLower.includes("list")
+      ) {
         return "Searching..."
       }
 
@@ -498,7 +580,5 @@ function getToolSummary(toolCall: AgentToolCall): string {
 }
 
 function formatToolName(name: string): string {
-  return name
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, l => l.toUpperCase())
+  return name.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase())
 }

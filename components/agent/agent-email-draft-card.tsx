@@ -52,14 +52,16 @@ export function AgentEmailDraftCard({ data }: AgentEmailDraftCardProps) {
             <IconMail className="size-5 text-blue-400" />
           </div>
           <div>
-            <h3 className="font-semibold text-foreground">Email Draft</h3>
-            <p className="text-sm font-light text-muted-foreground">Review before sending</p>
+            <h3 className="text-foreground font-semibold">Email Draft</h3>
+            <p className="text-muted-foreground text-sm font-light">
+              Review before sending
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={handleCopy}
-            className="flex items-center gap-1 rounded-xl border border-blue-500/20 bg-gradient-to-br from-blue-500/10 to-purple-500/10 px-2.5 py-1.5 text-xs font-light text-foreground shadow-sm transition-all hover:border-blue-500/30 hover:from-blue-500/15 hover:to-purple-500/15"
+            className="text-foreground flex items-center gap-1 rounded-xl border border-blue-500/20 bg-gradient-to-br from-blue-500/10 to-purple-500/10 px-2.5 py-1.5 text-xs font-light shadow-sm transition-all hover:border-blue-500/30 hover:from-blue-500/15 hover:to-purple-500/15"
           >
             {copied ? (
               <>
@@ -75,7 +77,7 @@ export function AgentEmailDraftCard({ data }: AgentEmailDraftCardProps) {
           </button>
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="rounded-xl border border-transparent p-1.5 text-muted-foreground transition-all hover:border-blue-500/20 hover:bg-blue-500/10 hover:text-foreground"
+            className="text-muted-foreground hover:text-foreground rounded-xl border border-transparent p-1.5 transition-all hover:border-blue-500/20 hover:bg-blue-500/10"
           >
             {isExpanded ? (
               <IconChevronUp className="size-5" />
@@ -92,18 +94,22 @@ export function AgentEmailDraftCard({ data }: AgentEmailDraftCardProps) {
           {/* Email Header */}
           <div className="mb-4 space-y-2 border-b border-blue-500/15 pb-4">
             <div className="flex items-center gap-2 text-sm">
-              <span className="w-16 font-light text-muted-foreground">To:</span>
-              <span className="font-light text-foreground">{draft.to}</span>
+              <span className="text-muted-foreground w-16 font-light">To:</span>
+              <span className="text-foreground font-light">{draft.to}</span>
             </div>
             <div className="flex items-center gap-2 text-sm">
-              <span className="w-16 font-light text-muted-foreground">Subject:</span>
-              <span className="font-medium text-foreground">{draft.subject}</span>
+              <span className="text-muted-foreground w-16 font-light">
+                Subject:
+              </span>
+              <span className="text-foreground font-medium">
+                {draft.subject}
+              </span>
             </div>
           </div>
 
           {/* Email Body */}
           <div className="prose prose-slate dark:prose-invert prose-sm max-w-none">
-            <div className="whitespace-pre-wrap text-sm font-light text-foreground/80">
+            <div className="text-foreground/80 whitespace-pre-wrap text-sm font-light">
               {draft.body}
             </div>
           </div>
@@ -111,8 +117,9 @@ export function AgentEmailDraftCard({ data }: AgentEmailDraftCardProps) {
       )}
 
       {/* Footer */}
-      <div className="border-t border-blue-500/15 bg-gradient-to-r from-blue-500/10 to-purple-500/10 px-4 py-2 text-xs font-light text-muted-foreground">
-        {data.message || "To send this email, connect your email account in Settings."}
+      <div className="text-muted-foreground border-t border-blue-500/15 bg-gradient-to-r from-blue-500/10 to-purple-500/10 px-4 py-2 text-xs font-light">
+        {data.message ||
+          "To send this email, connect your email account in Settings."}
       </div>
     </div>
   )

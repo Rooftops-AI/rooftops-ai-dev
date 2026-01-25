@@ -58,11 +58,13 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url)
-    const month = searchParams.get("month") || new Date().toISOString().slice(0, 7)
+    const month =
+      searchParams.get("month") || new Date().toISOString().slice(0, 7)
 
     // Get user's tier
     const tier = await getUserTier(user.id)
-    const limits = AGENT_LIMITS[tier as keyof typeof AGENT_LIMITS] || AGENT_LIMITS.free
+    const limits =
+      AGENT_LIMITS[tier as keyof typeof AGENT_LIMITS] || AGENT_LIMITS.free
 
     // Get usage for the month
     const { data: usage, error } = await supabase
@@ -90,23 +92,37 @@ export async function GET(request: NextRequest) {
       estimated_cost_cents: 0
     }
 
-    const totalTokens = currentUsage.total_tokens_input + currentUsage.total_tokens_output
+    const totalTokens =
+      currentUsage.total_tokens_input + currentUsage.total_tokens_output
 
     // Calculate remaining
     const tokensRemaining = Math.max(0, limits.maxTokensPerMonth - totalTokens)
-    const sessionsRemaining = Math.max(0, limits.maxSessionsPerMonth - currentUsage.total_sessions)
-    const tasksRemaining = Math.max(0, limits.maxTasksPerMonth - currentUsage.total_tasks_executed)
+    const sessionsRemaining = Math.max(
+      0,
+      limits.maxSessionsPerMonth - currentUsage.total_sessions
+    )
+    const tasksRemaining = Math.max(
+      0,
+      limits.maxTasksPerMonth - currentUsage.total_tasks_executed
+    )
 
     // Calculate percentages
-    const tokensPercentUsed = limits.maxTokensPerMonth > 0
-      ? Math.round((totalTokens / limits.maxTokensPerMonth) * 100)
-      : 0
-    const sessionsPercentUsed = limits.maxSessionsPerMonth > 0
-      ? Math.round((currentUsage.total_sessions / limits.maxSessionsPerMonth) * 100)
-      : 0
-    const tasksPercentUsed = limits.maxTasksPerMonth > 0
-      ? Math.round((currentUsage.total_tasks_executed / limits.maxTasksPerMonth) * 100)
-      : 0
+    const tokensPercentUsed =
+      limits.maxTokensPerMonth > 0
+        ? Math.round((totalTokens / limits.maxTokensPerMonth) * 100)
+        : 0
+    const sessionsPercentUsed =
+      limits.maxSessionsPerMonth > 0
+        ? Math.round(
+            (currentUsage.total_sessions / limits.maxSessionsPerMonth) * 100
+          )
+        : 0
+    const tasksPercentUsed =
+      limits.maxTasksPerMonth > 0
+        ? Math.round(
+            (currentUsage.total_tasks_executed / limits.maxTasksPerMonth) * 100
+          )
+        : 0
 
     return NextResponse.json({
       hasAccess: true,
@@ -135,7 +151,9 @@ export async function GET(request: NextRequest) {
         },
         toolCalls: currentUsage.total_tool_calls,
         estimatedCostCents: currentUsage.estimated_cost_cents,
-        estimatedCostDollars: (currentUsage.estimated_cost_cents / 100).toFixed(2)
+        estimatedCostDollars: (currentUsage.estimated_cost_cents / 100).toFixed(
+          2
+        )
       },
       limits: {
         maxTokensPerMonth: limits.maxTokensPerMonth,
@@ -189,7 +207,8 @@ export async function POST(request: NextRequest) {
 
     // Get user's tier
     const tier = await getUserTier(user.id)
-    const limits = AGENT_LIMITS[tier as keyof typeof AGENT_LIMITS] || AGENT_LIMITS.free
+    const limits =
+      AGENT_LIMITS[tier as keyof typeof AGENT_LIMITS] || AGENT_LIMITS.free
 
     // Get current usage
     const currentMonth = new Date().toISOString().slice(0, 7)
@@ -207,7 +226,8 @@ export async function POST(request: NextRequest) {
       total_sessions: 0
     }
 
-    const totalTokens = currentUsage.total_tokens_input + currentUsage.total_tokens_output
+    const totalTokens =
+      currentUsage.total_tokens_input + currentUsage.total_tokens_output
 
     // Check limits based on action
     let allowed = true

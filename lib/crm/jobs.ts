@@ -188,13 +188,17 @@ function mapDbToJob(row: any): Job {
     roofLayers: row.roof_layers,
     currentMaterial: row.current_material,
     newMaterial: row.new_material,
-    estimatedCost: row.estimated_cost ? parseFloat(row.estimated_cost) : undefined,
+    estimatedCost: row.estimated_cost
+      ? parseFloat(row.estimated_cost)
+      : undefined,
     actualCost: row.actual_cost ? parseFloat(row.actual_cost) : undefined,
     materialCost: row.material_cost ? parseFloat(row.material_cost) : undefined,
     laborCost: row.labor_cost ? parseFloat(row.labor_cost) : undefined,
     profitMargin: row.profit_margin ? parseFloat(row.profit_margin) : undefined,
     estimateDate: row.estimate_date ? new Date(row.estimate_date) : undefined,
-    scheduledDate: row.scheduled_date ? new Date(row.scheduled_date) : undefined,
+    scheduledDate: row.scheduled_date
+      ? new Date(row.scheduled_date)
+      : undefined,
     scheduledTime: row.scheduled_time,
     estimatedDurationDays: row.estimated_duration_days,
     startedAt: row.started_at ? new Date(row.started_at) : undefined,
@@ -320,29 +324,46 @@ export async function updateJob(
   if (input.zip !== undefined) updateData.zip = input.zip
   if (input.status !== undefined) updateData.status = input.status
   if (input.jobType !== undefined) updateData.job_type = input.jobType
-  if (input.roofAreaSqft !== undefined) updateData.roof_area_sqft = input.roofAreaSqft
+  if (input.roofAreaSqft !== undefined)
+    updateData.roof_area_sqft = input.roofAreaSqft
   if (input.roofPitch !== undefined) updateData.roof_pitch = input.roofPitch
   if (input.roofLayers !== undefined) updateData.roof_layers = input.roofLayers
-  if (input.currentMaterial !== undefined) updateData.current_material = input.currentMaterial
-  if (input.newMaterial !== undefined) updateData.new_material = input.newMaterial
-  if (input.estimatedCost !== undefined) updateData.estimated_cost = input.estimatedCost
+  if (input.currentMaterial !== undefined)
+    updateData.current_material = input.currentMaterial
+  if (input.newMaterial !== undefined)
+    updateData.new_material = input.newMaterial
+  if (input.estimatedCost !== undefined)
+    updateData.estimated_cost = input.estimatedCost
   if (input.actualCost !== undefined) updateData.actual_cost = input.actualCost
-  if (input.materialCost !== undefined) updateData.material_cost = input.materialCost
+  if (input.materialCost !== undefined)
+    updateData.material_cost = input.materialCost
   if (input.laborCost !== undefined) updateData.labor_cost = input.laborCost
-  if (input.profitMargin !== undefined) updateData.profit_margin = input.profitMargin
-  if (input.estimateDate !== undefined) updateData.estimate_date = input.estimateDate?.toISOString()
-  if (input.scheduledDate !== undefined) updateData.scheduled_date = input.scheduledDate?.toISOString().split("T")[0]
-  if (input.scheduledTime !== undefined) updateData.scheduled_time = input.scheduledTime
-  if (input.estimatedDurationDays !== undefined) updateData.estimated_duration_days = input.estimatedDurationDays
+  if (input.profitMargin !== undefined)
+    updateData.profit_margin = input.profitMargin
+  if (input.estimateDate !== undefined)
+    updateData.estimate_date = input.estimateDate?.toISOString()
+  if (input.scheduledDate !== undefined)
+    updateData.scheduled_date = input.scheduledDate?.toISOString().split("T")[0]
+  if (input.scheduledTime !== undefined)
+    updateData.scheduled_time = input.scheduledTime
+  if (input.estimatedDurationDays !== undefined)
+    updateData.estimated_duration_days = input.estimatedDurationDays
   if (input.crewId !== undefined) updateData.crew_id = input.crewId
-  if (input.salespersonId !== undefined) updateData.salesperson_id = input.salespersonId
-  if (input.isInsuranceClaim !== undefined) updateData.is_insurance_claim = input.isInsuranceClaim
-  if (input.insuranceCompany !== undefined) updateData.insurance_company = input.insuranceCompany
-  if (input.claimNumber !== undefined) updateData.claim_number = input.claimNumber
-  if (input.adjusterName !== undefined) updateData.adjuster_name = input.adjusterName
-  if (input.adjusterPhone !== undefined) updateData.adjuster_phone = input.adjusterPhone
+  if (input.salespersonId !== undefined)
+    updateData.salesperson_id = input.salespersonId
+  if (input.isInsuranceClaim !== undefined)
+    updateData.is_insurance_claim = input.isInsuranceClaim
+  if (input.insuranceCompany !== undefined)
+    updateData.insurance_company = input.insuranceCompany
+  if (input.claimNumber !== undefined)
+    updateData.claim_number = input.claimNumber
+  if (input.adjusterName !== undefined)
+    updateData.adjuster_name = input.adjusterName
+  if (input.adjusterPhone !== undefined)
+    updateData.adjuster_phone = input.adjusterPhone
   if (input.notes !== undefined) updateData.notes = input.notes
-  if (input.internalNotes !== undefined) updateData.internal_notes = input.internalNotes
+  if (input.internalNotes !== undefined)
+    updateData.internal_notes = input.internalNotes
   if (input.tags !== undefined) updateData.tags = input.tags
   if (input.metadata !== undefined) updateData.metadata = input.metadata
 
@@ -367,7 +388,12 @@ export async function updateJob(
   }
 
   // If status changed, notify customer
-  if (input.status && currentJob && input.status !== currentJob.status && currentJob.customer_id) {
+  if (
+    input.status &&
+    currentJob &&
+    input.status !== currentJob.status &&
+    currentJob.customer_id
+  ) {
     await scheduleStatusUpdate({
       workspaceId: currentJob.workspace_id,
       customerId: currentJob.customer_id,
@@ -457,8 +483,14 @@ export async function listJobs(
 
   if (filters?.scheduledDateRange) {
     query = query
-      .gte("scheduled_date", filters.scheduledDateRange.start.toISOString().split("T")[0])
-      .lte("scheduled_date", filters.scheduledDateRange.end.toISOString().split("T")[0])
+      .gte(
+        "scheduled_date",
+        filters.scheduledDateRange.start.toISOString().split("T")[0]
+      )
+      .lte(
+        "scheduled_date",
+        filters.scheduledDateRange.end.toISOString().split("T")[0]
+      )
   }
 
   if (filters?.search) {

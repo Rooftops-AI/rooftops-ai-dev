@@ -107,8 +107,15 @@ async function updateCommunicationStatus(
 
 // Send SMS via Twilio
 export async function sendSms(options: SendSmsOptions): Promise<SendSmsResult> {
-  const { to, body, workspaceId, customerId, jobId, sequenceEnrollmentId, mediaUrls } =
-    options
+  const {
+    to,
+    body,
+    workspaceId,
+    customerId,
+    jobId,
+    sequenceEnrollmentId,
+    mediaUrls
+  } = options
 
   // Check if Twilio is configured
   if (!isTwilioConfigured()) {
@@ -138,9 +145,9 @@ export async function sendSms(options: SendSmsOptions): Promise<SendSmsResult> {
     const fromNumber = await getFromNumber(workspaceId)
 
     // Use Twilio REST API directly (avoiding dependency on twilio package for now)
-    const auth = Buffer.from(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`).toString(
-      "base64"
-    )
+    const auth = Buffer.from(
+      `${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`
+    ).toString("base64")
 
     const params = new URLSearchParams({
       To: to,
@@ -237,8 +244,16 @@ export async function sendSms(options: SendSmsOptions): Promise<SendSmsResult> {
 export async function initiateCall(
   options: InitiateCallOptions
 ): Promise<InitiateCallResult> {
-  const { to, workspaceId, customerId, jobId, script, voiceUrl, recordCall, timeout } =
-    options
+  const {
+    to,
+    workspaceId,
+    customerId,
+    jobId,
+    script,
+    voiceUrl,
+    recordCall,
+    timeout
+  } = options
 
   if (!isTwilioConfigured()) {
     console.warn("Twilio not configured - call not initiated")
@@ -264,9 +279,9 @@ export async function initiateCall(
   try {
     const fromNumber = await getFromNumber(workspaceId)
 
-    const auth = Buffer.from(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`).toString(
-      "base64"
-    )
+    const auth = Buffer.from(
+      `${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`
+    ).toString("base64")
 
     // Build the URL for TwiML - either custom URL or our default handler
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"

@@ -146,7 +146,9 @@ interface DynamicPromptOptions {
 /**
  * Generate a dynamic system prompt that reflects the user's actual connected apps and available tools
  */
-export const getDynamicSystemPrompt = (options: DynamicPromptOptions): string => {
+export const getDynamicSystemPrompt = (
+  options: DynamicPromptOptions
+): string => {
   const { customInstructions, connectedApps, mcpToolDescriptions } = options
 
   // Build the connected apps section dynamically
@@ -159,11 +161,15 @@ export const getDynamicSystemPrompt = (options: DynamicPromptOptions): string =>
 You have the following apps connected and ready to execute real actions:
 ${connectedApps.map(app => `- **${app}**`).join("\n")}
 
-${mcpToolDescriptions ? `### Available Connected App Tools
+${
+  mcpToolDescriptions
+    ? `### Available Connected App Tools
 
 ${mcpToolDescriptions}
 
-These tools execute REAL actions in the user's connected services. Use them when the user asks for tasks related to these apps.` : ""}
+These tools execute REAL actions in the user's connected services. Use them when the user asks for tasks related to these apps.`
+    : ""
+}
 `
   } else {
     connectedAppsSection = `

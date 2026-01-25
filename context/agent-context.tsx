@@ -57,7 +57,10 @@ interface AgentContextValue {
 
   // Actions
   loadSessions: () => Promise<void>
-  createSession: (name?: string, description?: string) => Promise<AgentSession | null>
+  createSession: (
+    name?: string,
+    description?: string
+  ) => Promise<AgentSession | null>
   selectSession: (sessionId: string) => Promise<void>
   deleteSession: (sessionId: string) => Promise<void>
   sendMessage: (message: string, useStreaming?: boolean) => Promise<void>
@@ -78,7 +81,9 @@ const AgentContext = createContext<AgentContextValue | null>(null)
 export function AgentProvider({ children }: { children: ReactNode }) {
   // Session state
   const [sessions, setSessions] = useState<AgentSession[]>([])
-  const [currentSession, setCurrentSession] = useState<AgentSession | null>(null)
+  const [currentSession, setCurrentSession] = useState<AgentSession | null>(
+    null
+  )
   const [isLoadingSessions, setIsLoadingSessions] = useState(false)
 
   // Messages state
@@ -102,7 +107,9 @@ export function AgentProvider({ children }: { children: ReactNode }) {
   const [isCheckingAccess, setIsCheckingAccess] = useState(true)
 
   // Pending confirmations
-  const [pendingConfirmations, setPendingConfirmations] = useState<AgentToolCall[]>([])
+  const [pendingConfirmations, setPendingConfirmations] = useState<
+    AgentToolCall[]
+  >([])
 
   // Config
   const [config, setConfigState] = useState<AgentConfig>(DEFAULT_AGENT_CONFIG)
@@ -125,7 +132,10 @@ export function AgentProvider({ children }: { children: ReactNode }) {
       console.log("[AgentContext] Checking agent access...")
       const response = await fetch("/api/agent/usage")
       const data = await response.json()
-      console.log("[AgentContext] Access check response:", { status: response.status, data })
+      console.log("[AgentContext] Access check response:", {
+        status: response.status,
+        data
+      })
       const access = data.hasAccess === true
       console.log("[AgentContext] Setting hasAccess to:", access)
       setHasAccess(access)
@@ -167,7 +177,10 @@ export function AgentProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const createSession = useCallback(
-    async (name?: string, description?: string): Promise<AgentSession | null> => {
+    async (
+      name?: string,
+      description?: string
+    ): Promise<AgentSession | null> => {
       try {
         const response = await fetch("/api/agent/sessions", {
           method: "POST",
@@ -194,52 +207,60 @@ export function AgentProvider({ children }: { children: ReactNode }) {
     [config.model]
   )
 
-  const selectSession = useCallback(async (sessionId: string) => {
-    const session = sessions.find(s => s.id === sessionId)
-    if (session) {
-      setCurrentSession(session)
-      setMessages([])
-      setIsLoadingMessages(true)
+  const selectSession = useCallback(
+    async (sessionId: string) => {
+      const session = sessions.find(s => s.id === sessionId)
+      if (session) {
+        setCurrentSession(session)
+        setMessages([])
+        setIsLoadingMessages(true)
 
-      try {
-        const response = await fetch(
-          `/api/agent/messages?session_id=${sessionId}`
-        )
-        const data = await response.json()
-        if (data.messages) {
-          const chatMessages: AgentChatMessage[] = data.messages.map(
-            (msg: AgentMessage) => ({
-              id: msg.id,
-              role: msg.role,
-              content: msg.content,
-              timestamp: new Date(msg.created_at),
-              toolCalls: msg.tool_calls as unknown as AgentToolCall[] | undefined
-            })
+        try {
+          const response = await fetch(
+            `/api/agent/messages?session_id=${sessionId}`
           )
-          setMessages(chatMessages)
+          const data = await response.json()
+          if (data.messages) {
+            const chatMessages: AgentChatMessage[] = data.messages.map(
+              (msg: AgentMessage) => ({
+                id: msg.id,
+                role: msg.role,
+                content: msg.content,
+                timestamp: new Date(msg.created_at),
+                toolCalls: msg.tool_calls as unknown as
+                  | AgentToolCall[]
+                  | undefined
+              })
+            )
+            setMessages(chatMessages)
+          }
+        } catch (error) {
+          console.error("Error loading messages:", error)
+        } finally {
+          setIsLoadingMessages(false)
+        }
+      }
+    },
+    [sessions]
+  )
+
+  const deleteSession = useCallback(
+    async (sessionId: string) => {
+      try {
+        await fetch(`/api/agent/sessions?session_id=${sessionId}`, {
+          method: "DELETE"
+        })
+        setSessions(prev => prev.filter(s => s.id !== sessionId))
+        if (currentSession?.id === sessionId) {
+          setCurrentSession(null)
+          setMessages([])
         }
       } catch (error) {
-        console.error("Error loading messages:", error)
-      } finally {
-        setIsLoadingMessages(false)
+        console.error("Error deleting session:", error)
       }
-    }
-  }, [sessions])
-
-  const deleteSession = useCallback(async (sessionId: string) => {
-    try {
-      await fetch(`/api/agent/sessions?session_id=${sessionId}`, {
-        method: "DELETE"
-      })
-      setSessions(prev => prev.filter(s => s.id !== sessionId))
-      if (currentSession?.id === sessionId) {
-        setCurrentSession(null)
-        setMessages([])
-      }
-    } catch (error) {
-      console.error("Error deleting session:", error)
-    }
-  }, [currentSession])
+    },
+    [currentSession]
+  )
 
   const sendMessage = useCallback(
     async (message: string, useStreaming: boolean = true) => {
@@ -329,7 +350,11 @@ export function AgentProvider({ children }: { children: ReactNode }) {
                   const parsed = JSON.parse(data)
 
                   // Handle different event types
-                  if (parsed.name !== undefined && parsed.content === undefined && parsed.id === undefined) {
+                  if (
+                    parsed.name !== undefined &&
+                    parsed.content === undefined &&
+                    parsed.id === undefined
+                  ) {
                     // Session renamed event
                     setCurrentSession(prev =>
                       prev ? { ...prev, name: parsed.name } : prev
@@ -350,7 +375,11 @@ export function AgentProvider({ children }: { children: ReactNode }) {
                           : msg
                       )
                     )
-                  } else if (parsed.id && parsed.name && parsed.arguments !== undefined) {
+                  } else if (
+                    parsed.id &&
+                    parsed.name &&
+                    parsed.arguments !== undefined
+                  ) {
                     // Tool start event
                     const newToolCall: AgentToolCall = {
                       id: parsed.id,
@@ -365,13 +394,21 @@ export function AgentProvider({ children }: { children: ReactNode }) {
                     // Tool complete event
                     collectedToolCalls = collectedToolCalls.map(tc =>
                       tc.id === parsed.id
-                        ? { ...tc, status: "completed" as const, result: parsed.result }
+                        ? {
+                            ...tc,
+                            status: "completed" as const,
+                            result: parsed.result
+                          }
                         : tc
                     )
                     setActiveToolCalls(prev =>
                       prev.map(tc =>
                         tc.id === parsed.id
-                          ? { ...tc, status: "completed" as const, result: parsed.result }
+                          ? {
+                              ...tc,
+                              status: "completed" as const,
+                              result: parsed.result
+                            }
                           : tc
                       )
                     )
@@ -390,7 +427,8 @@ export function AgentProvider({ children }: { children: ReactNode }) {
                                 arguments: tc.arguments,
                                 result: tc.result,
                                 status: tc.status || "completed",
-                                requiresConfirmation: tc.requiresConfirmation || false
+                                requiresConfirmation:
+                                  tc.requiresConfirmation || false
                               }))
                             }
                           : msg
@@ -405,7 +443,11 @@ export function AgentProvider({ children }: { children: ReactNode }) {
                     setMessages(prev =>
                       prev.map(msg =>
                         msg.id === assistantMessageId
-                          ? { ...msg, content: `Error: ${parsed.message}`, isStreaming: false }
+                          ? {
+                              ...msg,
+                              content: `Error: ${parsed.message}`,
+                              isStreaming: false
+                            }
                           : msg
                       )
                     )
@@ -436,7 +478,10 @@ export function AgentProvider({ children }: { children: ReactNode }) {
   )
 
   // Non-streaming message handler (fallback)
-  const sendMessageNonStreaming = async (sessionId: string, message: string) => {
+  const sendMessageNonStreaming = async (
+    sessionId: string,
+    message: string
+  ) => {
     try {
       const response = await fetch("/api/agent/chat", {
         method: "POST",
@@ -464,14 +509,15 @@ export function AgentProvider({ children }: { children: ReactNode }) {
         }
         setMessages(prev => [...prev, errorMessage])
       } else {
-        const formattedToolCalls: AgentToolCall[] | undefined = data.tool_calls?.map((tc: any) => ({
-          id: tc.id,
-          name: tc.name,
-          arguments: tc.arguments,
-          result: tc.result,
-          status: tc.status || "completed",
-          requiresConfirmation: tc.requiresConfirmation || false
-        }))
+        const formattedToolCalls: AgentToolCall[] | undefined =
+          data.tool_calls?.map((tc: any) => ({
+            id: tc.id,
+            name: tc.name,
+            arguments: tc.arguments,
+            result: tc.result,
+            status: tc.status || "completed",
+            requiresConfirmation: tc.requiresConfirmation || false
+          }))
 
         const assistantMessage: AgentChatMessage = {
           id: data.message_id || crypto.randomUUID(),
@@ -492,7 +538,8 @@ export function AgentProvider({ children }: { children: ReactNode }) {
       const errorMessage: AgentChatMessage = {
         id: crypto.randomUUID(),
         role: "assistant",
-        content: "Sorry, there was an error processing your request. Please try again.",
+        content:
+          "Sorry, there was an error processing your request. Please try again.",
         timestamp: new Date()
       }
       setMessages(prev => [...prev, errorMessage])
@@ -501,25 +548,84 @@ export function AgentProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  const confirmToolCall = useCallback(async (toolCallId: string) => {
-    if (!currentSession) return
+  const confirmToolCall = useCallback(
+    async (toolCallId: string) => {
+      if (!currentSession) return
 
-    try {
-      const response = await fetch("/api/agent/confirm", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          session_id: currentSession.id,
-          tool_call_id: toolCallId,
-          action: "confirm"
+      try {
+        const response = await fetch("/api/agent/confirm", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            session_id: currentSession.id,
+            tool_call_id: toolCallId,
+            action: "confirm"
+          })
         })
-      })
 
-      const data = await response.json()
+        const data = await response.json()
 
-      if (data.success) {
-        toast.success("Action approved and executed")
-        // Update the message with the confirmed tool call
+        if (data.success) {
+          toast.success("Action approved and executed")
+          // Update the message with the confirmed tool call
+          setMessages(prev =>
+            prev.map(msg => {
+              if (msg.toolCalls) {
+                return {
+                  ...msg,
+                  toolCalls: msg.toolCalls.map(tc =>
+                    tc.id === toolCallId
+                      ? {
+                          ...tc,
+                          status: "completed" as const,
+                          result: data.result
+                        }
+                      : tc
+                  )
+                }
+              }
+              return msg
+            })
+          )
+
+          // Add a confirmation message
+          const confirmMessage: AgentChatMessage = {
+            id: crypto.randomUUID(),
+            role: "assistant",
+            content: data.result?.message || "Action confirmed and executed.",
+            timestamp: new Date()
+          }
+          setMessages(prev => [...prev, confirmMessage])
+        } else if (data.error) {
+          toast.error(data.error)
+        }
+
+        setPendingConfirmations(prev => prev.filter(tc => tc.id !== toolCallId))
+      } catch (error) {
+        console.error("Error confirming tool call:", error)
+        toast.error("Failed to confirm action")
+      }
+    },
+    [currentSession]
+  )
+
+  const cancelToolCall = useCallback(
+    async (toolCallId: string) => {
+      if (!currentSession) return
+
+      try {
+        await fetch("/api/agent/confirm", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            session_id: currentSession.id,
+            tool_call_id: toolCallId,
+            action: "cancel"
+          })
+        })
+
+        toast.info("Action cancelled")
+        // Update the message with the cancelled tool call
         setMessages(prev =>
           prev.map(msg => {
             if (msg.toolCalls) {
@@ -527,7 +633,7 @@ export function AgentProvider({ children }: { children: ReactNode }) {
                 ...msg,
                 toolCalls: msg.toolCalls.map(tc =>
                   tc.id === toolCallId
-                    ? { ...tc, status: "completed" as const, result: data.result }
+                    ? { ...tc, status: "cancelled" as const }
                     : tc
                 )
               }
@@ -536,72 +642,24 @@ export function AgentProvider({ children }: { children: ReactNode }) {
           })
         )
 
-        // Add a confirmation message
-        const confirmMessage: AgentChatMessage = {
+        // Add a cancellation message
+        const cancelMessage: AgentChatMessage = {
           id: crypto.randomUUID(),
           role: "assistant",
-          content: data.result?.message || "Action confirmed and executed.",
+          content:
+            "Action cancelled. Let me know if you'd like to do something else.",
           timestamp: new Date()
         }
-        setMessages(prev => [...prev, confirmMessage])
-      } else if (data.error) {
-        toast.error(data.error)
+        setMessages(prev => [...prev, cancelMessage])
+
+        setPendingConfirmations(prev => prev.filter(tc => tc.id !== toolCallId))
+      } catch (error) {
+        console.error("Error cancelling tool call:", error)
+        toast.error("Failed to cancel action")
       }
-
-      setPendingConfirmations(prev => prev.filter(tc => tc.id !== toolCallId))
-    } catch (error) {
-      console.error("Error confirming tool call:", error)
-      toast.error("Failed to confirm action")
-    }
-  }, [currentSession])
-
-  const cancelToolCall = useCallback(async (toolCallId: string) => {
-    if (!currentSession) return
-
-    try {
-      await fetch("/api/agent/confirm", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          session_id: currentSession.id,
-          tool_call_id: toolCallId,
-          action: "cancel"
-        })
-      })
-
-      toast.info("Action cancelled")
-      // Update the message with the cancelled tool call
-      setMessages(prev =>
-        prev.map(msg => {
-          if (msg.toolCalls) {
-            return {
-              ...msg,
-              toolCalls: msg.toolCalls.map(tc =>
-                tc.id === toolCallId
-                  ? { ...tc, status: "cancelled" as const }
-                  : tc
-              )
-            }
-          }
-          return msg
-        })
-      )
-
-      // Add a cancellation message
-      const cancelMessage: AgentChatMessage = {
-        id: crypto.randomUUID(),
-        role: "assistant",
-        content: "Action cancelled. Let me know if you'd like to do something else.",
-        timestamp: new Date()
-      }
-      setMessages(prev => [...prev, cancelMessage])
-
-      setPendingConfirmations(prev => prev.filter(tc => tc.id !== toolCallId))
-    } catch (error) {
-      console.error("Error cancelling tool call:", error)
-      toast.error("Failed to cancel action")
-    }
-  }, [currentSession])
+    },
+    [currentSession]
+  )
 
   const loadTasks = useCallback(async (sessionId?: string) => {
     setIsLoadingTasks(true)
@@ -646,23 +704,24 @@ export function AgentProvider({ children }: { children: ReactNode }) {
     [currentSession]
   )
 
-  const updateTaskStatus = useCallback(async (taskId: string, status: string) => {
-    try {
-      const response = await fetch("/api/agent/tasks", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ task_id: taskId, status })
-      })
-      const data = await response.json()
-      if (data.task) {
-        setTasks(prev =>
-          prev.map(t => (t.id === taskId ? data.task : t))
-        )
+  const updateTaskStatus = useCallback(
+    async (taskId: string, status: string) => {
+      try {
+        const response = await fetch("/api/agent/tasks", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ task_id: taskId, status })
+        })
+        const data = await response.json()
+        if (data.task) {
+          setTasks(prev => prev.map(t => (t.id === taskId ? data.task : t)))
+        }
+      } catch (error) {
+        console.error("Error updating task:", error)
       }
-    } catch (error) {
-      console.error("Error updating task:", error)
-    }
-  }, [])
+    },
+    []
+  )
 
   const loadActivities = useCallback(async (sessionId?: string) => {
     setIsLoadingActivities(true)

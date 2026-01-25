@@ -25,8 +25,14 @@ interface AgentMaterialPricesCardProps {
   data: MaterialPricesData
 }
 
-export function AgentMaterialPricesCard({ data }: AgentMaterialPricesCardProps) {
-  if (data.status !== "success" || !data.price_sources || data.price_sources.length === 0) {
+export function AgentMaterialPricesCard({
+  data
+}: AgentMaterialPricesCardProps) {
+  if (
+    data.status !== "success" ||
+    !data.price_sources ||
+    data.price_sources.length === 0
+  ) {
     return null
   }
 
@@ -46,8 +52,8 @@ export function AgentMaterialPricesCard({ data }: AgentMaterialPricesCardProps) 
           <IconCurrencyDollar className="size-5 text-green-400" />
         </div>
         <div>
-          <h3 className="font-semibold text-foreground">Material Pricing</h3>
-          <p className="text-sm font-light text-muted-foreground">
+          <h3 className="text-foreground font-semibold">Material Pricing</h3>
+          <p className="text-muted-foreground text-sm font-light">
             {data.material} {data.region && `• ${data.region}`}
           </p>
         </div>
@@ -68,12 +74,14 @@ export function AgentMaterialPricesCard({ data }: AgentMaterialPricesCardProps) 
                 <h4 className="text-sm font-medium text-blue-400 hover:underline">
                   {source.title}
                 </h4>
-                <p className="mt-0.5 text-xs font-light text-green-400">{getDomain(source.url)}</p>
-                <p className="mt-1 line-clamp-2 text-sm font-light text-muted-foreground">
+                <p className="mt-0.5 text-xs font-light text-green-400">
+                  {getDomain(source.url)}
+                </p>
+                <p className="text-muted-foreground mt-1 line-clamp-2 text-sm font-light">
                   {source.snippet}
                 </p>
               </div>
-              <IconExternalLink className="size-4 shrink-0 text-muted-foreground" />
+              <IconExternalLink className="text-muted-foreground size-4 shrink-0" />
             </div>
           </a>
         ))}
@@ -81,7 +89,7 @@ export function AgentMaterialPricesCard({ data }: AgentMaterialPricesCardProps) 
 
       {/* Note */}
       {data.note && (
-        <div className="flex items-start gap-2 border-t border-blue-500/15 bg-gradient-to-r from-blue-500/10 to-purple-500/10 px-4 py-2 text-xs font-light text-muted-foreground">
+        <div className="text-muted-foreground flex items-start gap-2 border-t border-blue-500/15 bg-gradient-to-r from-blue-500/10 to-purple-500/10 px-4 py-2 text-xs font-light">
           <IconInfoCircle className="mt-0.5 size-4 shrink-0 text-blue-400" />
           <span>{data.note}</span>
         </div>

@@ -51,16 +51,16 @@ export function AgentToolCard({
         )}
       >
         {status === "running" ? (
-          <IconLoader2 className="size-4 animate-spin text-primary" />
+          <IconLoader2 className="text-primary size-4 animate-spin" />
         ) : (
-          <Icon className="size-4 text-muted-foreground" />
+          <Icon className="text-muted-foreground size-4" />
         )}
         <span className="text-muted-foreground">{toolConfig.label}</span>
         {status === "completed" && (
           <IconCheck className="ml-auto size-4 text-green-500" />
         )}
         {status === "failed" && (
-          <IconX className="ml-auto size-4 text-destructive" />
+          <IconX className="text-destructive ml-auto size-4" />
         )}
       </div>
     )
@@ -89,7 +89,7 @@ export function AgentToolCard({
           )}
         >
           {status === "running" ? (
-            <IconLoader2 className="size-4 animate-spin text-primary" />
+            <IconLoader2 className="text-primary size-4 animate-spin" />
           ) : (
             <Icon
               className={cn(
@@ -101,20 +101,20 @@ export function AgentToolCard({
           )}
         </div>
 
-        <div className="flex-1 min-w-0">
+        <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <span className="font-medium text-foreground">
+            <span className="text-foreground font-medium">
               {toolConfig.label}
             </span>
             {status === "completed" && (
               <IconCheck className="size-4 text-green-500" />
             )}
             {status === "failed" && (
-              <IconX className="size-4 text-destructive" />
+              <IconX className="text-destructive size-4" />
             )}
           </div>
           {summary && (
-            <p className="truncate text-sm text-muted-foreground">{summary}</p>
+            <p className="text-muted-foreground truncate text-sm">{summary}</p>
           )}
         </div>
 
@@ -131,7 +131,7 @@ export function AgentToolCard({
 
       {/* Expanded Content */}
       {isExpanded && result && (
-        <div className="border-t border-border p-3">
+        <div className="border-border border-t p-3">
           <ToolResultDisplay toolName={toolName} result={result} />
         </div>
       )}
@@ -152,14 +152,14 @@ function ToolResultDisplay({
       <div className="space-y-2">
         <div className="flex items-center gap-4">
           <div>
-            <p className="text-2xl font-semibold text-foreground">
+            <p className="text-foreground text-2xl font-semibold">
               {result.current?.temp_f}°F
             </p>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               {result.current?.condition}
             </p>
           </div>
-          <div className="text-sm text-muted-foreground">
+          <div className="text-muted-foreground text-sm">
             <p>Humidity: {result.current?.humidity}</p>
             <p>Wind: {result.current?.wind_mph} mph</p>
           </div>
@@ -183,12 +183,12 @@ function ToolResultDisplay({
             href={r.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="block rounded-lg border border-border p-2 transition-colors hover:bg-muted"
+            className="border-border hover:bg-muted block rounded-lg border p-2 transition-colors"
           >
-            <p className="text-sm font-medium text-primary hover:underline">
+            <p className="text-primary text-sm font-medium hover:underline">
               {r.title}
             </p>
-            <p className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">
+            <p className="text-muted-foreground mt-0.5 line-clamp-2 text-xs">
               {r.description}
             </p>
           </a>
@@ -207,11 +207,11 @@ function ToolResultDisplay({
         </div>
         <div className="flex gap-2">
           <span className="text-muted-foreground">Subject:</span>
-          <span className="font-medium text-foreground">
+          <span className="text-foreground font-medium">
             {result.draft.subject}
           </span>
         </div>
-        <div className="mt-2 whitespace-pre-wrap rounded-lg bg-muted p-3 text-foreground">
+        <div className="bg-muted text-foreground mt-2 whitespace-pre-wrap rounded-lg p-3">
           {result.draft.body}
         </div>
       </div>
@@ -224,22 +224,24 @@ function ToolResultDisplay({
       <div className="grid grid-cols-2 gap-4 text-sm">
         <div>
           <p className="text-muted-foreground">Roof Area</p>
-          <p className="font-medium text-foreground">
+          <p className="text-foreground font-medium">
             {result.roof.totalArea?.toLocaleString()} sq ft
           </p>
         </div>
         <div>
           <p className="text-muted-foreground">Facets</p>
-          <p className="font-medium text-foreground">{result.roof.facetCount}</p>
+          <p className="text-foreground font-medium">
+            {result.roof.facetCount}
+          </p>
         </div>
         <div>
           <p className="text-muted-foreground">Main Pitch</p>
-          <p className="font-medium text-foreground">{result.roof.mainPitch}</p>
+          <p className="text-foreground font-medium">{result.roof.mainPitch}</p>
         </div>
         {result.solar && (
           <div>
             <p className="text-muted-foreground">Solar Potential</p>
-            <p className="font-medium text-foreground">
+            <p className="text-foreground font-medium">
               {result.solar.maxPanels} panels
             </p>
           </div>
@@ -249,7 +251,11 @@ function ToolResultDisplay({
   }
 
   // Artifact display - business cards, flyers, etc.
-  if (toolName === "generate_artifact" && result.status === "success" && result.html) {
+  if (
+    toolName === "generate_artifact" &&
+    result.status === "success" &&
+    result.html
+  ) {
     return (
       <ArtifactViewer
         html={result.html}
@@ -261,7 +267,7 @@ function ToolResultDisplay({
 
   // Generic JSON display
   return (
-    <pre className="max-h-40 overflow-auto rounded-lg bg-muted p-2 text-xs text-muted-foreground">
+    <pre className="bg-muted text-muted-foreground max-h-40 overflow-auto rounded-lg p-2 text-xs">
       {JSON.stringify(result, null, 2)}
     </pre>
   )
@@ -301,9 +307,7 @@ function getToolConfig(toolName: string): { icon: any; label: string } {
 }
 
 function formatToolName(name: string): string {
-  return name
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, l => l.toUpperCase())
+  return name.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase())
 }
 
 function getSummary(toolName: string, result: any): string | null {

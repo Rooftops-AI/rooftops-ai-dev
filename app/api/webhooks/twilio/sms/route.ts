@@ -50,7 +50,14 @@ export async function POST(request: Request) {
       FromCountry: formData.get("FromCountry") as string
     }
 
-    console.log("[Inbound SMS]", webhookData.From, "->", webhookData.To, ":", webhookData.Body)
+    console.log(
+      "[Inbound SMS]",
+      webhookData.From,
+      "->",
+      webhookData.To,
+      ":",
+      webhookData.Body
+    )
 
     const supabase = getServiceClient()
 
@@ -60,13 +67,19 @@ export async function POST(request: Request) {
     if (!workspaceId) {
       console.warn("No workspace found for number:", webhookData.To)
       // Still return 200 to Twilio to acknowledge receipt
-      return new Response(generateTwimlResponse("Sorry, we couldn't process your message."), {
-        headers: { "Content-Type": "text/xml" }
-      })
+      return new Response(
+        generateTwimlResponse("Sorry, we couldn't process your message."),
+        {
+          headers: { "Content-Type": "text/xml" }
+        }
+      )
     }
 
     // Look up customer by phone number
-    const customerData = await lookupCustomerByPhone(webhookData.From, workspaceId)
+    const customerData = await lookupCustomerByPhone(
+      webhookData.From,
+      workspaceId
+    )
 
     // Log the inbound message
     await supabase.from("communications").insert({
@@ -104,7 +117,9 @@ export async function POST(request: Request) {
 
     // Still return 200 to Twilio
     return new Response(
-      generateTwimlResponse("Sorry, we encountered an error. Please try again later."),
+      generateTwimlResponse(
+        "Sorry, we encountered an error. Please try again later."
+      ),
       { headers: { "Content-Type": "text/xml" } }
     )
   }
@@ -130,7 +145,10 @@ async function processInboundSms(
       // Stop any active sequences
       await supabase
         .from("sequence_enrollments")
-        .update({ status: "unsubscribed", stopped_at: new Date().toISOString() })
+        .update({
+          status: "unsubscribed",
+          stopped_at: new Date().toISOString()
+        })
         .eq("customer_id", customerData.customer.id)
         .eq("status", "active")
     }
@@ -149,7 +167,11 @@ async function processInboundSms(
   }
 
   // Check for status request
-  if (["status", "update", "where", "when"].some(keyword => messageBody.includes(keyword))) {
+  if (
+    ["status", "update", "where", "when"].some(keyword =>
+      messageBody.includes(keyword)
+    )
+  ) {
     if (customerData?.latestJob) {
       const job = customerData.latestJob
       return getJobStatusMessage(job)
@@ -214,18 +236,27 @@ function getJobStatusMessage(job: any): string {
   const statusMessages: Record<string, string> = {
     lead: "We have your information and will be in touch soon to schedule an estimate.",
     estimate_scheduled: `Your estimate is scheduled for ${job.scheduled_date}. We'll see you then!`,
-    estimate_sent: "Your estimate has been sent. Please review it and let us know if you have questions.",
-    negotiating: "We're working on the details of your project. Someone will be in touch soon.",
+    estimate_sent:
+      "Your estimate has been sent. Please review it and let us know if you have questions.",
+    negotiating:
+      "We're working on the details of your project. Someone will be in touch soon.",
     sold: "Great news! Your project is confirmed. We're working on scheduling.",
-    materials_ordered: "Materials have been ordered for your project. We'll schedule installation soon.",
+    materials_ordered:
+      "Materials have been ordered for your project. We'll schedule installation soon.",
     scheduled: `Your installation is scheduled for ${job.scheduled_date}. We'll see you then!`,
-    in_progress: "Your project is in progress! Our crew is working hard to complete it.",
-    complete: "Your project is complete! Thank you for choosing us. How does everything look?",
-    invoiced: "Your invoice has been sent. Please let us know if you have any questions about your bill.",
+    in_progress:
+      "Your project is in progress! Our crew is working hard to complete it.",
+    complete:
+      "Your project is complete! Thank you for choosing us. How does everything look?",
+    invoiced:
+      "Your invoice has been sent. Please let us know if you have any questions about your bill.",
     paid: "Thank you for your payment! We appreciate your business."
   }
 
-  return statusMessages[job.status] || `Your project status is: ${job.status}. Call our office for more details.`
+  return (
+    statusMessages[job.status] ||
+    `Your project status is: ${job.status}. Call our office for more details.`
+  )
 }
 
 // Generate TwiML response

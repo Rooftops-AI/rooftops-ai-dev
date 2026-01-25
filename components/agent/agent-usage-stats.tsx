@@ -31,13 +31,13 @@ export function AgentUsageStats() {
       {/* Header */}
       <div className="border-b border-gray-800 p-4">
         <h3 className="font-semibold text-white">Usage This Month</h3>
-        <p className="text-xs text-gray-500 mt-1">
+        <p className="mt-1 text-xs text-gray-500">
           Estimated cost: ${(usage.estimatedCostCents / 100).toFixed(2)}
         </p>
       </div>
 
       {/* Stats */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 space-y-4 overflow-y-auto p-4">
         <StatCard
           icon={<IconCoins className="size-5 text-yellow-400" />}
           label="Tokens Used"
@@ -67,8 +67,8 @@ export function AgentUsageStats() {
         />
 
         {/* Period info */}
-        <div className="pt-4 border-t border-gray-800">
-          <div className="text-xs text-gray-500 text-center">
+        <div className="border-t border-gray-800 pt-4">
+          <div className="text-center text-xs text-gray-500">
             Usage resets monthly
           </div>
         </div>

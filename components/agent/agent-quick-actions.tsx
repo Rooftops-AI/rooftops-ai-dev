@@ -109,7 +109,8 @@ const BASE_QUICK_ACTIONS: QuickAction[] = [
     icon: IconTrendingUp,
     label: "Material Prices",
     description: "Current roofing prices",
-    prompt: "What are the current prices for roofing materials including shingles, underlayment, and flashing?",
+    prompt:
+      "What are the current prices for roofing materials including shingles, underlayment, and flashing?",
     category: "research",
     priority: 55
   },
@@ -150,7 +151,8 @@ const BASE_QUICK_ACTIONS: QuickAction[] = [
     icon: IconPhone,
     label: "Call Script",
     description: "Sales or follow-up script",
-    prompt: "Create a phone call script for following up with a customer about ",
+    prompt:
+      "Create a phone call script for following up with a customer about ",
     category: "communication",
     priority: 45
   }
@@ -236,14 +238,32 @@ const CONNECTED_APP_ACTIONS: QuickAction[] = [
 const CONTEXTUAL_SUGGESTIONS = {
   // Keywords that trigger suggestions
   triggers: {
-    "property": ["Generate a property report for this address", "What's the roof area?"],
-    "address": ["Generate a property report for this address", "What's the weather at this location?"],
-    "customer": ["Send a follow-up email to this customer", "Schedule a callback with this customer"],
-    "estimate": ["Create an estimate for this job", "Email this estimate to the customer"],
-    "schedule": ["Check my availability this week", "Schedule an appointment"],
-    "weather": ["Get the 7-day forecast", "Is it safe to work on the roof tomorrow?"],
-    "material": ["Compare shingle prices", "What's the lead time for metal roofing?"],
-    "email": ["Draft a follow-up email", "Send appointment reminder"]
+    property: [
+      "Generate a property report for this address",
+      "What's the roof area?"
+    ],
+    address: [
+      "Generate a property report for this address",
+      "What's the weather at this location?"
+    ],
+    customer: [
+      "Send a follow-up email to this customer",
+      "Schedule a callback with this customer"
+    ],
+    estimate: [
+      "Create an estimate for this job",
+      "Email this estimate to the customer"
+    ],
+    schedule: ["Check my availability this week", "Schedule an appointment"],
+    weather: [
+      "Get the 7-day forecast",
+      "Is it safe to work on the roof tomorrow?"
+    ],
+    material: [
+      "Compare shingle prices",
+      "What's the lead time for metal roofing?"
+    ],
+    email: ["Draft a follow-up email", "Send appointment reminder"]
   }
 }
 
@@ -290,7 +310,9 @@ export function AgentQuickActions({
   const availableConnectedActions = CONNECTED_APP_ACTIONS.filter(action => {
     if (!action.requiresApp) return false
     return action.requiresApp.some(app =>
-      connectedApps.some(connected => connected.toLowerCase().includes(app.toLowerCase()))
+      connectedApps.some(connected =>
+        connected.toLowerCase().includes(app.toLowerCase())
+      )
     )
   })
 
@@ -300,11 +322,13 @@ export function AgentQuickActions({
     const contextLower = conversationContext.toLowerCase()
     const suggestions: string[] = []
 
-    Object.entries(CONTEXTUAL_SUGGESTIONS.triggers).forEach(([keyword, prompts]) => {
-      if (contextLower.includes(keyword)) {
-        suggestions.push(...prompts)
+    Object.entries(CONTEXTUAL_SUGGESTIONS.triggers).forEach(
+      ([keyword, prompts]) => {
+        if (contextLower.includes(keyword)) {
+          suggestions.push(...prompts)
+        }
       }
-    })
+    )
 
     return suggestions.slice(0, 3) // Limit to 3 contextual suggestions
   }
@@ -314,8 +338,9 @@ export function AgentQuickActions({
   if (!visible) return null
 
   // Combine base actions with available connected actions and sort by priority
-  const allActions = [...BASE_QUICK_ACTIONS, ...availableConnectedActions]
-    .sort((a, b) => (b.priority || 0) - (a.priority || 0))
+  const allActions = [...BASE_QUICK_ACTIONS, ...availableConnectedActions].sort(
+    (a, b) => (b.priority || 0) - (a.priority || 0)
+  )
 
   // Group actions by category
   const categories = {
@@ -326,16 +351,33 @@ export function AgentQuickActions({
     connected: allActions.filter(a => a.category === "connected")
   }
 
-  const categoryLabels: Record<string, { label: string; icon: any; color: string }> = {
+  const categoryLabels: Record<
+    string,
+    { label: string; icon: any; color: string }
+  > = {
     roofing: { label: "Roofing", icon: IconHome, color: "teal" },
     research: { label: "Research", icon: IconSearch, color: "blue" },
     documents: { label: "Documents", icon: IconFileText, color: "purple" },
     communication: { label: "Communicate", icon: IconMail, color: "orange" },
-    connected: { label: "Connected Apps", icon: IconPlugConnected, color: "green" }
+    connected: {
+      label: "Connected Apps",
+      icon: IconPlugConnected,
+      color: "green"
+    }
   }
 
   const getCategoryColors = (category: string, isSelected: boolean) => {
-    const colors: Record<string, { border: string; bg: string; text: string; selectedBorder: string; selectedBg: string; selectedText: string }> = {
+    const colors: Record<
+      string,
+      {
+        border: string
+        bg: string
+        text: string
+        selectedBorder: string
+        selectedBg: string
+        selectedText: string
+      }
+    > = {
       roofing: {
         border: "border-teal-600/30",
         bg: "bg-teal-500/5",
@@ -409,35 +451,40 @@ export function AgentQuickActions({
         )}
 
         {/* Category tabs */}
-        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin scrollbar-thumb-gray-700">
-          {Object.entries(categoryLabels).map(([key, { label, icon: Icon, color }]) => {
-            const count = categories[key as keyof typeof categories]?.length || 0
-            if (count === 0) return null
+        <div className="scrollbar-thin scrollbar-thumb-gray-700 flex gap-2 overflow-x-auto pb-1">
+          {Object.entries(categoryLabels).map(
+            ([key, { label, icon: Icon, color }]) => {
+              const count =
+                categories[key as keyof typeof categories]?.length || 0
+              if (count === 0) return null
 
-            const isSelected = selectedCategory === key
-            const colors = getCategoryColors(key, isSelected)
-            return (
-              <button
-                key={key}
-                onClick={() => setSelectedCategory(isSelected ? null : key)}
-                className={cn(
-                  "flex shrink-0 items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-all",
-                  isSelected
-                    ? `${colors.border} ${colors.bg} ${colors.text}`
-                    : "border-blue-500/15 bg-gradient-to-br from-blue-500/5 to-purple-500/5 text-muted-foreground hover:border-blue-500/25 hover:text-foreground"
-                )}
-              >
-                <Icon className="size-3.5" />
-                {label}
-                <span className={cn(
-                  "rounded-full px-1.5 text-[10px]",
-                  isSelected ? `${colors.bg}` : "bg-blue-500/10"
-                )}>
-                  {count}
-                </span>
-              </button>
-            )
-          })}
+              const isSelected = selectedCategory === key
+              const colors = getCategoryColors(key, isSelected)
+              return (
+                <button
+                  key={key}
+                  onClick={() => setSelectedCategory(isSelected ? null : key)}
+                  className={cn(
+                    "flex shrink-0 items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-all",
+                    isSelected
+                      ? `${colors.border} ${colors.bg} ${colors.text}`
+                      : "text-muted-foreground hover:text-foreground border-blue-500/15 bg-gradient-to-br from-blue-500/5 to-purple-500/5 hover:border-blue-500/25"
+                  )}
+                >
+                  <Icon className="size-3.5" />
+                  {label}
+                  <span
+                    className={cn(
+                      "rounded-full px-1.5 text-[10px]",
+                      isSelected ? `${colors.bg}` : "bg-blue-500/10"
+                    )}
+                  >
+                    {count}
+                  </span>
+                </button>
+              )
+            }
+          )}
         </div>
 
         {/* Featured Quick Actions - Show when no category selected */}
@@ -458,11 +505,13 @@ export function AgentQuickActions({
                     "hover:shadow-lg hover:shadow-black/20"
                   )}
                 >
-                  <div className={cn(
-                    "flex size-10 items-center justify-center rounded-lg",
-                    colors.bg,
-                    "ring-1 ring-white/10"
-                  )}>
+                  <div
+                    className={cn(
+                      "flex size-10 items-center justify-center rounded-lg",
+                      colors.bg,
+                      "ring-1 ring-white/10"
+                    )}
+                  >
                     <action.icon className={cn("size-5", colors.text)} />
                   </div>
                   <div>
@@ -480,10 +529,12 @@ export function AgentQuickActions({
         )}
 
         {/* Actions list - Show when category is selected or as additional options */}
-        <div className={cn(
-          "flex flex-wrap gap-2",
-          !selectedCategory && "border-t border-blue-500/15 pt-3"
-        )}>
+        <div
+          className={cn(
+            "flex flex-wrap gap-2",
+            !selectedCategory && "border-t border-blue-500/15 pt-3"
+          )}
+        >
           {(selectedCategory
             ? categories[selectedCategory as keyof typeof categories]
             : allActions.slice(4, 12)
@@ -502,9 +553,19 @@ export function AgentQuickActions({
                   "hover:border-opacity-70 hover:bg-opacity-20"
                 )}
               >
-                <action.icon className={cn("size-4", colors.text, "group-hover:scale-110 transition-transform")} />
+                <action.icon
+                  className={cn(
+                    "size-4",
+                    colors.text,
+                    "transition-transform group-hover:scale-110"
+                  )}
+                />
                 <div className="text-left">
-                  <div className={cn("font-medium text-gray-300 group-hover:text-white")}>
+                  <div
+                    className={cn(
+                      "font-medium text-gray-300 group-hover:text-white"
+                    )}
+                  >
                     {action.label}
                   </div>
                   <div className="text-xs text-gray-500">
@@ -523,10 +584,15 @@ export function AgentQuickActions({
               <IconPlugConnected className="size-4 text-gray-400" />
             </div>
             <div className="flex-1">
-              <div className="text-xs font-medium text-gray-400">Supercharge your workflow</div>
-              <div className="text-[11px] text-gray-500">Connect Gmail, Calendar, Slack, or your CRM to unlock powerful automations</div>
+              <div className="text-xs font-medium text-gray-400">
+                Supercharge your workflow
+              </div>
+              <div className="text-[11px] text-gray-500">
+                Connect Gmail, Calendar, Slack, or your CRM to unlock powerful
+                automations
+              </div>
             </div>
-            <button className="shrink-0 rounded-xl border border-blue-500/20 bg-gradient-to-br from-blue-500/10 to-purple-500/10 px-3 py-1.5 text-xs font-medium text-foreground transition-all hover:border-blue-500/30 hover:from-blue-500/15 hover:to-purple-500/15">
+            <button className="text-foreground shrink-0 rounded-xl border border-blue-500/20 bg-gradient-to-br from-blue-500/10 to-purple-500/10 px-3 py-1.5 text-xs font-medium transition-all hover:border-blue-500/30 hover:from-blue-500/15 hover:to-purple-500/15">
               Connect Apps
             </button>
           </div>
@@ -537,7 +603,10 @@ export function AgentQuickActions({
           <div className="flex items-center gap-2 text-xs text-gray-500">
             <div className="flex items-center gap-1.5">
               <div className="size-2 animate-pulse rounded-full bg-green-500" />
-              <span>{availableConnectedActions.length} connected app{availableConnectedActions.length !== 1 ? 's' : ''} available</span>
+              <span>
+                {availableConnectedActions.length} connected app
+                {availableConnectedActions.length !== 1 ? "s" : ""} available
+              </span>
             </div>
           </div>
         )}
@@ -559,7 +628,10 @@ interface ConnectedAppsIndicatorProps {
   onManageApps?: () => void
 }
 
-export function ConnectedAppsIndicator({ apps, onManageApps }: ConnectedAppsIndicatorProps) {
+export function ConnectedAppsIndicator({
+  apps,
+  onManageApps
+}: ConnectedAppsIndicatorProps) {
   const connectedCount = apps.filter(a => a.connected).length
 
   if (apps.length === 0) {
@@ -569,9 +641,11 @@ export function ConnectedAppsIndicator({ apps, onManageApps }: ConnectedAppsIndi
   return (
     <div className="flex items-center gap-2 text-xs">
       <div className="flex items-center gap-1">
-        <div className={`size-2 rounded-full ${connectedCount > 0 ? 'bg-green-500 shadow-sm shadow-green-500/50' : 'bg-muted-foreground/50'}`} />
+        <div
+          className={`size-2 rounded-full ${connectedCount > 0 ? "bg-green-500 shadow-sm shadow-green-500/50" : "bg-muted-foreground/50"}`}
+        />
         <span className="text-gray-400">
-          {connectedCount} app{connectedCount !== 1 ? 's' : ''} connected
+          {connectedCount} app{connectedCount !== 1 ? "s" : ""} connected
         </span>
       </div>
       {onManageApps && (

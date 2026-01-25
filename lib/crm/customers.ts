@@ -230,19 +230,23 @@ export async function updateCustomer(
   if (input.name !== undefined) updateData.name = input.name
   if (input.email !== undefined) updateData.email = input.email
   if (input.phone !== undefined) updateData.phone = input.phone
-  if (input.secondaryPhone !== undefined) updateData.secondary_phone = input.secondaryPhone
+  if (input.secondaryPhone !== undefined)
+    updateData.secondary_phone = input.secondaryPhone
   if (input.address !== undefined) updateData.address = input.address
   if (input.city !== undefined) updateData.city = input.city
   if (input.state !== undefined) updateData.state = input.state
   if (input.zip !== undefined) updateData.zip = input.zip
   if (input.status !== undefined) updateData.status = input.status
   if (input.source !== undefined) updateData.source = input.source
-  if (input.sourceDetails !== undefined) updateData.source_details = input.sourceDetails
+  if (input.sourceDetails !== undefined)
+    updateData.source_details = input.sourceDetails
   if (input.assignedTo !== undefined) updateData.assigned_to = input.assignedTo
   if (input.notes !== undefined) updateData.notes = input.notes
   if (input.tags !== undefined) updateData.tags = input.tags
-  if (input.propertyType !== undefined) updateData.property_type = input.propertyType
-  if (input.preferredContactMethod !== undefined) updateData.preferred_contact_method = input.preferredContactMethod
+  if (input.propertyType !== undefined)
+    updateData.property_type = input.propertyType
+  if (input.preferredContactMethod !== undefined)
+    updateData.preferred_contact_method = input.preferredContactMethod
   if (input.doNotCall !== undefined) updateData.do_not_call = input.doNotCall
   if (input.doNotText !== undefined) updateData.do_not_text = input.doNotText
   if (input.doNotEmail !== undefined) updateData.do_not_email = input.doNotEmail
@@ -270,10 +274,7 @@ export async function deleteCustomer(
 ): Promise<boolean> {
   const client = supabase || getServiceClient()
 
-  const { error } = await client
-    .from("customers")
-    .delete()
-    .eq("id", customerId)
+  const { error } = await client.from("customers").delete().eq("id", customerId)
 
   if (error) {
     console.error("Failed to delete customer:", error)

@@ -40,8 +40,8 @@ export function AgentConfirmation({
           <Icon className="size-5 text-amber-600 dark:text-amber-400" />
         </div>
         <div className="flex-1">
-          <h3 className="font-medium text-foreground">{config.title}</h3>
-          <p className="mt-0.5 text-sm text-muted-foreground">
+          <h3 className="text-foreground font-medium">{config.title}</h3>
+          <p className="text-muted-foreground mt-0.5 text-sm">
             {config.description}
           </p>
         </div>
@@ -58,8 +58,10 @@ export function AgentConfirmation({
           onClick={onConfirm}
           disabled={isProcessing}
           className={cn(
-            "flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors",
-            isProcessing ? "opacity-50 cursor-not-allowed" : "hover:bg-primary/90"
+            "bg-primary text-primary-foreground flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors",
+            isProcessing
+              ? "cursor-not-allowed opacity-50"
+              : "hover:bg-primary/90"
           )}
         >
           {isProcessing ? (
@@ -77,7 +79,7 @@ export function AgentConfirmation({
         <button
           onClick={onCancel}
           disabled={isProcessing}
-          className="flex items-center gap-2 rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
+          className="border-border bg-background text-foreground hover:bg-muted flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
         >
           <IconX className="size-4" />
           <span>Cancel</span>
@@ -87,11 +89,21 @@ export function AgentConfirmation({
   )
 }
 
-function PreviewContent({ toolName, preview }: { toolName: string; preview: any }) {
+function PreviewContent({
+  toolName,
+  preview
+}: {
+  toolName: string
+  preview: any
+}) {
   // Email preview
-  if (toolName.includes("email") || toolName.includes("gmail") || toolName.includes("mail")) {
+  if (
+    toolName.includes("email") ||
+    toolName.includes("gmail") ||
+    toolName.includes("mail")
+  ) {
     return (
-      <div className="rounded-lg border border-border bg-background p-4">
+      <div className="border-border bg-background rounded-lg border p-4">
         {preview?.to && (
           <div className="flex gap-2 text-sm">
             <span className="text-muted-foreground">To:</span>
@@ -101,11 +113,13 @@ function PreviewContent({ toolName, preview }: { toolName: string; preview: any 
         {preview?.subject && (
           <div className="mt-2 flex gap-2 text-sm">
             <span className="text-muted-foreground">Subject:</span>
-            <span className="font-medium text-foreground">{preview.subject}</span>
+            <span className="text-foreground font-medium">
+              {preview.subject}
+            </span>
           </div>
         )}
         {preview?.body && (
-          <div className="mt-3 whitespace-pre-wrap rounded-lg bg-muted p-3 text-sm text-foreground">
+          <div className="bg-muted text-foreground mt-3 whitespace-pre-wrap rounded-lg p-3 text-sm">
             {preview.body}
           </div>
         )}
@@ -114,23 +128,33 @@ function PreviewContent({ toolName, preview }: { toolName: string; preview: any 
   }
 
   // Calendar event preview
-  if (toolName.includes("calendar") || toolName.includes("schedule") || toolName.includes("event")) {
+  if (
+    toolName.includes("calendar") ||
+    toolName.includes("schedule") ||
+    toolName.includes("event")
+  ) {
     return (
-      <div className="rounded-lg border border-border bg-background p-4">
+      <div className="border-border bg-background rounded-lg border p-4">
         {preview?.title && (
-          <p className="font-medium text-foreground">{preview.title}</p>
+          <p className="text-foreground font-medium">{preview.title}</p>
         )}
         {preview?.datetime && (
-          <p className="mt-1 text-sm text-muted-foreground">{preview.datetime}</p>
+          <p className="text-muted-foreground mt-1 text-sm">
+            {preview.datetime}
+          </p>
         )}
         {preview?.attendees && preview.attendees.length > 0 && (
           <div className="mt-2 flex gap-2 text-sm">
             <span className="text-muted-foreground">Attendees:</span>
-            <span className="text-foreground">{preview.attendees.join(", ")}</span>
+            <span className="text-foreground">
+              {preview.attendees.join(", ")}
+            </span>
           </div>
         )}
         {preview?.description && (
-          <p className="mt-3 text-sm text-muted-foreground">{preview.description}</p>
+          <p className="text-muted-foreground mt-3 text-sm">
+            {preview.description}
+          </p>
         )}
       </div>
     )
@@ -139,7 +163,7 @@ function PreviewContent({ toolName, preview }: { toolName: string; preview: any 
   // Slack message preview
   if (toolName.includes("slack")) {
     return (
-      <div className="rounded-lg border border-border bg-background p-4">
+      <div className="border-border bg-background rounded-lg border p-4">
         {preview?.channel && (
           <div className="flex gap-2 text-sm">
             <span className="text-muted-foreground">Channel:</span>
@@ -147,7 +171,7 @@ function PreviewContent({ toolName, preview }: { toolName: string; preview: any 
           </div>
         )}
         {preview?.message && (
-          <div className="mt-3 whitespace-pre-wrap rounded-lg bg-muted p-3 text-sm text-foreground">
+          <div className="bg-muted text-foreground mt-3 whitespace-pre-wrap rounded-lg p-3 text-sm">
             {preview.message}
           </div>
         )}
@@ -157,8 +181,8 @@ function PreviewContent({ toolName, preview }: { toolName: string; preview: any 
 
   // Generic preview
   return (
-    <div className="rounded-lg border border-border bg-background p-4">
-      <pre className="max-h-40 overflow-auto text-sm text-muted-foreground">
+    <div className="border-border bg-background rounded-lg border p-4">
+      <pre className="text-muted-foreground max-h-40 overflow-auto text-sm">
         {JSON.stringify(preview, null, 2)}
       </pre>
     </div>
@@ -172,7 +196,12 @@ function getConfirmationConfig(toolName: string): {
 } {
   const nameLower = toolName.toLowerCase()
 
-  if (nameLower.includes("send") && (nameLower.includes("email") || nameLower.includes("mail") || nameLower.includes("gmail"))) {
+  if (
+    nameLower.includes("send") &&
+    (nameLower.includes("email") ||
+      nameLower.includes("mail") ||
+      nameLower.includes("gmail"))
+  ) {
     return {
       icon: IconMail,
       title: "Ready to send email",
@@ -180,7 +209,10 @@ function getConfirmationConfig(toolName: string): {
     }
   }
 
-  if (nameLower.includes("schedule") || nameLower.includes("create") && nameLower.includes("event")) {
+  if (
+    nameLower.includes("schedule") ||
+    (nameLower.includes("create") && nameLower.includes("event"))
+  ) {
     return {
       icon: IconCalendar,
       title: "Create calendar event",

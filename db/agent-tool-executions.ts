@@ -219,8 +219,13 @@ export const getToolExecutionStats = async (
     return { total: 0, completed: 0, failed: 0, avgExecutionTimeMs: 0 }
   }
 
-  const typedExecutions = executions as Array<{ status: string; execution_time_ms: number | null }>
-  const completedExecutions = typedExecutions.filter(e => e.status === "completed")
+  const typedExecutions = executions as Array<{
+    status: string
+    execution_time_ms: number | null
+  }>
+  const completedExecutions = typedExecutions.filter(
+    e => e.status === "completed"
+  )
   const avgExecutionTimeMs =
     completedExecutions.length > 0
       ? completedExecutions.reduce(

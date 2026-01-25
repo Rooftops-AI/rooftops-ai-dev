@@ -2,7 +2,11 @@
 // Database operations for AI Agent usage tracking (for billing)
 
 import { supabase as supabaseClient } from "@/lib/supabase/browser-client"
-import { AgentUsage, AgentUsageInsert, AgentUsageStats } from "@/types/agent-types"
+import {
+  AgentUsage,
+  AgentUsageInsert,
+  AgentUsageStats
+} from "@/types/agent-types"
 
 // Type assertion for agent tables (tables not yet in generated types)
 const supabase = supabaseClient as any
@@ -92,7 +96,9 @@ export const trackTokenUsage = async (
   return updatedUsage as AgentUsage
 }
 
-export const trackTaskExecution = async (userId: string): Promise<AgentUsage> => {
+export const trackTaskExecution = async (
+  userId: string
+): Promise<AgentUsage> => {
   const usage = await getOrCreateAgentUsage(userId)
 
   const { data: updatedUsage, error } = await supabase
@@ -130,7 +136,9 @@ export const trackToolCall = async (userId: string): Promise<AgentUsage> => {
   return updatedUsage as AgentUsage
 }
 
-export const trackSessionCreated = async (userId: string): Promise<AgentUsage> => {
+export const trackSessionCreated = async (
+  userId: string
+): Promise<AgentUsage> => {
   const usage = await getOrCreateAgentUsage(userId)
 
   const { data: updatedUsage, error } = await supabase
@@ -185,7 +193,8 @@ export const getAgentUsageStats = async (
       return {
         totalSessions: acc.totalSessions + record.total_sessions,
         totalMessages: acc.totalMessages + 0, // Messages tracked separately
-        totalTasksCompleted: acc.totalTasksCompleted + record.total_tasks_executed,
+        totalTasksCompleted:
+          acc.totalTasksCompleted + record.total_tasks_executed,
         totalToolCalls: acc.totalToolCalls + record.total_tool_calls,
         totalTokensUsed:
           acc.totalTokensUsed +
@@ -268,9 +277,17 @@ export const checkAgentUsageLimits = async (
 
   return {
     withinLimits,
-    tokensRemaining: tokensRemaining !== undefined ? Math.max(0, tokensRemaining) : undefined,
-    tasksRemaining: tasksRemaining !== undefined ? Math.max(0, tasksRemaining) : undefined,
-    toolCallsRemaining: toolCallsRemaining !== undefined ? Math.max(0, toolCallsRemaining) : undefined,
-    sessionsRemaining: sessionsRemaining !== undefined ? Math.max(0, sessionsRemaining) : undefined
+    tokensRemaining:
+      tokensRemaining !== undefined ? Math.max(0, tokensRemaining) : undefined,
+    tasksRemaining:
+      tasksRemaining !== undefined ? Math.max(0, tasksRemaining) : undefined,
+    toolCallsRemaining:
+      toolCallsRemaining !== undefined
+        ? Math.max(0, toolCallsRemaining)
+        : undefined,
+    sessionsRemaining:
+      sessionsRemaining !== undefined
+        ? Math.max(0, sessionsRemaining)
+        : undefined
   }
 }

@@ -74,8 +74,17 @@ export interface SendMessageResult {
 export async function sendMessage(
   options: SendMessageOptions
 ): Promise<SendMessageResult> {
-  const { channel, to, body, subject, workspaceId, customerId, jobId, html, mediaUrls } =
-    options
+  const {
+    channel,
+    to,
+    body,
+    subject,
+    workspaceId,
+    customerId,
+    jobId,
+    html,
+    mediaUrls
+  } = options
 
   switch (channel) {
     case "sms":
@@ -158,7 +167,9 @@ export async function getCustomerPreferredChannel(
 
   const { data: customer } = await supabase
     .from("customers")
-    .select("preferred_contact_method, phone, email, do_not_call, do_not_text, do_not_email")
+    .select(
+      "preferred_contact_method, phone, email, do_not_call, do_not_text, do_not_email"
+    )
     .eq("id", customerId)
     .single()
 
@@ -304,7 +315,9 @@ export async function getWorkspaceByPhoneNumber(
   const { data } = await supabase
     .from("phone_numbers")
     .select("workspace_id")
-    .or(`phone_number.eq.${phoneNumber},phone_number.eq.+${normalized},phone_number.eq.+1${normalized}`)
+    .or(
+      `phone_number.eq.${phoneNumber},phone_number.eq.+${normalized},phone_number.eq.+1${normalized}`
+    )
     .eq("active", true)
     .single()
 

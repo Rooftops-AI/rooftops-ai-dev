@@ -34,7 +34,8 @@ export async function GET() {
     const { PipedreamClient } = require("@pipedream/sdk")
 
     // Determine environment
-    const projectEnvironment = process.env.PIPEDREAM_PROJECT_ENVIRONMENT || "development"
+    const projectEnvironment =
+      process.env.PIPEDREAM_PROJECT_ENVIRONMENT || "development"
 
     const pd = new PipedreamClient({
       clientId,

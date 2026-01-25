@@ -107,10 +107,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (!session || session.user_id !== user.id) {
-      return NextResponse.json(
-        { error: "Session not found" },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: "Session not found" }, { status: 404 })
     }
 
     const taskData: AgentTaskInsert = {
@@ -190,10 +187,7 @@ export async function PATCH(request: NextRequest) {
       .single()
 
     if (!existingTask || existingTask.user_id !== user.id) {
-      return NextResponse.json(
-        { error: "Task not found" },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: "Task not found" }, { status: 404 })
     }
 
     // Handle status transitions
@@ -325,10 +319,7 @@ export async function DELETE(request: NextRequest) {
       .single()
 
     if (!existingTask || existingTask.user_id !== user.id) {
-      return NextResponse.json(
-        { error: "Task not found" },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: "Task not found" }, { status: 404 })
     }
 
     const { error } = await supabase

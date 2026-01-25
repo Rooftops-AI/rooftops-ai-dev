@@ -23,7 +23,8 @@ export function AgentChatInput({ disabled }: AgentChatInputProps) {
   const [showQuickActions, setShowQuickActions] = useState(false)
   const [cursorAtEnd, setCursorAtEnd] = useState(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const { sendMessage, isGenerating, currentSession, hasAccess, messages } = useAgent()
+  const { sendMessage, isGenerating, currentSession, hasAccess, messages } =
+    useAgent()
 
   // Show quick actions when chat is empty and no messages yet
   const shouldShowQuickActionsHint = messages.length === 0 && !input
@@ -120,7 +121,7 @@ export function AgentChatInput({ disabled }: AgentChatInputProps) {
                         : "Tell your agent what you need help with..."
                 }
                 disabled={isDisabled}
-                className="min-h-[56px] max-h-[200px] resize-none pr-4"
+                className="max-h-[200px] min-h-[56px] resize-none pr-4"
                 rows={1}
               />
             </div>
@@ -129,7 +130,7 @@ export function AgentChatInput({ disabled }: AgentChatInputProps) {
               onClick={handleSend}
               disabled={isDisabled || !input.trim()}
               size="icon"
-              className="h-[56px] w-[56px] shrink-0"
+              className="size-[56px] shrink-0"
             >
               {isGenerating ? (
                 <IconLoader2 className="size-5 animate-spin" />
@@ -139,13 +140,13 @@ export function AgentChatInput({ disabled }: AgentChatInputProps) {
             </Button>
           </div>
 
-          <div className="mt-3 flex items-center justify-between text-xs font-light text-muted-foreground">
+          <div className="text-muted-foreground mt-3 flex items-center justify-between text-xs font-light">
             <div className="flex items-center gap-3">
               <span>Enter to send • Shift+Enter for new line</span>
               <span className="text-blue-500/30">•</span>
               <button
                 onClick={() => setShowQuickActions(!showQuickActions)}
-                className="text-muted-foreground transition-colors hover:text-foreground"
+                className="text-muted-foreground hover:text-foreground transition-colors"
               >
                 {showQuickActions ? (
                   <span className="flex items-center gap-1">
@@ -161,7 +162,9 @@ export function AgentChatInput({ disabled }: AgentChatInputProps) {
               </button>
             </div>
             {currentSession && (
-              <span className="text-muted-foreground/60">{currentSession.name}</span>
+              <span className="text-muted-foreground/60">
+                {currentSession.name}
+              </span>
             )}
           </div>
         </div>

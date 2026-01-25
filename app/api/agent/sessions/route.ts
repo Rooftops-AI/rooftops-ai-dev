@@ -5,10 +5,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { cookies } from "next/headers"
 import { checkAgentAccess } from "@/lib/entitlements"
-import {
-  AgentSessionInsert,
-  AgentSessionUpdate
-} from "@/types/agent-types"
+import { AgentSessionInsert, AgentSessionUpdate } from "@/types/agent-types"
 
 export const runtime = "nodejs"
 
@@ -189,10 +186,7 @@ export async function PATCH(request: NextRequest) {
       .single()
 
     if (!existingSession || existingSession.user_id !== user.id) {
-      return NextResponse.json(
-        { error: "Session not found" },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: "Session not found" }, { status: 404 })
     }
 
     const { data: session, error } = await supabase
@@ -253,10 +247,7 @@ export async function DELETE(request: NextRequest) {
       .single()
 
     if (!existingSession || existingSession.user_id !== user.id) {
-      return NextResponse.json(
-        { error: "Session not found" },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: "Session not found" }, { status: 404 })
     }
 
     const { error } = await supabase

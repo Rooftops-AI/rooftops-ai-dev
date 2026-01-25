@@ -24,7 +24,9 @@ export function AgentChat() {
           <div className="rounded-xl border border-blue-500/20 bg-gradient-to-br from-blue-500/10 to-purple-500/10 p-4 backdrop-blur-md">
             <IconLoader2 className="size-8 animate-spin text-blue-500" />
           </div>
-          <span className="text-sm font-light text-foreground/70">Loading AI Agent...</span>
+          <span className="text-foreground/70 text-sm font-light">
+            Loading AI Agent...
+          </span>
         </div>
       </div>
     )

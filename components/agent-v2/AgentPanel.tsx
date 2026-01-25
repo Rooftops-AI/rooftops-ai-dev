@@ -168,16 +168,22 @@ export function AgentPanel({ workspaceId }: AgentPanelProps) {
             {/* Keyboard hint */}
             <div className="text-muted-foreground mt-2 flex items-center justify-center gap-4 text-xs">
               <span>
-                <kbd className="border-border bg-muted rounded border px-1.5 py-0.5 font-mono">Enter</kbd>
-                {" "}to send
+                <kbd className="border-border bg-muted rounded border px-1.5 py-0.5 font-mono">
+                  Enter
+                </kbd>{" "}
+                to send
               </span>
               <span>
-                <kbd className="border-border bg-muted rounded border px-1.5 py-0.5 font-mono">Esc</kbd>
-                {" "}to cancel
+                <kbd className="border-border bg-muted rounded border px-1.5 py-0.5 font-mono">
+                  Esc
+                </kbd>{" "}
+                to cancel
               </span>
               <span className="hidden sm:inline">
-                <kbd className="border-border bg-muted rounded border px-1.5 py-0.5 font-mono">Cmd+K</kbd>
-                {" "}new task
+                <kbd className="border-border bg-muted rounded border px-1.5 py-0.5 font-mono">
+                  Cmd+K
+                </kbd>{" "}
+                new task
               </span>
             </div>
           </div>
@@ -209,7 +215,9 @@ export function AgentPanel({ workspaceId }: AgentPanelProps) {
 
       {/* Keyboard Shortcuts Modal */}
       {showKeyboardShortcuts && (
-        <KeyboardShortcutsModal onClose={() => setShowKeyboardShortcuts(false)} />
+        <KeyboardShortcutsModal
+          onClose={() => setShowKeyboardShortcuts(false)}
+        />
       )}
     </div>
   )
@@ -221,7 +229,11 @@ interface ConnectedAppsIndicatorProps {
   onClick: () => void
 }
 
-function ConnectedAppsIndicator({ apps, isLoading, onClick }: ConnectedAppsIndicatorProps) {
+function ConnectedAppsIndicator({
+  apps,
+  isLoading,
+  onClick
+}: ConnectedAppsIndicatorProps) {
   if (isLoading) {
     return (
       <div className="border-border bg-background flex items-center gap-2 rounded-lg border px-3 py-2">
@@ -342,7 +354,8 @@ const AI_EMPLOYEES: AIEmployee[] = [
     name: "Alex",
     role: "Sales Consultant",
     icon: IconCurrencyDollar,
-    description: "Your AI sales rep that identifies leads, sends follow-ups, and helps close deals.",
+    description:
+      "Your AI sales rep that identifies leads, sends follow-ups, and helps close deals.",
     capabilities: [
       "Identify leads from property data",
       "Send personalized outreach emails",
@@ -357,14 +370,16 @@ const AI_EMPLOYEES: AIEmployee[] = [
     name: "Jordan",
     role: "Project Coordinator",
     icon: IconCalendar,
-    description: "Manages job scheduling, crew assignments, and project timelines.",
+    description:
+      "Manages job scheduling, crew assignments, and project timelines.",
     capabilities: [
       "Schedule jobs based on weather",
       "Coordinate crew availability",
       "Send appointment confirmations",
       "Track project progress"
     ],
-    activationPrompt: "You are Jordan, an AI Project Coordinator helping manage roofing projects...",
+    activationPrompt:
+      "You are Jordan, an AI Project Coordinator helping manage roofing projects...",
     requiredApps: ["google_calendar"],
     comingSoon: true
   },
@@ -373,14 +388,16 @@ const AI_EMPLOYEES: AIEmployee[] = [
     name: "Sam",
     role: "Estimator",
     icon: IconHome,
-    description: "Creates accurate roof estimates using satellite imagery and material pricing.",
+    description:
+      "Creates accurate roof estimates using satellite imagery and material pricing.",
     capabilities: [
       "Analyze roof from address",
       "Calculate material needs",
       "Generate detailed estimates",
       "Compare material options"
     ],
-    activationPrompt: "You are Sam, an AI Estimator that creates accurate roofing estimates...",
+    activationPrompt:
+      "You are Sam, an AI Estimator that creates accurate roofing estimates...",
     comingSoon: true
   },
   {
@@ -388,7 +405,8 @@ const AI_EMPLOYEES: AIEmployee[] = [
     name: "Riley",
     role: "Customer Service Rep",
     icon: IconMail,
-    description: "Handles customer inquiries, scheduling requests, and service follow-ups.",
+    description:
+      "Handles customer inquiries, scheduling requests, and service follow-ups.",
     capabilities: [
       "Respond to customer emails",
       "Schedule inspections",
@@ -401,8 +419,15 @@ const AI_EMPLOYEES: AIEmployee[] = [
   }
 ]
 
-function EmptyState({ onSendTask, onActivateEmployee, connectedApps, onConnectApps }: EmptyStateProps) {
-  const [selectedEmployee, setSelectedEmployee] = useState<AIEmployee | null>(null)
+function EmptyState({
+  onSendTask,
+  onActivateEmployee,
+  connectedApps,
+  onConnectApps
+}: EmptyStateProps) {
+  const [selectedEmployee, setSelectedEmployee] = useState<AIEmployee | null>(
+    null
+  )
 
   const handleActivateEmployee = (employee: AIEmployee) => {
     if (employee.comingSoon) return
@@ -410,7 +435,9 @@ function EmptyState({ onSendTask, onActivateEmployee, connectedApps, onConnectAp
     // Check if required apps are connected (only check if requiredApps is specified)
     if (employee.requiredApps && employee.requiredApps.length > 0) {
       const hasRequiredApps = employee.requiredApps.some(required =>
-        connectedApps.some(app => app.toLowerCase().includes(required.toLowerCase()))
+        connectedApps.some(app =>
+          app.toLowerCase().includes(required.toLowerCase())
+        )
       )
       if (!hasRequiredApps) {
         setSelectedEmployee(employee)
@@ -436,17 +463,22 @@ function EmptyState({ onSendTask, onActivateEmployee, connectedApps, onConnectAp
             Your AI Team
           </h2>
           <p className="text-muted-foreground mt-2">
-            Choose an AI employee to help with your roofing business. They work 24/7 and learn your preferences.
+            Choose an AI employee to help with your roofing business. They work
+            24/7 and learn your preferences.
           </p>
         </div>
 
         {/* AI Employee Cards */}
         <div className="mt-8 grid gap-4 sm:grid-cols-2">
-          {AI_EMPLOYEES.map((employee) => {
+          {AI_EMPLOYEES.map(employee => {
             const Icon = employee.icon
-            const hasRequiredApps = !employee.requiredApps || employee.requiredApps.some(required =>
-              connectedApps.some(app => app.toLowerCase().includes(required.toLowerCase()))
-            )
+            const hasRequiredApps =
+              !employee.requiredApps ||
+              employee.requiredApps.some(required =>
+                connectedApps.some(app =>
+                  app.toLowerCase().includes(required.toLowerCase())
+                )
+              )
 
             return (
               <div
@@ -457,7 +489,9 @@ function EmptyState({ onSendTask, onActivateEmployee, connectedApps, onConnectAp
                     ? "border-border bg-muted/30 opacity-60"
                     : "border-border bg-background hover:border-primary/50 cursor-pointer hover:shadow-md"
                 )}
-                onClick={() => !employee.comingSoon && handleActivateEmployee(employee)}
+                onClick={() =>
+                  !employee.comingSoon && handleActivateEmployee(employee)
+                }
               >
                 {employee.comingSoon && (
                   <div className="bg-muted text-muted-foreground absolute right-3 top-3 rounded-full px-2 py-0.5 text-xs font-medium">
@@ -466,20 +500,30 @@ function EmptyState({ onSendTask, onActivateEmployee, connectedApps, onConnectAp
                 )}
 
                 <div className="flex items-start gap-4">
-                  <div className={cn(
-                    "flex size-12 shrink-0 items-center justify-center rounded-xl",
-                    employee.comingSoon ? "bg-muted" : "bg-primary/10"
-                  )}>
-                    <Icon className={cn(
-                      "size-6",
-                      employee.comingSoon ? "text-muted-foreground" : "text-primary"
-                    )} />
+                  <div
+                    className={cn(
+                      "flex size-12 shrink-0 items-center justify-center rounded-xl",
+                      employee.comingSoon ? "bg-muted" : "bg-primary/10"
+                    )}
+                  >
+                    <Icon
+                      className={cn(
+                        "size-6",
+                        employee.comingSoon
+                          ? "text-muted-foreground"
+                          : "text-primary"
+                      )}
+                    />
                   </div>
 
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <h3 className="text-foreground font-semibold">{employee.name}</h3>
-                      <span className="text-muted-foreground text-sm">• {employee.role}</span>
+                      <h3 className="text-foreground font-semibold">
+                        {employee.name}
+                      </h3>
+                      <span className="text-muted-foreground text-sm">
+                        • {employee.role}
+                      </span>
                     </div>
                     <p className="text-muted-foreground mt-1 line-clamp-2 text-sm">
                       {employee.description}
@@ -503,12 +547,16 @@ function EmptyState({ onSendTask, onActivateEmployee, connectedApps, onConnectAp
                     </div>
 
                     {/* Required apps warning */}
-                    {!employee.comingSoon && employee.requiredApps && !hasRequiredApps && (
-                      <div className="mt-3 flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400">
-                        <IconPlugConnected className="size-3.5" />
-                        <span>Works best with {employee.requiredApps.join(", ")}</span>
-                      </div>
-                    )}
+                    {!employee.comingSoon &&
+                      employee.requiredApps &&
+                      !hasRequiredApps && (
+                        <div className="mt-3 flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400">
+                          <IconPlugConnected className="size-3.5" />
+                          <span>
+                            Works best with {employee.requiredApps.join(", ")}
+                          </span>
+                        </div>
+                      )}
                   </div>
                 </div>
 
@@ -516,7 +564,7 @@ function EmptyState({ onSendTask, onActivateEmployee, connectedApps, onConnectAp
                 {!employee.comingSoon && (
                   <div className="mt-4 flex justify-end">
                     <button
-                      onClick={(e) => {
+                      onClick={e => {
                         e.stopPropagation()
                         handleActivateEmployee(employee)
                       }}
@@ -538,9 +586,12 @@ function EmptyState({ onSendTask, onActivateEmployee, connectedApps, onConnectAp
             <div className="mx-auto flex size-10 items-center justify-center rounded-lg bg-amber-500/10">
               <IconPlugConnected className="size-5 text-amber-600 dark:text-amber-400" />
             </div>
-            <h3 className="text-foreground mt-3 font-medium">Connect Your Apps</h3>
+            <h3 className="text-foreground mt-3 font-medium">
+              Connect Your Apps
+            </h3>
             <p className="text-muted-foreground mt-1 text-sm">
-              Your AI employees work better with Gmail, Calendar, and other apps connected.
+              Your AI employees work better with Gmail, Calendar, and other apps
+              connected.
             </p>
             <button
               onClick={onConnectApps}
@@ -560,8 +611,10 @@ function EmptyState({ onSendTask, onActivateEmployee, connectedApps, onConnectAp
                 Connect Apps for {selectedEmployee.name}
               </h3>
               <p className="text-muted-foreground mt-2 text-sm">
-                {selectedEmployee.name} works best with {selectedEmployee.requiredApps.join(" and ")} connected.
-                You can still activate without these apps, but some features won&apos;t be available.
+                {selectedEmployee.name} works best with{" "}
+                {selectedEmployee.requiredApps.join(" and ")} connected. You can
+                still activate without these apps, but some features won&apos;t
+                be available.
               </p>
               <div className="mt-6 flex justify-end gap-3">
                 <button
@@ -608,15 +661,50 @@ interface ConnectAppsModalProps {
 }
 
 const AVAILABLE_APPS = [
-  { slug: "gmail", name: "Gmail", icon: IconBrandGmail, description: "Send and read emails" },
-  { slug: "google_calendar", name: "Google Calendar", icon: IconCalendar, description: "Manage events and schedules" },
-  { slug: "slack", name: "Slack", icon: IconBrandSlack, description: "Send messages to channels" },
-  { slug: "google_docs", name: "Google Docs", icon: IconBrandGoogle, description: "Create and edit documents" },
-  { slug: "google_sheets", name: "Google Sheets", icon: IconBrandGoogle, description: "Work with spreadsheets" }
+  {
+    slug: "gmail",
+    name: "Gmail",
+    icon: IconBrandGmail,
+    description: "Send and read emails"
+  },
+  {
+    slug: "google_calendar",
+    name: "Google Calendar",
+    icon: IconCalendar,
+    description: "Manage events and schedules"
+  },
+  {
+    slug: "slack",
+    name: "Slack",
+    icon: IconBrandSlack,
+    description: "Send messages to channels"
+  },
+  {
+    slug: "google_docs",
+    name: "Google Docs",
+    icon: IconBrandGoogle,
+    description: "Create and edit documents"
+  },
+  {
+    slug: "google_sheets",
+    name: "Google Sheets",
+    icon: IconBrandGoogle,
+    description: "Work with spreadsheets"
+  }
 ]
 
-function ConnectAppsModal({ connectedApps, isConnecting, onConnect, onRefresh, onClose, workspaceId, locale }: ConnectAppsModalProps) {
-  const connectedSlugs = new Set(connectedApps.filter(a => a.enabled).map(a => a.slug))
+function ConnectAppsModal({
+  connectedApps,
+  isConnecting,
+  onConnect,
+  onRefresh,
+  onClose,
+  workspaceId,
+  locale
+}: ConnectAppsModalProps) {
+  const connectedSlugs = new Set(
+    connectedApps.filter(a => a.enabled).map(a => a.slug)
+  )
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
@@ -624,7 +712,9 @@ function ConnectAppsModal({ connectedApps, isConnecting, onConnect, onRefresh, o
         {/* Header */}
         <div className="border-border flex items-center justify-between border-b px-6 py-4">
           <div>
-            <h2 className="text-foreground text-lg font-semibold">Connect Apps</h2>
+            <h2 className="text-foreground text-lg font-semibold">
+              Connect Apps
+            </h2>
             <p className="text-muted-foreground text-sm">
               Enable integrations to unlock more capabilities
             </p>
@@ -654,7 +744,9 @@ function ConnectAppsModal({ connectedApps, isConnecting, onConnect, onRefresh, o
                     </div>
                     <div>
                       <p className="text-foreground font-medium">{app.name}</p>
-                      <p className="text-muted-foreground text-sm">{app.description}</p>
+                      <p className="text-muted-foreground text-sm">
+                        {app.description}
+                      </p>
                     </div>
                   </div>
                   {isConnected ? (
@@ -713,7 +805,9 @@ function KeyboardShortcutsModal({ onClose }: { onClose: () => void }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <div className="border-border bg-background w-full max-w-sm rounded-xl border shadow-xl">
         <div className="border-border flex items-center justify-between border-b px-6 py-4">
-          <h2 className="text-foreground text-lg font-semibold">Keyboard Shortcuts</h2>
+          <h2 className="text-foreground text-lg font-semibold">
+            Keyboard Shortcuts
+          </h2>
           <button
             onClick={onClose}
             className="text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg p-2 transition-colors"
@@ -726,7 +820,9 @@ function KeyboardShortcutsModal({ onClose }: { onClose: () => void }) {
           <div className="space-y-3">
             {shortcuts.map((shortcut, i) => (
               <div key={i} className="flex items-center justify-between">
-                <span className="text-muted-foreground text-sm">{shortcut.description}</span>
+                <span className="text-muted-foreground text-sm">
+                  {shortcut.description}
+                </span>
                 <div className="flex items-center gap-1">
                   {shortcut.keys.map((key, j) => (
                     <span key={j}>
@@ -734,7 +830,9 @@ function KeyboardShortcutsModal({ onClose }: { onClose: () => void }) {
                         {key}
                       </kbd>
                       {j < shortcut.keys.length - 1 && (
-                        <span className="text-muted-foreground mx-1 text-xs">+</span>
+                        <span className="text-muted-foreground mx-1 text-xs">
+                          +
+                        </span>
                       )}
                     </span>
                   ))}
