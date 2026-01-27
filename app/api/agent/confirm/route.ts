@@ -10,6 +10,7 @@ import {
   MCPSessionManager,
   isPipedreamConfigured
 } from "@/lib/pipedream/mcp-session"
+import { executeBuiltinTool } from "@/app/api/agent/chat/route"
 
 export const runtime = "nodejs"
 export const maxDuration = 60
@@ -18,51 +19,6 @@ interface ConfirmRequest {
   session_id: string
   tool_call_id: string
   action: "confirm" | "cancel"
-}
-
-// Execute a built-in tool that requires confirmation
-async function executeConfirmedBuiltinTool(
-  toolName: string,
-  toolArgs: Record<string, any>
-): Promise<Record<string, any>> {
-  switch (toolName) {
-    case "send_email":
-      // This will be handled by MCP if available
-      return {
-        status: "info",
-        message:
-          "Email sending requires a connected email service. Please connect Gmail or Outlook in your settings.",
-        action_needed: "connect_email_service"
-      }
-
-    case "schedule_appointment":
-      return {
-        status: "info",
-        message:
-          "Calendar scheduling requires a connected calendar service. Please connect Google Calendar or Outlook in your settings.",
-        action_needed: "connect_calendar_service"
-      }
-
-    case "create_estimate":
-      // This can be done locally - generate an estimate document
-      return {
-        status: "success",
-        message: "Estimate created successfully",
-        estimate: {
-          customer: toolArgs.customer_name,
-          address: toolArgs.property_address,
-          roof_area: toolArgs.roof_area_sqft,
-          material: toolArgs.material_type,
-          created_at: new Date().toISOString()
-        }
-      }
-
-    default:
-      return {
-        status: "info",
-        message: `Action "${toolName}" confirmed but requires additional integration setup.`
-      }
-  }
 }
 
 export async function POST(request: NextRequest) {
@@ -206,8 +162,11 @@ export async function POST(request: NextRequest) {
           }
         }
       } else {
-        // Execute built-in tool
-        result = await executeConfirmedBuiltinTool(toolName, toolArgs)
+        // Execute built-in tool with workspace context
+        result = await executeBuiltinTool(toolName, toolArgs, {
+          workspaceId: session.workspace_id,
+          userId: user.id
+        })
       }
 
       // Update tool execution as completed
