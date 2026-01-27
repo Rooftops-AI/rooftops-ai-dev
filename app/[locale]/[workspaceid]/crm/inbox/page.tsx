@@ -63,8 +63,7 @@ export default function InboxPage() {
         customerId: "c1",
         customerName: "John Smith",
         customerPhone: "+1 (303) 555-0101",
-        lastMessage:
-          "Thanks! When can you come out for the inspection?",
+        lastMessage: "Thanks! When can you come out for the inspection?",
         lastMessageAt: new Date(Date.now() - 15 * 60000).toISOString(),
         lastMessageType: "sms",
         unreadCount: 2,
@@ -122,7 +121,8 @@ export default function InboxPage() {
         conversationId: conversation.id,
         direction: "inbound",
         channel: "sms",
-        content: "Hi, I got a flyer about your roofing services. We had some hail damage recently.",
+        content:
+          "Hi, I got a flyer about your roofing services. We had some hail damage recently.",
         status: "read",
         isAI: false,
         createdAt: new Date(Date.now() - 2 * 3600000).toISOString()
@@ -132,7 +132,8 @@ export default function InboxPage() {
         conversationId: conversation.id,
         direction: "outbound",
         channel: "sms",
-        content: "Hi! Thanks for reaching out to ABC Roofing. I'm sorry to hear about the hail damage. We'd be happy to come out for a free inspection. What address is the property at?",
+        content:
+          "Hi! Thanks for reaching out to ABC Roofing. I'm sorry to hear about the hail damage. We'd be happy to come out for a free inspection. What address is the property at?",
         status: "delivered",
         isAI: true,
         createdAt: new Date(Date.now() - 2 * 3600000 + 30000).toISOString()
@@ -152,7 +153,8 @@ export default function InboxPage() {
         conversationId: conversation.id,
         direction: "outbound",
         channel: "sms",
-        content: "Perfect! I have availability tomorrow at 10am or 2pm, or Thursday anytime after noon. Which works best for you?",
+        content:
+          "Perfect! I have availability tomorrow at 10am or 2pm, or Thursday anytime after noon. Which works best for you?",
         status: "delivered",
         isAI: true,
         createdAt: new Date(Date.now() - 85 * 60000).toISOString()
@@ -307,7 +309,7 @@ export default function InboxPage() {
                     </span>
                   )}
                 </div>
-                <div className="flex-1 min-w-0">
+                <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between">
                     <span className="font-medium text-gray-900">
                       {conversation.customerName}
@@ -464,7 +466,7 @@ export default function InboxPage() {
                 </button>
               </div>
               <p className="mt-2 text-xs text-gray-400">
-                Messages are sent via SMS to the customer's phone number
+                Messages are sent via SMS to the customer&apos;s phone number
               </p>
             </div>
           </>

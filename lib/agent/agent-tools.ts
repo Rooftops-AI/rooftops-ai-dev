@@ -292,6 +292,193 @@ export const BUILTIN_AGENT_TOOLS: AgentTool[] = [
     },
     requiresConfirmation: false
   },
+  {
+    name: "create_customer",
+    description:
+      "Create a new customer/lead in the CRM. Use this when the user asks you to add a new lead or customer.",
+    category: "crm",
+    parameters: {
+      type: "object",
+      properties: {
+        name: {
+          type: "string",
+          description: "Customer's full name"
+        },
+        phone: {
+          type: "string",
+          description: "Phone number"
+        },
+        email: {
+          type: "string",
+          description: "Email address"
+        },
+        address: {
+          type: "string",
+          description: "Street address"
+        },
+        city: {
+          type: "string",
+          description: "City"
+        },
+        state: {
+          type: "string",
+          description: "State (2-letter code)"
+        },
+        zip: {
+          type: "string",
+          description: "ZIP code"
+        },
+        source: {
+          type: "string",
+          enum: [
+            "web_form",
+            "referral",
+            "home_advisor",
+            "angi",
+            "storm_lead",
+            "door_knock",
+            "cold_call",
+            "google",
+            "facebook",
+            "other"
+          ],
+          description: "How did the lead come in?"
+        },
+        notes: {
+          type: "string",
+          description: "Additional notes about the customer"
+        },
+        tags: {
+          type: "array",
+          items: { type: "string" },
+          description:
+            "Tags for categorization (e.g., 'urgent', 'insurance', 'commercial')"
+        }
+      },
+      required: ["name"]
+    },
+    requiresConfirmation: true
+  },
+  {
+    name: "create_job",
+    description:
+      "Create a new job/project for a customer. Use this when scheduling work or creating an estimate.",
+    category: "crm",
+    parameters: {
+      type: "object",
+      properties: {
+        customer_id: {
+          type: "string",
+          description: "Customer ID (required - search for customer first)"
+        },
+        title: {
+          type: "string",
+          description: "Job title (e.g., 'Roof Replacement', 'Inspection')"
+        },
+        address: {
+          type: "string",
+          description: "Job address (if different from customer address)"
+        },
+        city: {
+          type: "string",
+          description: "City"
+        },
+        state: {
+          type: "string",
+          description: "State"
+        },
+        zip: {
+          type: "string",
+          description: "ZIP code"
+        },
+        job_type: {
+          type: "string",
+          enum: [
+            "roof_replacement",
+            "roof_repair",
+            "inspection",
+            "maintenance",
+            "gutters",
+            "siding",
+            "windows",
+            "solar",
+            "insurance_claim",
+            "other"
+          ],
+          description: "Type of job"
+        },
+        status: {
+          type: "string",
+          enum: [
+            "lead",
+            "estimate_scheduled",
+            "estimate_sent",
+            "negotiating",
+            "sold",
+            "scheduled",
+            "in_progress",
+            "complete"
+          ],
+          default: "lead",
+          description: "Initial job status"
+        },
+        estimated_cost: {
+          type: "number",
+          description: "Estimated cost in dollars"
+        },
+        scheduled_date: {
+          type: "string",
+          description: "Scheduled date (YYYY-MM-DD)"
+        },
+        notes: {
+          type: "string",
+          description: "Job notes"
+        },
+        is_insurance_claim: {
+          type: "boolean",
+          description: "Is this an insurance claim?"
+        }
+      },
+      required: ["customer_id", "title"]
+    },
+    requiresConfirmation: true
+  },
+  {
+    name: "update_job_status",
+    description:
+      "Update the status of an existing job. Use this to move jobs through the pipeline.",
+    category: "crm",
+    parameters: {
+      type: "object",
+      properties: {
+        job_id: {
+          type: "string",
+          description: "Job ID to update"
+        },
+        status: {
+          type: "string",
+          enum: [
+            "lead",
+            "estimate_scheduled",
+            "estimate_sent",
+            "negotiating",
+            "sold",
+            "materials_ordered",
+            "scheduled",
+            "in_progress",
+            "complete",
+            "invoiced",
+            "paid",
+            "cancelled",
+            "on_hold"
+          ],
+          description: "New job status"
+        }
+      },
+      required: ["job_id", "status"]
+    },
+    requiresConfirmation: true
+  },
 
   // Property Analysis Tools
   {

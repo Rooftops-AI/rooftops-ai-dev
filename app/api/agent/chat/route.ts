@@ -579,8 +579,11 @@ export async function POST(request: NextRequest) {
                 }
               }
             } else {
-              // Execute built-in tool
-              result = await executeBuiltinTool(toolName, toolArgs)
+              // Execute built-in tool with workspace context
+              result = await executeBuiltinTool(toolName, toolArgs, {
+                workspaceId: session.workspace_id,
+                userId: user.id
+              })
             }
 
             toolCallRecord.status = "completed"
@@ -791,7 +794,8 @@ function adjustColor(hex: string, percent: number): string {
 // Execute built-in tools - exported for streaming route
 export async function executeBuiltinTool(
   toolName: string,
-  args: Record<string, unknown>
+  args: Record<string, unknown>,
+  context?: { workspaceId?: string; userId?: string }
 ): Promise<Record<string, unknown>> {
   try {
     switch (toolName) {
@@ -1015,22 +1019,340 @@ export async function executeBuiltinTool(
           message: "Email draft created. Review and confirm before sending."
         }
 
-      case "search_customers":
-        return {
-          status: "info",
-          query: args.query,
-          results: [],
-          message:
-            "CRM integration is pending. Customer data will be available once connected to your CRM system."
+      case "search_customers": {
+        const searchQuery = args.query as string
+        const workspaceId = context?.workspaceId
+
+        if (!workspaceId) {
+          return {
+            status: "error",
+            message:
+              "No workspace connected. Please access the agent from within a workspace."
+          }
         }
 
-      case "search_jobs":
-        return {
-          status: "info",
-          results: [],
-          message:
-            "Job management integration is pending. Job data will be available once connected to your job management system."
+        try {
+          // Import CRM functions
+          const { listCustomers, searchCustomers } = await import(
+            "@/lib/crm/customers"
+          )
+
+          let customers
+          if (searchQuery && searchQuery.trim()) {
+            customers = await searchCustomers(workspaceId, searchQuery, 10)
+          } else {
+            const result = await listCustomers(
+              workspaceId,
+              {},
+              { page: 1, pageSize: 10 }
+            )
+            customers = result.customers
+          }
+
+          if (customers.length === 0) {
+            return {
+              status: "success",
+              query: searchQuery,
+              results: [],
+              message: searchQuery
+                ? `No customers found matching "${searchQuery}".`
+                : "No customers in the CRM yet."
+            }
+          }
+
+          return {
+            status: "success",
+            query: searchQuery,
+            results: customers.map((c: any) => ({
+              id: c.id,
+              name: c.name,
+              phone: c.phone,
+              email: c.email,
+              address: [c.address, c.city, c.state].filter(Boolean).join(", "),
+              status: c.status,
+              source: c.source,
+              tags: c.tags
+            })),
+            count: customers.length,
+            message: `Found ${customers.length} customer(s)${searchQuery ? ` matching "${searchQuery}"` : ""}.`
+          }
+        } catch (error) {
+          console.error("[Agent] CRM search error:", error)
+          return {
+            status: "error",
+            query: searchQuery,
+            message: "Failed to search customers. Please try again."
+          }
         }
+      }
+
+      case "get_customer_details": {
+        const customerId = args.customer_id as string
+        const workspaceId = context?.workspaceId
+
+        if (!workspaceId) {
+          return {
+            status: "error",
+            message: "No workspace connected."
+          }
+        }
+
+        try {
+          const { getCustomer } = await import("@/lib/crm/customers")
+          const { getJobsForCustomer } = await import("@/lib/crm/jobs")
+
+          const customer = await getCustomer(customerId)
+          if (!customer) {
+            return {
+              status: "error",
+              message: "Customer not found."
+            }
+          }
+
+          // Also get their jobs
+          const jobs = await getJobsForCustomer(customerId)
+
+          return {
+            status: "success",
+            customer: {
+              id: customer.id,
+              name: customer.name,
+              phone: customer.phone,
+              email: customer.email,
+              secondaryPhone: customer.secondaryPhone,
+              address: customer.address,
+              city: customer.city,
+              state: customer.state,
+              zip: customer.zip,
+              status: customer.status,
+              source: customer.source,
+              tags: customer.tags,
+              notes: customer.notes,
+              propertyType: customer.propertyType,
+              preferredContactMethod: customer.preferredContactMethod,
+              doNotCall: customer.doNotCall,
+              doNotText: customer.doNotText,
+              doNotEmail: customer.doNotEmail,
+              createdAt: customer.createdAt
+            },
+            jobs: jobs.map((j: any) => ({
+              id: j.id,
+              title: j.title,
+              status: j.status,
+              jobType: j.jobType,
+              estimatedCost: j.estimatedCost,
+              scheduledDate: j.scheduledDate
+            })),
+            jobCount: jobs.length,
+            message: `Found customer ${customer.name} with ${jobs.length} job(s).`
+          }
+        } catch (error) {
+          console.error("[Agent] Get customer error:", error)
+          return {
+            status: "error",
+            message: "Failed to get customer details."
+          }
+        }
+      }
+
+      case "search_jobs": {
+        const jobSearch = args.query as string
+        const statusFilter = args.status as string | undefined
+        const workspaceId = context?.workspaceId
+
+        if (!workspaceId) {
+          return {
+            status: "error",
+            message: "No workspace connected."
+          }
+        }
+
+        try {
+          const { listJobs } = await import("@/lib/crm/jobs")
+
+          const filters: any = {}
+          if (jobSearch) filters.search = jobSearch
+          if (statusFilter) filters.status = statusFilter
+
+          const result = await listJobs(workspaceId, filters, {
+            page: 1,
+            pageSize: 15
+          })
+
+          if (result.jobs.length === 0) {
+            return {
+              status: "success",
+              query: jobSearch,
+              results: [],
+              message: jobSearch
+                ? `No jobs found matching "${jobSearch}".`
+                : "No jobs in the system yet."
+            }
+          }
+
+          return {
+            status: "success",
+            query: jobSearch,
+            statusFilter,
+            results: result.jobs.map((j: any) => ({
+              id: j.id,
+              title: j.title,
+              jobNumber: j.jobNumber,
+              status: j.status,
+              jobType: j.jobType,
+              address: [j.address, j.city, j.state].filter(Boolean).join(", "),
+              estimatedCost: j.estimatedCost,
+              actualCost: j.actualCost,
+              scheduledDate: j.scheduledDate,
+              customerName: j.customer?.name,
+              crewName: j.crew?.name
+            })),
+            count: result.jobs.length,
+            total: result.total,
+            message: `Found ${result.jobs.length} job(s)${jobSearch ? ` matching "${jobSearch}"` : ""}${statusFilter ? ` with status "${statusFilter}"` : ""}.`
+          }
+        } catch (error) {
+          console.error("[Agent] Job search error:", error)
+          return {
+            status: "error",
+            message: "Failed to search jobs."
+          }
+        }
+      }
+
+      case "create_customer": {
+        const workspaceId = context?.workspaceId
+        if (!workspaceId) {
+          return { status: "error", message: "No workspace connected." }
+        }
+
+        try {
+          const { createCustomer } = await import("@/lib/crm/customers")
+
+          const customer = await createCustomer({
+            workspaceId,
+            name: args.name as string,
+            phone: args.phone as string | undefined,
+            email: args.email as string | undefined,
+            address: args.address as string | undefined,
+            city: args.city as string | undefined,
+            state: args.state as string | undefined,
+            zip: args.zip as string | undefined,
+            source: args.source as any,
+            notes: args.notes as string | undefined,
+            tags: args.tags as string[] | undefined,
+            status: "lead"
+          })
+
+          if (!customer) {
+            return { status: "error", message: "Failed to create customer." }
+          }
+
+          return {
+            status: "success",
+            customer: {
+              id: customer.id,
+              name: customer.name,
+              phone: customer.phone,
+              email: customer.email,
+              address: [customer.address, customer.city, customer.state]
+                .filter(Boolean)
+                .join(", ")
+            },
+            message: `Created new customer: ${customer.name}`
+          }
+        } catch (error) {
+          console.error("[Agent] Create customer error:", error)
+          return { status: "error", message: "Failed to create customer." }
+        }
+      }
+
+      case "create_job": {
+        const workspaceId = context?.workspaceId
+        if (!workspaceId) {
+          return { status: "error", message: "No workspace connected." }
+        }
+
+        try {
+          const { createJob } = await import("@/lib/crm/jobs")
+
+          const scheduledDate = args.scheduled_date
+            ? new Date(args.scheduled_date as string)
+            : undefined
+
+          const job = await createJob({
+            workspaceId,
+            customerId: args.customer_id as string,
+            title: args.title as string,
+            address: args.address as string | undefined,
+            city: args.city as string | undefined,
+            state: args.state as string | undefined,
+            zip: args.zip as string | undefined,
+            jobType: args.job_type as any,
+            status: (args.status as any) || "lead",
+            estimatedCost: args.estimated_cost as number | undefined,
+            scheduledDate,
+            notes: args.notes as string | undefined,
+            isInsuranceClaim: args.is_insurance_claim as boolean | undefined
+          })
+
+          if (!job) {
+            return { status: "error", message: "Failed to create job." }
+          }
+
+          return {
+            status: "success",
+            job: {
+              id: job.id,
+              title: job.title,
+              status: job.status,
+              jobType: job.jobType,
+              estimatedCost: job.estimatedCost
+            },
+            message: `Created new job: ${job.title}`
+          }
+        } catch (error) {
+          console.error("[Agent] Create job error:", error)
+          return { status: "error", message: "Failed to create job." }
+        }
+      }
+
+      case "update_job_status": {
+        const workspaceId = context?.workspaceId
+        if (!workspaceId) {
+          return { status: "error", message: "No workspace connected." }
+        }
+
+        try {
+          const { updateJobStatus, getJob } = await import("@/lib/crm/jobs")
+
+          const jobId = args.job_id as string
+          const newStatus = args.status as any
+
+          const success = await updateJobStatus(jobId, newStatus)
+
+          if (!success) {
+            return { status: "error", message: "Failed to update job status." }
+          }
+
+          const updatedJob = await getJob(jobId)
+
+          return {
+            status: "success",
+            job: updatedJob
+              ? {
+                  id: updatedJob.id,
+                  title: updatedJob.title,
+                  status: updatedJob.status
+                }
+              : null,
+            message: `Updated job status to: ${newStatus}`
+          }
+        } catch (error) {
+          console.error("[Agent] Update job status error:", error)
+          return { status: "error", message: "Failed to update job status." }
+        }
+      }
 
       case "check_calendar":
         return {
