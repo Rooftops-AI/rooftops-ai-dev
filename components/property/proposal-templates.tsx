@@ -446,7 +446,7 @@ export function ProposalTemplates({
                               <div className="h-1.5 rounded bg-white"></div>
                               <div className="h-1.5 rounded bg-gray-100"></div>
                             </div>
-                            <div className="mt-1 ml-auto h-4 w-16 rounded bg-blue-900"></div>
+                            <div className="ml-auto mt-1 h-4 w-16 rounded bg-blue-900"></div>
                           </div>
                         </div>
                       )}
@@ -498,7 +498,7 @@ export function ProposalTemplates({
                               <div className="h-1.5 rounded border border-gray-300"></div>
                               <div className="h-1.5 rounded border border-gray-300"></div>
                             </div>
-                            <div className="mt-1 ml-auto h-3 w-12 rounded bg-gray-800"></div>
+                            <div className="ml-auto mt-1 h-3 w-12 rounded bg-gray-800"></div>
                           </div>
                         </div>
                       )}

@@ -692,7 +692,7 @@ export default function LandingPage() {
                   </div>
 
                   {/* Right - AI Employee Cards */}
-                  <div className="flex flex-shrink-0 flex-col gap-3">
+                  <div className="flex shrink-0 flex-col gap-3">
                     {[
                       { name: "Marcus", role: "Sales", color: "bg-emerald-500" },
                       { name: "Aisha", role: "Marketing", color: "bg-pink-500" },
