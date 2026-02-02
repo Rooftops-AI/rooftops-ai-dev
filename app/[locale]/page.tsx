@@ -29,9 +29,13 @@ import {
   IconBrandInstagram,
   IconMail,
   IconCheck,
-  IconRocket
+  IconRocket,
+  IconShield,
+  IconLock,
+  IconUsers
 } from "@tabler/icons-react"
 import { createClient } from "@/lib/supabase/client"
+import { ExitIntentPopup } from "@/components/ui/exit-intent-popup"
 
 // Testimonials data for social proof
 const testimonials = [
@@ -119,6 +123,12 @@ export default function LandingPage() {
     router.push("/login")
   }
 
+  const handleLeadCapture = () => {
+    // Track lead capture event
+    console.log("Lead captured - redirecting to signup")
+    router.push("/login")
+  }
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     router.push("/login")
@@ -172,6 +182,24 @@ export default function LandingPage() {
       {/* Main Content */}
       <main className="flex flex-1 flex-col items-center px-4 pb-12 pt-6 sm:pt-10 md:px-6 md:pt-16 lg:pt-20">
         <div className="relative z-10 w-full max-w-5xl">
+          {/* Trust Badge - Above the fold */}
+          <div className="mb-6 flex flex-wrap items-center justify-center gap-4 text-xs text-gray-500 sm:text-sm">
+            <div className="flex items-center gap-1.5">
+              <IconUsers className="size-4 text-[#24BDEB]" />
+              <span>Join <strong className="text-gray-700">2,000+</strong> roofing pros</span>
+            </div>
+            <div className="hidden h-4 w-px bg-gray-300 sm:block" />
+            <div className="flex items-center gap-1.5">
+              <IconStar className="size-4 fill-yellow-400 text-yellow-400" />
+              <span><strong className="text-gray-700">4.9/5</strong> rating</span>
+            </div>
+            <div className="hidden h-4 w-px bg-gray-300 sm:block" />
+            <div className="flex items-center gap-1.5">
+              <IconShield className="size-4 text-green-500" />
+              <span>No credit card required</span>
+            </div>
+          </div>
+
           {/* Hero Heading with Shimmer Effect */}
           <div className="mb-6 text-center sm:mb-10 md:mb-14">
             <h1 className="animate-shimmer-text text-4xl leading-tight tracking-tight sm:text-5xl md:text-5xl lg:text-6xl">
@@ -182,20 +210,36 @@ export default function LandingPage() {
               proposals. Close deals faster while your competition is still
               measuring.
             </p>
-            <div className="mt-6 flex justify-center gap-3">
+            
+            {/* Urgency Banner */}
+            <div className="mx-auto mt-4 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-amber-100 to-orange-100 px-4 py-2 ring-1 ring-amber-200">
+              <span className="relative flex size-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75"></span>
+                <span className="relative inline-flex size-2 rounded-full bg-amber-500"></span>
+              </span>
+              <span className="text-sm font-medium text-amber-800">
+                🔥 <strong>47 spots</strong> left at current pricing
+              </span>
+            </div>
+
+            <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <button
                 onClick={handleRedirectToLogin}
-                className="rounded-lg bg-[#1A1A1A] px-5 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:bg-black"
+                className="w-full rounded-lg bg-[#1A1A1A] px-6 py-3 text-sm font-semibold text-white shadow-md transition-all hover:bg-black hover:shadow-lg sm:w-auto"
               >
-                Start Free Trial
+                Start Free Trial — 3 Days Free
               </button>
               <button
                 onClick={handleRedirectToLogin}
-                className="rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 transition-all hover:bg-gray-50"
+                className="w-full rounded-lg border border-gray-300 bg-white px-6 py-3 text-sm font-semibold text-gray-700 transition-all hover:bg-gray-50 sm:w-auto"
               >
-                Watch Demo
+                Watch Demo (2 min)
               </button>
             </div>
+            
+            <p className="mt-3 text-xs text-gray-400">
+              Trusted by roofing contractors nationwide · Cancel anytime
+            </p>
           </div>
 
           {/* Quantified Value Stats - Like Handoff */}
@@ -784,6 +828,19 @@ export default function LandingPage() {
           </div>
         </div>
       </main>
+
+      {/* Floating CTA - Sticky on scroll */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-gray-200 bg-white/95 p-3 shadow-lg backdrop-blur-sm sm:hidden">
+        <button
+          onClick={handleRedirectToLogin}
+          className="w-full rounded-lg bg-gradient-to-r from-[#24BDEB] to-[#4FEBBC] py-3 text-sm font-semibold text-white shadow-md"
+        >
+          Start Free Trial — 3 Days Free
+        </button>
+      </div>
+
+      {/* Exit Intent Popup */}
+      <ExitIntentPopup onSignup={handleLeadCapture} />
 
       {/* Footer */}
       <footer className="border-t border-gray-100 bg-white px-4 py-8">
