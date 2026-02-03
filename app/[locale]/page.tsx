@@ -222,19 +222,16 @@ export default function LandingPage() {
               </span>
             </div>
 
-            <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <div className="mt-6 flex flex-col items-center justify-center gap-3">
               <button
                 onClick={handleRedirectToLogin}
-                className="w-full rounded-lg bg-[#1A1A1A] px-6 py-3 text-sm font-semibold text-white shadow-md transition-all hover:bg-black hover:shadow-lg sm:w-auto"
+                className="w-full rounded-lg bg-[#1A1A1A] px-8 py-4 text-base font-semibold text-white shadow-lg transition-all hover:bg-black hover:shadow-xl sm:w-auto"
               >
-                Start Free Trial — 3 Days Free
+                Try It Free — No Credit Card Required
               </button>
-              <button
-                onClick={handleRedirectToLogin}
-                className="w-full rounded-lg border border-gray-300 bg-white px-6 py-3 text-sm font-semibold text-gray-700 transition-all hover:bg-gray-50 sm:w-auto"
-              >
-                Watch Demo (2 min)
-              </button>
+              <p className="text-sm text-gray-500">
+                Get 3 free roof reports instantly. See the AI in action on your own properties.
+              </p>
             </div>
             
             <p className="mt-3 text-xs text-gray-400">
