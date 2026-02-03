@@ -23,10 +23,7 @@ export async function POST(request: Request) {
       body: new URLSearchParams({
         "mode": "payment",
         "payment_method_types[]": "card",
-        "line_items[0][price_data][currency]": "usd",
-        "line_items[0][price_data][product_data][name]": "AI Consulting for Roofing Companies - 5 Week Program",
-        "line_items[0][price_data][product_data][description]": "1-on-1 AI consulting with Steele Billings. 5 weekly sessions + custom AI setup.",
-        "line_items[0][price_data][unit_amount]": "500000", // $5,000 in cents
+        "line_items[0][price]": "price_1SwX5xLa49gFMOt6KY7jBcsL",
         "line_items[0][quantity]": "1",
         "success_url": successUrl,
         "cancel_url": cancelUrl,
