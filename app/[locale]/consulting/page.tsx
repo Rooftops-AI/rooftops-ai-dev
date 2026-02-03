@@ -272,6 +272,45 @@ export default function ConsultingPage() {
         </div>
       </section>
 
+      {/* Lead Capture - Not Ready to Buy? */}
+      <section className="bg-gradient-to-r from-amber-50 to-orange-50 py-16">
+        <div className="mx-auto max-w-2xl px-4 text-center">
+          <h2 className="mb-3 text-2xl font-bold text-gray-900">
+            Not Ready to Book? Get the Free Guide
+          </h2>
+          <p className="mb-6 text-gray-600">
+            Download "The Roofing AI Playbook" — 27 pages on how AI is transforming roofing businesses. 
+            No email required for the first chapter.
+          </p>
+          
+          <form 
+            onSubmit={(e) => {
+              e.preventDefault()
+              // This would typically call an API to capture the lead
+              alert("Thanks! Check your email for the guide.")
+            }}
+            className="flex flex-col gap-3 sm:flex-row"
+          >
+            <input
+              type="email"
+              placeholder="Enter your email"
+              className="flex-1 rounded-lg border border-gray-200 px-4 py-3 outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
+              required
+            />
+            <button
+              type="submit"
+              className="rounded-lg bg-gradient-to-r from-cyan-500 to-green-500 px-6 py-3 font-semibold text-white shadow-md transition-all hover:shadow-lg"
+            >
+              Send Me the Playbook
+            </button>
+          </form>
+          
+          <p className="mt-3 text-xs text-gray-500">
+            We respect your privacy. Unsubscribe anytime.
+          </p>
+        </div>
+      </section>
+
       {/* Guarantee */}
       <section className="bg-gradient-to-r from-cyan-50 to-green-50 py-16">
         <div className="mx-auto max-w-4xl px-4 text-center">
