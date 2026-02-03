@@ -240,9 +240,6 @@ export default function ConsultingPage() {
                   <span className="text-5xl font-bold">$5,000</span>
                   <span className="text-gray-400">one-time</span>
                 </div>
-                <p className="mt-2 text-sm text-gray-400">
-                  Or split it: $2,500 now, $2,500 after week 3
-                </p>
               </div>
 
               <div className="mb-6 space-y-3 text-sm">
@@ -307,7 +304,7 @@ export default function ConsultingPage() {
           </button>
 
           <p className="mt-6 text-sm text-gray-500">
-            Questions? Email steele@rooftops.ai or call (901) 497-5044
+            Questions? Email sb@rooftops.ai
           </p>
         </div>
       </section>
