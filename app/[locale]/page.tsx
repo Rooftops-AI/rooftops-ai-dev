@@ -68,34 +68,29 @@ const testimonials = [
 export default function LandingPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<"chat" | "report">("chat")
   const [inputValue, setInputValue] = useState("")
   const [currentTestimonial, setCurrentTestimonial] = useState(0)
 
+  // Check auth in background without blocking render
   useEffect(() => {
-    // If there's a code parameter (from email verification), redirect to auth callback
-    const code = searchParams.get("code")
-    if (code) {
-      router.push(`/auth/callback?code=${code}`)
-      return
-    }
-
     const checkAuth = async () => {
+      const code = searchParams.get("code")
+      if (code) {
+        router.push(`/auth/callback?code=${code}`)
+        return
+      }
+
       const supabase = createClient()
-      const {
-        data: { session }
-      } = await supabase.auth.getSession()
+      const { data: { session } } = await supabase.auth.getSession()
 
       if (session) {
-        // Check if user has completed onboarding
         const { data: profile } = await supabase
           .from("profiles")
           .select("has_onboarded")
           .eq("user_id", session.user.id)
           .single()
 
-        // If user hasn't onboarded, send them to setup
         if (!profile || !profile.has_onboarded) {
           router.push("/setup")
           return
@@ -111,8 +106,6 @@ export default function LandingPage() {
         if (homeWorkspace) {
           router.push(`/${homeWorkspace.id}/chat`)
         }
-      } else {
-        setIsLoading(false)
       }
     }
 
@@ -124,25 +117,12 @@ export default function LandingPage() {
   }
 
   const handleLeadCapture = () => {
-    // Track lead capture event
-    console.log("Lead captured - redirecting to signup")
     router.push("/login")
   }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     router.push("/login")
-  }
-
-  if (isLoading) {
-    return (
-      <div className="flex min-h-full w-full items-center justify-center bg-[#FAFAFA]">
-        <div className="flex flex-col items-center gap-4">
-          <div className="size-8 animate-spin rounded-full border-4 border-gray-300 border-t-[#24BDEB]"></div>
-          <p className="text-gray-500">Loading...</p>
-        </div>
-      </div>
-    )
   }
 
   return (
