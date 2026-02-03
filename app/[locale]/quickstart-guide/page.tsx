@@ -4,153 +4,133 @@ import { useState } from "react"
 import Image from "next/image"
 import { 
   IconCheck, 
-  IconHome, 
-  IconCalculator, 
+  IconDownload,
+  IconHome,
+  IconCalculator,
   IconFileText,
   IconRobot,
-  IconMail,
-  IconPhone,
-  IconTrendingUp,
   IconTarget,
-  IconClock,
-  IconArrowRight,
-  IconDownload,
-  IconPrinter
+  IconTrendingUp,
+  IconMail,
+  IconCalendar
 } from "@tabler/icons-react"
 
 export default function QuickstartGuidePage() {
-  const [completedDays, setCompletedDays] = useState<number[]>([])
-
-  const toggleDay = (day: number) => {
-    setCompletedDays(prev => 
-      prev.includes(day) 
-        ? prev.filter(d => d !== day)
-        : [...prev, day]
-    )
-  }
+  const [activeDay, setActiveDay] = useState(1)
 
   const days = [
     {
       day: 1,
-      title: "Set Up Your AI Command Center",
+      title: "Your First AI Roof Report",
       icon: IconHome,
-      color: "cyan",
-      duration: "30 minutes",
+      description: "Get your first property analysis in under 2 minutes",
       tasks: [
-        "Create your Rooftops AI account",
-        "Complete your company profile",
-        "Add your logo and branding",
-        "Set your default pricing (materials, labor rates)",
-        "Connect your email for AI follow-ups"
+        "Sign up for your free Rooftops AI account",
+        "Enter any property address in the search bar",
+        "Watch the AI analyze the roof from multiple satellite angles",
+        "Review your instant report: measurements, pitch, facets",
+        "Download the PDF to share with your team"
       ],
-      tip: "The more accurate your pricing setup, the better your AI estimates will be.",
-      action: "Start with 3 free roof reports on properties you know well."
+      proTip: "Try analyzing your own home first to get familiar with the interface. You'll be amazed at the detail the AI captures from satellite imagery.",
+      timeEstimate: "10 minutes"
     },
     {
       day: 2,
-      title: "Master Multi-Agent Roof Analysis",
-      icon: IconRobot,
-      color: "green",
-      duration: "45 minutes",
+      title: "AI-Powered Cost Estimating",
+      icon: IconCalculator,
+      description: "Build accurate estimates in minutes, not hours",
       tasks: [
-        "Learn how AI analyzes properties from multiple angles",
-        "Understand satellite imagery + drone data fusion",
-        "Review AI-generated measurements vs. manual measurements",
-        "Test on 5 different roof types (gable, hip, flat, etc.)",
-        "Check AI accuracy on properties you've recently measured"
+        "Take your Day 1 report and open the AI chat",
+        "Ask: 'Create a cost estimate for this roof replacement'",
+        "Input your local material and labor rates",
+        "Let the AI calculate total costs with waste factors",
+        "Save the estimate to your workspace"
       ],
-      tip: "Rooftops AI uses multiple AI agents that each analyze different aspects: roof geometry, damage detection, material identification, and solar potential.",
-      action: "Run reports on your last 3 completed jobs. Compare AI measurements to what you actually used."
+      proTip: "The AI learns your pricing patterns. The more estimates you create, the more accurate it gets for your specific market.",
+      timeEstimate: "15 minutes"
     },
     {
       day: 3,
-      title: "Generate Your First AI Estimates",
-      icon: IconCalculator,
-      color: "cyan",
-      duration: "60 minutes",
+      title: "Professional Proposals",
+      icon: IconFileText,
+      description: "Generate client-ready proposals with one click",
       tasks: [
-        "Enter your material costs and markups",
-        "Set up labor rates by crew type",
-        "Add overhead and profit margins",
-        "Generate 3 complete estimates using AI reports",
-        "Customize proposal templates with your branding"
+        "Select a completed estimate from Day 2",
+        "Click 'Generate Proposal' in the AI chat",
+        "Add your company branding and logo",
+        "Customize the scope of work section",
+        "Export as PDF and send to your first prospect"
       ],
-      tip: "AI estimates include material calculations, waste factors, and labor hours based on roof complexity.",
-      action: "Create an estimate for a current prospect and send it same-day."
+      proTip: "Proposals with satellite imagery and detailed measurements have 40% higher close rates than text-only quotes.",
+      timeEstimate: "10 minutes"
     },
     {
       day: 4,
-      title: "Deploy AI Sales Proposals",
-      icon: IconFileText,
-      color: "green",
-      duration: "45 minutes",
+      title: "Multi-Agent Property Analysis",
+      icon: IconRobot,
+      description: "See how AI analyzes properties from every angle",
       tasks: [
-        "Generate professional PDF proposals",
-        "Add before/after satellite imagery",
-        "Include material specifications",
-        "Set up automated follow-up sequences",
-        "Create proposal templates for different job types"
+        "Analyze 3 different property types: residential, commercial, multi-family",
+        "Compare how the AI detects different roof complexities",
+        "Test the solar potential analysis feature",
+        "Review damage detection on storm-affected roofs",
+        "Export comparison reports for your sales team"
       ],
-      tip: "Proposals with satellite imagery and AI analysis close 40% faster than text-only quotes.",
-      action: "Send your first AI-powered proposal to a hot lead today."
+      proTip: "The AI uses multiple computer vision models working together—one for measurements, one for materials, one for damage detection. This multi-agent approach is what makes it so accurate.",
+      timeEstimate: "20 minutes"
     },
     {
       day: 5,
-      title: "Activate AI Lead Follow-Up",
-      icon: IconMail,
-      color: "cyan",
-      duration: "30 minutes",
+      title: "AI Sales Assistant",
+      icon: IconTarget,
+      description: "Train your AI to handle sales conversations",
       tasks: [
-        "Set up AI email follow-up sequences",
-        "Create SMS follow-up templates",
-        "Configure response triggers",
-        "Test AI responses to common objections",
-        "Connect your CRM or calendar"
+        "Open Rooftops Chat and start a new conversation",
+        "Ask: 'Help me respond to a lead who wants a quote'",
+        "Share common objections you hear from prospects",
+        "Have the AI draft follow-up emails for recent estimates",
+        "Create email templates for different sales scenarios"
       ],
-      tip: "AI employees work 24/7. They never forget to follow up and respond in under 60 seconds.",
-      action: "Let AI handle follow-ups on 5 older leads. Watch the responses roll in."
+      proTip: "Feed the AI your best-performing sales emails. It will learn your voice and help you respond to leads in your style, but faster.",
+      timeEstimate: "15 minutes"
     },
     {
       day: 6,
-      title: "Build Custom AI Tools",
-      icon: IconRobot,
-      color: "green",
-      duration: "60 minutes",
+      title: "Marketing & Content Creation",
+      icon: IconTrendingUp,
+      description: "Use AI to generate marketing materials",
       tasks: [
-        "Create AI assistants for specific tasks",
-        "Build a 'Code Compliance Checker'",
-        "Set up a 'Material Alternatives' tool",
-        "Create 'Weather Impact Analyzer'",
-        "Train AI on your specific roofing terminology"
+        "Ask the AI to write a Facebook post about a recent project",
+        "Generate 5 blog post ideas for your website",
+        "Create email copy for a seasonal promotion",
+        "Draft a 'Why Choose Us' page for your website",
+        "Set up an automated follow-up sequence for cold leads"
       ],
-      tip: "You can build micro-apps with AI that do one thing really well. No coding required.",
-      action: "Build one custom AI tool your team will use daily."
+      proTip: "The AI can create content in your brand voice. Share examples of your best marketing materials and tell it to 'write in this style.'",
+      timeEstimate: "20 minutes"
     },
     {
       day: 7,
-      title: "Scale and Systematize",
-      icon: IconTrendingUp,
-      color: "cyan",
-      duration: "45 minutes",
+      title: "Building Your AI Workflow",
+      icon: IconCalendar,
+      description: "Integrate AI into your daily operations",
       tasks: [
-        "Review your week's metrics (time saved, deals closed)",
-        "Document your AI workflows",
-        "Train your team on the system",
-        "Set weekly AI usage goals",
-        "Plan your next AI enhancement"
+        "Map your current workflow: lead → estimate → proposal → close",
+        "Identify 3 repetitive tasks AI can handle for you",
+        "Set up automated report generation for new leads",
+        "Create templates for your most common roof types",
+        "Schedule a weekly 'AI power hour' to process reports"
       ],
-      tip: "The roofers seeing 10x ROI use AI for every property, every estimate, every follow-up.",
-      action: "Commit to using AI on 100% of new leads this week."
+      proTip: "The roofers seeing the biggest ROI use AI for the full workflow: instant reports → automated estimates → professional proposals → AI follow-ups. You're now ready to implement this.",
+      timeEstimate: "25 minutes"
     }
   ]
 
-  const progress = Math.round((completedDays.length / days.length) * 100)
-
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="border-b border-gray-200 bg-white">
-        <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-4">
+      <header className="border-b border-gray-100">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
           <Image
             src="/rooftops-logo-gr-black.png"
             alt="Rooftops AI"
@@ -158,205 +138,187 @@ export default function QuickstartGuidePage() {
             height={40}
             className="h-7 w-auto"
           />
-          <div className="text-sm text-gray-500">Free Resource</div>
+          <a 
+            href="/login" 
+            className="rounded-lg bg-[#1A1A1A] px-4 py-2 text-sm font-semibold text-white"
+          >
+            Start Free Trial
+          </a>
         </div>
       </header>
 
-      <main className="mx-auto max-w-4xl px-4 py-12">
-        {/* Hero */}
-        <div className="mb-12 text-center">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-cyan-100 to-green-100 px-4 py-2">
-            <IconClock className="size-4 text-cyan-600" />
-            <span className="text-sm font-medium text-cyan-700">7-Day Program</span>
+      {/* Hero */}
+      <section className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 py-16 text-white">
+        <div className="mx-auto max-w-4xl px-4 text-center">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-cyan-500/20 to-green-500/20 px-4 py-2 ring-1 ring-cyan-500/30">
+            <IconDownload className="size-4 text-cyan-400" />
+            <span className="text-sm font-medium text-cyan-300">Free Resource</span>
           </div>
           
-          <h1 className="mb-4 text-4xl font-bold text-gray-900">
-            The 7-Day Roofing AI Quick-Start Guide
+          <h1 className="mb-4 text-4xl font-bold leading-tight sm:text-5xl">
+            7-Day Roofing AI
+            <span className="block bg-gradient-to-r from-cyan-400 to-green-400 bg-clip-text text-transparent">
+              Quick-Start Guide
+            </span>
           </h1>
           
-          <p className="mx-auto max-w-2xl text-lg text-gray-600">
-            Transform your roofing business with AI in just one week. Follow this day-by-day 
-            guide to go from zero to AI-powered operations.
+          <p className="mx-auto mb-6 max-w-2xl text-lg text-gray-300">
+            Transform your roofing business with AI in just one week. 
+            No technical experience required.
           </p>
 
-          {/* Progress Bar */}
-          <div className="mx-auto mt-8 max-w-md">
-            <div className="mb-2 flex justify-between text-sm">
-              <span className="text-gray-600">Your Progress</span>
-              <span className="font-medium text-cyan-600">{progress}% Complete</span>
+          <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-gray-400">
+            <div className="flex items-center gap-2">
+              <IconCalendar className="size-4 text-cyan-400" />
+              <span>7 Days</span>
             </div>
-            <div className="h-3 overflow-hidden rounded-full bg-gray-200">
-              <div 
-                className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-green-500 transition-all duration-500"
-                style={{ width: `${progress}%` }}
-              />
+            <div className="flex items-center gap-2">
+              <IconCheck className="size-4 text-green-400" />
+              <span>1-2 Hours Total</span>
             </div>
-            <p className="mt-2 text-xs text-gray-500">
-              Check off days as you complete them to track your progress
-            </p>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <button 
-              onClick={() => window.print()}
-              className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-all hover:bg-gray-50"
-            >
-              <IconPrinter className="size-4" />
-              Print Guide
-            </button>
-            <a 
-              href="/login"
-              className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-cyan-500 to-green-500 px-6 py-2 text-sm font-semibold text-white shadow-md transition-all hover:shadow-lg"
-            >
-              Start Your Free Trial
-              <IconArrowRight className="size-4" />
-            </a>
+            <div className="flex items-center gap-2">
+              <IconHome className="size-4 text-cyan-400" />
+              <span>For Roofing Contractors</span>
+            </div>
           </div>
         </div>
+      </section>
 
-        {/* Quick Stats */}
-        <div className="mb-12 grid gap-4 sm:grid-cols-3">
-          <div className="rounded-xl bg-white p-6 text-center shadow-sm">
-            <div className="mb-1 text-3xl font-bold text-cyan-600">5+</div>
-            <div className="text-sm text-gray-600">Hours Saved Daily</div>
-          </div>
-          <div className="rounded-xl bg-white p-6 text-center shadow-sm">
-            <div className="mb-1 text-3xl font-bold text-green-600">40%</div>
-            <div className="text-sm text-gray-600">Faster Deal Closes</div>
-          </div>
-          <div className="rounded-xl bg-white p-6 text-center shadow-sm">
-            <div className="mb-1 text-3xl font-bold text-cyan-600">24/7</div>
-            <div className="text-sm text-gray-600">AI Working For You</div>
-          </div>
-        </div>
-
-        {/* Day Cards */}
-        <div className="space-y-6">
-          {days.map((day) => {
-            const Icon = day.icon
-            const isCompleted = completedDays.includes(day.day)
-            
-            return (
-              <div 
-                key={day.day}
-                className={`rounded-xl border bg-white p-6 shadow-sm transition-all ${
-                  isCompleted ? 'border-green-300 bg-green-50/30' : 'border-gray-200'
-                }`}
-              >
-                <div className="mb-4 flex items-start justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className={`flex size-12 items-center justify-center rounded-xl ${
-                      day.color === 'cyan' ? 'bg-cyan-100' : 'bg-green-100'
-                    }`}>
-                      <Icon className={`size-6 ${
-                        day.color === 'cyan' ? 'text-cyan-600' : 'text-green-600'
-                      }`} />
-                    </div>
-                    <div>
-                      <div className="text-sm font-medium text-gray-500">Day {day.day}</div>
-                      <h3 className="text-xl font-bold text-gray-900">{day.title}</h3>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-1 text-sm text-gray-500">
-                      <IconClock className="size-4" />
-                      {day.duration}
-                    </div>
+      {/* Main Content */}
+      <main className="mx-auto max-w-6xl px-4 py-12">
+        <div className="grid gap-8 lg:grid-cols-3">
+          {/* Sidebar Navigation */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+              <h2 className="mb-4 font-bold text-gray-900">Your 7-Day Journey</h2>
+              <nav className="space-y-1">
+                {days.map((day) => {
+                  const Icon = day.icon
+                  return (
                     <button
-                      onClick={() => toggleDay(day.day)}
-                      className={`flex size-8 items-center justify-center rounded-full transition-all ${
-                        isCompleted 
-                          ? 'bg-green-500 text-white' 
-                          : 'border-2 border-gray-300 text-gray-300 hover:border-cyan-500 hover:text-cyan-500'
+                      key={day.day}
+                      onClick={() => setActiveDay(day.day)}
+                      className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm transition-colors ${
+                        activeDay === day.day
+                          ? "bg-gradient-to-r from-cyan-50 to-green-50 text-gray-900"
+                          : "text-gray-600 hover:bg-gray-50"
                       }`}
                     >
-                      <IconCheck className="size-5" />
+                      <div className={`flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+                        activeDay === day.day
+                          ? "bg-gradient-to-r from-cyan-500 to-green-500 text-white"
+                          : "bg-gray-100 text-gray-600"
+                      }`}>
+                        {day.day}
+                      </div>
+                      <span className="font-medium">{day.title}</span>
                     </button>
-                  </div>
-                </div>
+                  )
+                })}
+              </nav>
 
-                <div className="space-y-4">
-                  <div>
-                    <h4 className="mb-2 font-semibold text-gray-900">Today's Tasks:</h4>
-                    <ul className="space-y-2">
+              <div className="mt-6 rounded-lg bg-gradient-to-r from-cyan-50 to-green-50 p-4">
+                <h3 className="mb-2 font-bold text-gray-900">Ready to Start?</h3>
+                <p className="mb-3 text-sm text-gray-600">
+                  Get 1 free roof report and access to all AI tools.
+                </p>
+                <a
+                  href="/login"
+                  className="block w-full rounded-lg bg-gradient-to-r from-cyan-500 to-green-500 py-2 text-center text-sm font-semibold text-white"
+                >
+                  Start Free Trial
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* Day Content */}
+          <div className="lg:col-span-2">
+            {days.map((day) => {
+              if (day.day !== activeDay) return null
+              const Icon = day.icon
+              
+              return (
+                <div key={day.day} className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                  <div className="mb-6 flex items-center gap-4">
+                    <div className="flex size-14 items-center justify-center rounded-xl bg-gradient-to-r from-cyan-500 to-green-500">
+                      <Icon className="size-7 text-white" />
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium text-cyan-600">Day {day.day}</div>
+                      <h2 className="text-2xl font-bold text-gray-900">{day.title}</h2>
+                    </div>
+                  </div>
+
+                  <p className="mb-6 text-lg text-gray-600">{day.description}</p>
+
+                  <div className="mb-6">
+                    <h3 className="mb-3 font-bold text-gray-900">Today's Tasks</h3>
+                    <ul className="space-y-3">
                       {day.tasks.map((task, idx) => (
-                        <li key={idx} className="flex items-start gap-2 text-gray-700">
-                          <span className="mt-1.5 size-1.5 rounded-full bg-cyan-500" />
-                          {task}
+                        <li key={idx} className="flex items-start gap-3">
+                          <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-green-100 mt-0.5">
+                            <IconCheck className="size-4 text-green-600" />
+                          </div>
+                          <span className="text-gray-700">{task}</span>
                         </li>
                       ))}
                     </ul>
                   </div>
 
-                  <div className="rounded-lg bg-amber-50 p-4">
-                    <div className="mb-1 font-semibold text-amber-800">💡 Pro Tip</div>
-                    <p className="text-sm text-amber-700">{day.tip}</p>
+                  <div className="mb-6 rounded-lg bg-gradient-to-r from-amber-50 to-orange-50 border-l-4 border-amber-400 p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="font-bold text-amber-800">💡 Pro Tip</span>
+                    </div>
+                    <p className="text-sm text-amber-800">{day.proTip}</p>
                   </div>
 
-                  <div className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-cyan-50 to-green-50 p-4">
-                    <IconTarget className="size-5 text-cyan-600" />
-                    <span className="font-medium text-cyan-800">Action Item:</span>
-                    <span className="text-cyan-700">{day.action}</span>
+                  <div className="flex items-center justify-between rounded-lg bg-gray-50 p-4">
+                    <div className="text-sm text-gray-600">
+                      <span className="font-medium">Time estimate:</span> {day.timeEstimate}
+                    </div>
+                    {day.day < 7 && (
+                      <button
+                        onClick={() => setActiveDay(day.day + 1)}
+                        className="text-sm font-semibold text-cyan-600 hover:text-cyan-700"
+                      >
+                        Next Day →
+                      </button>
+                    )}
                   </div>
                 </div>
-              </div>
-            )
-          })}
-        </div>
+              )
+            })}
 
-        {/* Completion Section */}
-        {progress === 100 && (
-          <div className="mt-12 rounded-2xl bg-gradient-to-r from-green-500 to-cyan-500 p-8 text-center text-white">
-            <div className="mb-4 text-5xl">🎉</div>
-            <h2 className="mb-2 text-2xl font-bold">Congratulations!</h2>
-            <p className="mb-6">
-              You've completed the 7-day AI transformation. Your roofing business is now 
-              equipped with cutting-edge AI tools.
-            </p>
-            <a 
-              href="/login"
-              className="inline-flex items-center gap-2 rounded-lg bg-white px-6 py-3 font-semibold text-cyan-600 shadow-lg transition-all hover:shadow-xl"
-            >
-              Upgrade to Premium
-              <IconArrowRight className="size-5" />
-            </a>
-          </div>
-        )}
-
-        {/* Resources */}
-        <div className="mt-12 rounded-xl border border-gray-200 bg-white p-6">
-          <h3 className="mb-4 text-lg font-bold text-gray-900">Additional Resources</h3>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <a href="/pricing" className="flex items-center gap-3 rounded-lg border border-gray-200 p-4 transition-all hover:border-cyan-500 hover:bg-cyan-50">
-              <div className="flex size-10 items-center justify-center rounded-lg bg-cyan-100">
-                <IconTrendingUp className="size-5 text-cyan-600" />
-              </div>
-              <div>
-                <div className="font-semibold text-gray-900">View Pricing</div>
-                <div className="text-sm text-gray-500">Choose the right plan for your business</div>
-              </div>
-            </a>
-            <a href="mailto:sb@rooftops.ai" className="flex items-center gap-3 rounded-lg border border-gray-200 p-4 transition-all hover:border-cyan-500 hover:bg-cyan-50">
-              <div className="flex size-10 items-center justify-center rounded-lg bg-green-100">
-                <IconMail className="size-5 text-green-600" />
-              </div>
-              <div>
-                <div className="font-semibold text-gray-900">Get Help</div>
-                <div className="text-sm text-gray-500">Email us with questions</div>
-              </div>
-            </a>
+            {/* CTA at bottom */}
+            <div className="mt-8 rounded-2xl bg-gradient-to-br from-gray-900 to-gray-800 p-8 text-center text-white">
+              <h3 className="mb-3 text-2xl font-bold">Ready to Transform Your Business?</h3>
+              <p className="mb-6 text-gray-300">
+                Join thousands of roofing contractors already using AI to win more jobs and work less.
+              </p>
+              <a
+                href="/login"
+                className="inline-block rounded-lg bg-gradient-to-r from-cyan-500 to-green-500 px-8 py-4 font-semibold text-white shadow-lg transition-all hover:shadow-xl"
+              >
+                Start Your Free Trial — 1 Report Free
+              </a>
+              <p className="mt-4 text-sm text-gray-400">
+                No credit card required · 3-day free trial available
+              </p>
+            </div>
           </div>
         </div>
+      </main>
 
-        {/* Footer */}
-        <footer className="mt-12 text-center text-sm text-gray-500">
-          <p>© 2024 Rooftops AI. Free resource for roofing contractors.</p>
+      {/* Footer */}
+      <footer className="border-t border-gray-100 py-8">
+        <div className="mx-auto max-w-4xl px-4 text-center text-sm text-gray-500">
+          <p>© 2024 Rooftops AI. Free guide for roofing contractors.</p>
           <p className="mt-2">
             Questions? Email sb@rooftops.ai
           </p>
-        </footer>
-      </main>
+        </div>
+      </footer>
     </div>
   )
 }

@@ -188,6 +188,17 @@ async function sendCouponEmail(toEmail: string): Promise<boolean> {
             </ul>
         </div>
         
+        <div style="background: #e8f4f8; padding: 20px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #24BDEB;">
+            <h3 style="margin-top: 0; color: #1A1A1A;">📚 New to AI?</h3>
+            <p style="margin-bottom: 15px; color: #555;">
+                Download our <strong>7-Day Roofing AI Quick-Start Guide</strong> — a free step-by-step 
+                playbook to transform your business with AI in just one week.
+            </p>
+            <a href="https://rooftops.ai/quickstart-guide" style="color: #24BDEB; font-weight: 600; text-decoration: none;">
+                Get the Free Guide →
+            </a>
+        </div>
+        
         <div style="text-align: center;">
             <a href="https://rooftops.ai/login" class="cta-button">Claim Your Free Month →</a>
         </div>
