@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { execSync } from "child_process"
 
 const GMAIL_USER = "steeleagentic@gmail.com"
 const GMAIL_APP_PASS = "hykthkubqorybvnb"
@@ -178,8 +179,6 @@ Submitted: ${new Date().toISOString()}`
       `--${boundary}--`
     ].join('\n')
 
-    const { execSync } = require('child_process')
-    
     const curlCommand = `echo '${emailContent.replace(/'/g, "'\"'\"'")}' | curl -s --url "smtps://smtp.gmail.com:465" \
       --ssl-reqd \
       --mail-from "${GMAIL_USER}" \
