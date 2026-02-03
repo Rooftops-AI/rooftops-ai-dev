@@ -132,12 +132,12 @@ export default function LandingPage() {
         <p className="text-sm text-amber-800">
           <span className="font-semibold">Legacy user?</span> Access the classic version at{" "}
           <a 
-            href="https://app.rooftops.ai" 
+            href="https://legacy.rooftops.ai" 
             className="font-semibold underline text-amber-700 hover:text-amber-900"
             target="_blank"
             rel="noopener noreferrer"
           >
-            app.rooftops.ai
+            legacy.rooftops.ai
           </a>
           {" "}·{" "}
           <a 
