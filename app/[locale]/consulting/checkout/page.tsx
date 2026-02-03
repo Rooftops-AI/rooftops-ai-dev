@@ -157,7 +157,7 @@ export default function ConsultingCheckoutPage() {
             </div>
 
             <div className="mt-4 text-center text-sm text-gray-500">
-              <p>Questions? Call (901) 497-5044</p>
+              <p>Questions? Email sb@rooftops.ai</p>
             </div>
           </div>
         </div>
