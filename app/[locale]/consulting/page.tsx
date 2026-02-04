@@ -141,13 +141,13 @@ export default function ConsultingPage() {
 
       {/* The Program */}
       <section className="bg-gray-50 py-16">
-        <div className="mx-auto max-w-6xl px-4">
+        <div className="mx-auto max-w-5xl px-4">
           <div className="mb-12 text-center">
             <h2 className="text-3xl font-bold text-gray-900">The 5-Week Transformation</h2>
             <p className="mt-3 text-gray-600">Each session builds on the last. By week 5, AI is running your business.</p>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-4 max-w-4xl mx-auto">
             {[
               {
                 week: "Week 1",
@@ -204,8 +204,8 @@ export default function ConsultingPage() {
 
       {/* What's Included */}
       <section className="py-16">
-        <div className="mx-auto max-w-6xl px-4">
-          <div className="grid gap-12 lg:grid-cols-2">
+        <div className="mx-auto max-w-5xl px-4">
+          <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
             <div>
               <h2 className="mb-6 text-3xl font-bold text-gray-900">Everything Included</h2>
               
@@ -274,7 +274,7 @@ export default function ConsultingPage() {
 
       {/* Lead Capture - Not Ready to Buy? */}
       <section className="bg-gradient-to-r from-amber-50 to-orange-50 py-16">
-        <div className="mx-auto max-w-2xl px-4 text-center">
+        <div className="mx-auto max-w-xl px-4 text-center">
           <h2 className="mb-3 text-2xl font-bold text-gray-900">
             Not Ready to Book? Get the Free Guide
           </h2>

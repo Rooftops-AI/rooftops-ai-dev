@@ -669,9 +669,25 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* AI Employees Coming Soon Section */}
-          <div className="mx-auto mt-20 w-full max-w-4xl px-4">
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-8 sm:p-12">
+          {/* AI Consulting Section - NEW */}
+          <div className="mx-auto mt-16 w-full max-w-4xl px-4">
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-cyan-600 via-cyan-700 to-teal-700 p-8 sm:p-12">
+              {/* Background decoration */}
+              <div className="absolute -right-20 -top-20 size-64 rounded-full bg-gradient-to-br from-white/10 to-white/5 blur-3xl" />
+              <div className="absolute -bottom-20 -left-20 size-64 rounded-full bg-gradient-to-br from-teal-400/20 to-cyan-400/20 blur-3xl" />
+
+              <div className="relative z-10 flex flex-col items-center gap-6 text-center sm:flex-row sm:items-start sm:text-left">
+                {/* Left Content */}
+                <div className="flex-1">
+                  <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-1.5 backdrop-blur-sm">
+                    <IconSparkles className="size-4 text-yellow-300" />
+                    <span className="text-sm font-semibold text-white">
+                      White-Glove Service
+                    </span>
+                  </div>
+
+                  <h2 className="text-2xl font-bold text-white sm:text-3xl">
+                    Want AI Fully Implemented in Your Business?{
               {/* Background decoration */}
               <div className="absolute -right-20 -top-20 size-64 rounded-full bg-gradient-to-br from-teal-500/20 to-cyan-500/20 blur-3xl" />
               <div className="absolute -bottom-20 -left-20 size-64 rounded-full bg-gradient-to-br from-violet-500/20 to-purple-500/20 blur-3xl" />
@@ -768,6 +784,77 @@ export default function LandingPage() {
                         <IconSparkles className="ml-auto size-4 text-yellow-400" />
                       </div>
                     ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* AI Consulting Section */}
+          <div className="mx-auto mt-16 w-full max-w-4xl px-4">
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-cyan-600 via-cyan-700 to-teal-700 p-8 sm:p-12">
+              {/* Background decoration */}
+              <div className="absolute -right-20 -top-20 size-64 rounded-full bg-gradient-to-br from-white/10 to-white/5 blur-3xl" />
+              <div className="absolute -bottom-20 -left-20 size-64 rounded-full bg-gradient-to-br from-teal-400/20 to-cyan-400/20 blur-3xl" />
+
+              <div className="relative z-10 flex flex-col items-center gap-6 text-center sm:flex-row sm:items-start sm:text-left">
+                {/* Left Content */}
+                <div className="flex-1">
+                  <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-1.5 backdrop-blur-sm">
+                    <IconSparkles className="size-4 text-yellow-300" />
+                    <span className="text-sm font-semibold text-white">
+                      White-Glove Service
+                    </span>
+                  </div>
+
+                  <h2 className="text-2xl font-bold text-white sm:text-3xl">
+                    Want AI Fully Implemented in Your Business?
+                  </h2>
+                  <p className="mt-3 text-cyan-100">
+                    Join our 5-week consulting program. 1-on-1 sessions with Steele to AI-enable your entire roofing operation.
+                  </p>
+
+                  <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-sm text-white/90 sm:justify-start">
+                    <div className="flex items-center gap-1.5">
+                      <IconCheck className="size-4 text-green-300" />
+                      <span>5 weekly sessions</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <IconCheck className="size-4 text-green-300" />
+                      <span>Custom AI setup</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <IconCheck className="size-4 text-green-300" />
+                      <span>20+ hrs/week saved</span>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row">
+                    <button
+                      onClick={() => router.push("/consulting")}
+                      className="rounded-lg bg-white px-6 py-3 font-semibold text-cyan-700 shadow-lg transition-all hover:bg-gray-100 hover:shadow-xl"
+                    >
+                      Learn About Consulting
+                    </button>
+                    <span className="text-sm text-white/80">
+                      Starting at $5,000
+                    </span>
+                  </div>
+                </div>
+
+                {/* Right - Stats */}
+                <div className="flex shrink-0 flex-col gap-3 sm:w-48">
+                  <div className="rounded-xl bg-white/10 p-4 text-center backdrop-blur-sm">
+                    <div className="text-2xl font-bold text-white">5</div>
+                    <div className="text-xs text-cyan-200">Weeks to AI-Enable</div>
+                  </div>
+                  <div className="rounded-xl bg-white/10 p-4 text-center backdrop-blur-sm">
+                    <div className="text-2xl font-bold text-white">4</div>
+                    <div className="text-xs text-cyan-200">Spots Per Month</div>
+                  </div>
+                  <div className="rounded-xl bg-white/10 p-4 text-center backdrop-blur-sm">
+                    <div className="text-2xl font-bold text-green-300">100%</div>
+                    <div className="text-xs text-cyan-200">Money-Back Guarantee</div>
                   </div>
                 </div>
               </div>
